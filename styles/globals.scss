@@ -1,0 +1,12 @@
+@font-face {
+  font-family: "DBHeavent";
+  src: url(/fonts/DBHeaventRounded.ttf) format("truetype");
+}
+
+html,
+body {
+  font-family: "DBHeavent", sans-serif;
+  font-size: 1.2rem;
+  padding: 0px;
+  margin: 0px;
+}
