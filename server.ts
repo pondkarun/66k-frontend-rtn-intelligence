@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import next from 'next';
+import apiRoutes from "./service/routes";
 import dotenv from 'dotenv';
 import config from './service/config'
 
@@ -16,7 +17,7 @@ app.prepare().then(() => {
 
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
-    // server.use("/api", apiRoutes);
+    server.use("/api", apiRoutes);
     server.all("*", (req, res) => {
         return handle(req, res);
     });
