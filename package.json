@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "nodemon server.ts",
     "build": "next build",
-    "start": "cross-env NODE_ENV=production node server.ts",
-    "production": "next build && cross-env NODE_ENV=production node server.js",
+    "start": "cross-env NODE_ENV=production ts-node server.ts",
+    "production": "next build && cross-env NODE_ENV=production ts-node server.ts",
     "lint": "next lint"
   },
   "dependencies": {
