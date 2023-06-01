@@ -14,7 +14,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <ConfigProvider theme={{
                 token: {
                     // colorPrimary: '#13A6FD',
-                    fontFamily: 'DBHeavent',
+                    fontFamily: 'MNPimai',
                     fontSize: 18
                 },
             }}>
