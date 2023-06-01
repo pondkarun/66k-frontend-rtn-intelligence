@@ -5,4 +5,4 @@ docker-push:
 	docker image push cmtttbrother/66k-rtn-intelligence
 
 docker-run:
-	docker run -d -p 4001:3100 cmtttbrother/66k-rtn-intelligence
+	docker run -d -p 7123:3100 cmtttbrother/66k-rtn-intelligence
