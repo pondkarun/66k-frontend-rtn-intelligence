@@ -1,9 +1,15 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { ConfigProvider } from 'antd';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 import 'antd/dist/reset.css';
 import '../styles/globals.scss';
+
+export const primary_color = "#E4B354"
+export const imgSrc = "/images/page/login/logo.png"
+export const version = publicRuntimeConfig?.version
 
 export default function App({ Component, pageProps }: AppProps) {
     return (
@@ -13,9 +19,9 @@ export default function App({ Component, pageProps }: AppProps) {
             </Head>
             <ConfigProvider theme={{
                 token: {
-                    // colorPrimary: '#13A6FD',
+                    colorPrimary: primary_color,
                     fontFamily: 'MNPimai',
-                    fontSize: 18
+                    fontSize: 21
                 },
             }}>
                 <Component {...pageProps} />
