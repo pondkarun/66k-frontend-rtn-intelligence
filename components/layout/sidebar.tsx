@@ -104,8 +104,12 @@ const SidebarLayoutComponents = () => {
     const Flag = styled("img")`
         width: ${!collapsed ? 40 : 30}px;
         margin-right: 10px;
-    
-        `
+        ${collapsed ? `
+            margin: 6px 0 0 -3px !important;
+            font-size: 24px !important;
+            line-height: 40px !important;`
+        : ``}
+    `
     const getName = (name: string, value?: number | null) => {
         return (
             <Space>

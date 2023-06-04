@@ -20,10 +20,10 @@ const LayoutComponents = ({ children }: Props) => {
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Sidebar />
-            <Layout>
+            <Layout style={{ background: "#EAEAEA" }}>
                 <Navbar />
+                <BreadcrumbLayoutComponents />
                 <Content style={{ margin: '0 16px' }}>
-                    <BreadcrumbLayoutComponents />
                     <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                         {children}
                     </div>
