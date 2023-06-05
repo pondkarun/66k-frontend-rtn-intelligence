@@ -5,15 +5,10 @@ import styled from "styled-components";
 import { Cookies } from 'react-cookie';
 import { Layout, Button, Form, Input, message, ConfigProvider } from "antd";
 import { LockOutlined, UnlockOutlined, UserOutlined } from "@ant-design/icons";
-import getConfig from 'next/config';
+import { imgSrc, primary_color } from "./_app";
 
-const { publicRuntimeConfig } = getConfig();
 
-export const imgSrc = "/images/page/login/logo.png"
-export const version = publicRuntimeConfig?.version
-const primary_color = "#E4B354"
-
-export const Wrapper = styled(Layout.Content)`
+const Wrapper = styled(Layout.Content)`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -195,50 +190,43 @@ const LoginPage = () => {
     }
 
     return (
-        <ConfigProvider theme={{
-            token: {
-                colorPrimary: '#E4B354',
-            },
-        }}>
-            <Wrapper>
-                <Head>
-                    <title>เข้าสู่ระบบ</title>
-                </Head>
+        <Wrapper>
+            <Head>
+                <title>เข้าสู่ระบบ</title>
+            </Head>
 
-                <Card>
-                    <Logo>
-                        <img src={imgSrc} />
-                    </Logo>
-                    <FormLogin
-                        name="login"
-                        style={{ marginTop: "25px" }}
-                        initialValues={{ remember: true }}
-                        onFinish={onFinish}
-                        autoComplete="off"
+            <Card>
+                <Logo>
+                    <img src={imgSrc} />
+                </Logo>
+                <FormLogin
+                    name="login"
+                    style={{ marginTop: "25px" }}
+                    onFinish={onFinish}
+                    autoComplete="off"
+                >
+                    <Form.Item
+                        validateStatus={isError.username?.validateStatus}
+                        help={isError.username?.help}
+                        name="username"
                     >
-                        <Form.Item
-                            validateStatus={isError.username?.validateStatus}
-                            help={isError.username?.help}
-                            name="username"
-                        >
-                            <Input size="large" placeholder="ชื่อผู้ใช้งาน" prefix={<UserOutlined />} />
-                        </Form.Item>
-                        <Form.Item
-                            validateStatus={isError.password?.validateStatus}
-                            help={isError.password?.help}
-                            name="password"
-                        >
-                            <Input.Password size="large" placeholder="รหัสผ่าน" prefix={<UnlockOutlined />} />
-                        </Form.Item>
-                        <Form.Item>
-                            <ButtonLogin size="large" type="primary" htmlType="submit" style={{ width: "100%" }}>
-                                เข้าสู่ระบบ
-                            </ButtonLogin>
-                        </Form.Item>
-                    </FormLogin>
-                </Card>
-            </Wrapper>
-        </ConfigProvider>
+                        <Input size="large" placeholder="ชื่อผู้ใช้งาน" prefix={<UserOutlined />} />
+                    </Form.Item>
+                    <Form.Item
+                        validateStatus={isError.password?.validateStatus}
+                        help={isError.password?.help}
+                        name="password"
+                    >
+                        <Input.Password size="large" placeholder="รหัสผ่าน" prefix={<UnlockOutlined />} />
+                    </Form.Item>
+                    <Form.Item>
+                        <ButtonLogin size="large" type="primary" htmlType="submit" style={{ width: "100%" }}>
+                            เข้าสู่ระบบ
+                        </ButtonLogin>
+                    </Form.Item>
+                </FormLogin>
+            </Card>
+        </Wrapper>
     )
 }
 
