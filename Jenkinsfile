@@ -13,8 +13,6 @@ pipeline {
                 }
             }
         }
-    }
-    stages {
         stage('Deploy') {
             steps{
                 script{
