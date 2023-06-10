@@ -18,7 +18,8 @@ pipeline {
         stage('Deploy') {
             steps{
                 script{
-                    sh "docker run -d -p 7123:3100 cmtttbrother/66k-rtn-intelligence:" + params.VERSION
+                    PORT="3100"
+                    sh "docker run -d -e PORT=${PORT} -p 7123:${PORT} cmtttbrother/66k-rtn-intelligence:" + params.VERSION
                     cleanWs()
                 }
             }
