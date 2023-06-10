@@ -14,4 +14,14 @@ pipeline {
             }
         }
     }
+    stages {
+        stage('Deploy') {
+            steps{
+                script{
+                    sh "docker run -d -p 7123:3100 cmtttbrother/66k-rtn-intelligence:$VERSION"
+                    cleanWs()
+                }
+            }
+        }
+    }
 }
