@@ -1,7 +1,7 @@
 pipeline {
     agent any
     parameters {
-        String(defaultValue: '', description: '', name: 'VERSION', trim: true)
+        string(name: 'VERSION', trim: true)
     }
     stages {
         stage('Build & Push') {
