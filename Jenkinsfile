@@ -1,11 +1,10 @@
 pipeline {
-    agent any
+    agent { label "dev1"}
     parameters {
         string(name: 'VERSION', trim: true)
     }
     stages {
         stage('Build & Push') {
-            agent { label "dev1"}
             steps{
                 script{
                     cleanWs()
