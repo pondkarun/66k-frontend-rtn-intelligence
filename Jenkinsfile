@@ -8,7 +8,7 @@ pipeline {
             steps{
                 script{
                     cleanWs()
-                        docker=docker.build(image, " --build-arg --no-cache --pull --force-rm -f Dockerfile .")
+                        docker=docker.build("cmtttbrother/66k-rtn-intelligence", " --build-arg --no-cache --pull --force-rm -f Dockerfile .")
                         docker.push("${VERSION}")
                     cleanWs()
                 }
