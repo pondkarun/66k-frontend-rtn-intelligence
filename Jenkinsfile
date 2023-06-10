@@ -1,3 +1,3 @@
-@Library('lib') _​
+@Library('lib@main') _​
 
 build()
