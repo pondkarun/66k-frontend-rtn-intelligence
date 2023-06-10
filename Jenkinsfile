@@ -8,7 +8,7 @@ pipeline {
             steps{
                 script{
                     docker=docker.build("cmtttbrother/66k-rtn-intelligence", "--platform linux/amd64 --build-arg --no-cache --pull --force-rm -f Dockerfile .")
-                    docker.push("${VERSION}")
+                    docker.push(params.VERSION)
                     cleanWs()
                 }
             }
@@ -16,7 +16,7 @@ pipeline {
         stage('Deploy') {
             steps{
                 script{
-                    sh "docker run -d -p 7123:3100 cmtttbrother/66k-rtn-intelligence:$VERSION"
+                    sh "docker run -d -p 7123:3100 cmtttbrother/66k-rtn-intelligence:" + params.VERSION
                     cleanWs()
                 }
             }
