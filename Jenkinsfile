@@ -7,9 +7,8 @@ pipeline {
         stage('Build & Push') {
             steps{
                 script{
-                    cleanWs()
-                        docker=docker.build("cmtttbrother/66k-rtn-intelligence", " --build-arg --no-cache --pull --force-rm -f Dockerfile .")
-                        docker.push("${VERSION}")
+                    docker=docker.build("cmtttbrother/66k-rtn-intelligence", "--platform linux/amd64 --build-arg --no-cache --pull --force-rm -f Dockerfile .")
+                    docker.push("${VERSION}")
                     cleanWs()
                 }
             }
