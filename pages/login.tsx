@@ -173,10 +173,9 @@ const LoginPage = () => {
                 });
             } else {
                 setIsError({});
-                Router.push('/');
                 // console.log('data', data)
-                // cookies.set("allkons_access_token", data.allkons_access_token, { path: "/" });
-                // cookies.set("allkons_refresh_token", data.allkons_refresh_token, { path: "/" });
+                // cookies.set("access_token", data.allkons_access_token, { path: "/" });
+                // cookies.set("refresh_token", data.allkons_refresh_token, { path: "/" });
                 // Router.push('/');
             }
         } catch (error) {

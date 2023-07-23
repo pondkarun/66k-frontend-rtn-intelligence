@@ -1,11 +1,13 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import next from 'next';
-import apiRoutes from "./service/routes";
 import dotenv from 'dotenv';
-import config from './service/config'
-
 dotenv.config();
+
+const config = {
+    NODE_ENV: process.env.NODE_ENV || "development",
+    PORT: process.env.PORT,
+};
 
 const port = parseInt(`${config.PORT}`, 10) || 3000;
 const dev = config.NODE_ENV !== "production";
@@ -17,7 +19,6 @@ app.prepare().then(() => {
 
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
-    server.use("/api", apiRoutes);
     server.all("*", (req, res) => {
         return handle(req, res);
     });
