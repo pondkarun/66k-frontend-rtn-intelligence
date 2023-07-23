@@ -6,6 +6,7 @@ import { Cookies } from 'react-cookie';
 import { Layout, Button, Form, Input, message, ConfigProvider } from "antd";
 import { LockOutlined, UnlockOutlined, UserOutlined } from "@ant-design/icons";
 import { imgSrc, primary_color } from "./_app";
+import { loginService } from "@/services/auth";
 
 
 const Wrapper = styled(Layout.Content)`
@@ -173,10 +174,17 @@ const LoginPage = () => {
                 });
             } else {
                 setIsError({});
-                // console.log('data', data)
-                // cookies.set("access_token", data.allkons_access_token, { path: "/" });
-                // cookies.set("refresh_token", data.allkons_refresh_token, { path: "/" });
-                // Router.push('/');
+                const res: any = await loginService({ username, password });
+                const data = res.data.data;
+                const error = res.data.error;
+                if (data) {
+                    cookies.set("access_token", data.access_token, { path: "/" });
+                    cookies.set("refresh_token", data.refresh_token, { path: "/" });
+                    Router.push('/');
+                } else if (error) {
+                    message.error(error.message)
+                }
+
             }
         } catch (error) {
             message.error("มีบางอย่างผิดพล่ด")

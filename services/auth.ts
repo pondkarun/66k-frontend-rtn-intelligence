@@ -1,10 +1,10 @@
 import { loginInterface } from "@/interface/auth.interface";
-import Api from "./Api";
+import Api from "./Api/Api";
 
-const login = async (body: loginInterface) => {
-    return await Api.post(`/api/auth/login`, body);
+const loginService = async (body: loginInterface) => {
+    return await Api.post(`/auth/login`, body);
 }
 
 export {
-    login,
+    loginService,
 };
