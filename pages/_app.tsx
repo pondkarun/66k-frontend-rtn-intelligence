@@ -1,4 +1,5 @@
 import type { AppProps } from "next/app";
+import { wrapper } from '../redux/store'
 import Head from "next/head";
 import { ConfigProvider } from 'antd';
 import getConfig from 'next/config';
@@ -11,7 +12,7 @@ export const primary_color = "#E4B354"
 export const imgSrc = "/images/page/login/logo.png"
 export const version = publicRuntimeConfig?.version
 
-export default function App({ Component, pageProps }: AppProps) {
+const App = ({ Component, pageProps }: AppProps) => {
     return (
         <>
             <Head>
@@ -29,3 +30,5 @@ export default function App({ Component, pageProps }: AppProps) {
         </>
     )
 }
+
+export default wrapper.withRedux(App);
