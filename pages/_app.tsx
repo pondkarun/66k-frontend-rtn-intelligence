@@ -1,5 +1,6 @@
 import type { AppProps } from "next/app";
 import { wrapper } from '../redux/store'
+import Initiative from '../components/initiative'
 import Head from "next/head";
 import { ConfigProvider } from 'antd';
 import getConfig from 'next/config';
@@ -25,7 +26,9 @@ const App = ({ Component, pageProps }: AppProps) => {
                     fontSize: 21
                 },
             }}>
-                <Component {...pageProps} />
+                <Initiative>
+                    <Component {...pageProps} />
+                </Initiative>
             </ConfigProvider>
         </>
     )

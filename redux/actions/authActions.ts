@@ -20,7 +20,7 @@ export const setAuthToken = (access_token: string) => {
 export const getAuthUser = (dispatch?: any) => {
     Api.get(`/auth/profile`).then(({ data }: any) => {
         if (data) {
-            dispatch(setProfile(data.data));
+            dispatch(setProfile(data));
         } else {
             logout(dispatch)
         }
@@ -62,18 +62,7 @@ export const refreshToken = async (dispatch?: any) => {
 };
 
 export const logout = (dispatch?: any) => {
-    const cookies = new Cookies();
-    const token = cookies.get("access_token");
-    if (token && (token != undefined && token != "undefined")) {
-        Api.get('/logout').then(async (data) => {
-            removeCookieUserAuth(dispatch)
-        }).catch((eror) => {
-            console.log(`eror`, eror)
-            removeCookieUserAuth(dispatch)
-        })
-    } else {
-        removeCookieUserAuth(dispatch)
-    }
+    removeCookieUserAuth(dispatch)
 };
 
 const removeCookieUserAuth = (dispatch?: any) => {

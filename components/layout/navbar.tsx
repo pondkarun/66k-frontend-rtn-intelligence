@@ -1,6 +1,7 @@
 import { Layout } from "antd";
 import styled from "styled-components";
 import { FiLogOut } from "react-icons/fi";
+import { logout } from "@/redux/actions/authActions";
 
 const Navbar = styled(Layout.Header)`
     background-image: url('/images/page/layout/header.png');
@@ -52,10 +53,6 @@ const FlagRecords = styled("div")`
     padding: 7px 0 0 25px;
 `
 const NavbarcrumbLayoutComponents = () => {
-
-    const logout = () => {
-        console.log('logout')
-    }
 
     return (
         <Navbar>
