@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Router from "next/router";
 import Head from 'next/head';
 import styled from "styled-components";
 import { Cookies } from 'react-cookie';
-import { Layout, Button, Form, Input, message, ConfigProvider } from "antd";
-import { LockOutlined, UnlockOutlined, UserOutlined } from "@ant-design/icons";
+import { Layout, Button, Form, Input, message } from "antd";
+import { UnlockOutlined, UserOutlined } from "@ant-design/icons";
 import { imgSrc, primary_color } from "./_app";
-
+import { loginService } from "@/services/auth";
+import { useSelector } from 'react-redux';
+import { isArray } from 'lodash'
+import { getAuthUser } from "@/redux/actions/authActions";
+import { useDispatch } from 'react-redux';
 
 const Wrapper = styled(Layout.Content)`
     display: flex;
@@ -129,6 +133,14 @@ const ButtonLogin = styled(Button)`
 `
 
 const LoginPage = () => {
+    const dispatch = useDispatch();
+    const { profile, access_token } = useSelector(({ auth }) => auth);
+    useEffect(() => {
+        if (profile && access_token) {
+            Router.push('/');
+        }
+        /* guest_access del */
+    }, [profile, access_token]);
 
     const cookies = new Cookies();
     const [isError, setIsError] = useState<any>({
@@ -173,14 +185,25 @@ const LoginPage = () => {
                 });
             } else {
                 setIsError({});
-                Router.push('/');
-                // console.log('data', data)
-                // cookies.set("allkons_access_token", data.allkons_access_token, { path: "/" });
-                // cookies.set("allkons_refresh_token", data.allkons_refresh_token, { path: "/" });
-                // Router.push('/');
+                const res: any = await loginService({ username, password });
+                const data = res.data.data;
+                const error = res.data.error;
+                const errors = res.data.errors;
+                if (data) {
+                    cookies.set("access_token", data.access_token, { path: "/" });
+                    cookies.set("refresh_token", data.refresh_token, { path: "/" });
+                    await getAuthUser(dispatch)
+                    Router.push('/');
+                } else if (error) {
+                    message.error(error.message)
+                } else if (isArray(errors)) {
+                    message.error(errors[0].msg)
+
+                }
+
             }
         } catch (error) {
-            message.error("มีบางอย่างผิดพล่ด")
+            message.error("มีบางอย่างผิดพลาด")
             console.log('error', error)
         }
     }
@@ -204,6 +227,12 @@ const LoginPage = () => {
                     style={{ marginTop: "25px" }}
                     onFinish={onFinish}
                     autoComplete="off"
+                    initialValues={
+                        {
+                            username: "superadmin",
+                            password: "RTN_P@ssw0rd",
+                        }
+                    }
                 >
                     <Form.Item
                         validateStatus={isError.username?.validateStatus}
