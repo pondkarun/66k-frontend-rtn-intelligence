@@ -9,6 +9,7 @@ type Props = {
 };
 
 const useAuthToken = () => {
+    let num = 0
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
     const { authUser } = useSelector(({ auth }) => auth);
@@ -19,8 +20,7 @@ const useAuthToken = () => {
             const refresh_token = cookies.get("refresh_token");
 
             if (refresh_token) dispatch(setRefreshToken(refresh_token));
-            if (token) {
-                // console.log("token: =====>", token)
+            if (token && num == 1) {
                 dispatch(setAuthToken(token));
                 try {
                     getAuthUser(dispatch)
@@ -39,8 +39,9 @@ const useAuthToken = () => {
                 setLoading(false);
             });
         };
+        num++
         checkAuth();
-    }, [dispatch]);
+    }, []);
 
     return [loading, authUser];
 }

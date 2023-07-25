@@ -73,7 +73,7 @@ const Axios = axios.create({
 
 export const refreshToken = async (dispatch?: any) => {
     try {
-        const { data }: any = await Axios.get(`/refresh-token`)
+        const { data }: any = await Axios.get(`/auth/refresh-token`)
         cookies.remove("access_token", { path: '/' });
         if (data.data.access_token) {
             cookies.set("access_token", data.data.access_token, { path: "/" });
