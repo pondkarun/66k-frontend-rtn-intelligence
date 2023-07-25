@@ -1,11 +1,24 @@
 // Action Creator
 
 import Api from "@/services/Api";
+import axios from 'axios';
+import { countriesService } from "@/services/countries";
 import { Cookies } from "react-cookie";
+import { setCountries } from "./countryActions";
+import { menusService } from "@/services/menus";
+
+const cookies = new Cookies();
 
 export const setProfile = (data: any) => {
     return {
         type: "PROFILE_SET",
+        payload: data,
+    };
+};
+
+export const setmenus = (data: any) => {
+    return {
+        type: "MENUS_SET",
         payload: data,
     };
 };
@@ -20,11 +33,18 @@ export const setAuthToken = (access_token: string) => {
 export const getAuthUser = (dispatch?: any) => {
     Api.get(`/auth/profile`).then(({ data }: any) => {
         if (data) {
-            dispatch(setProfile(data));
+            countriesService().then(res => {
+                if (res.data.data) dispatch(setCountries(res.data.data));
+            })
+            menusService().then(res => {
+                if (res.data.data) dispatch(setmenus(res.data.data));
+            })
+            if (dispatch) dispatch(setProfile(data));
         } else {
             logout(dispatch)
         }
     }).catch((error) => {
+        console.log('error2 :>> ', error);
         logout(dispatch)
     });
 };
@@ -36,12 +56,24 @@ export const setRefreshToken = (refresh_token: string) => {
     }
 };
 
+const Axios = axios.create({
+    baseURL: `${process.env.NEXT_PUBLIC_SERVICE}`,
+    headers: {
+        'Content-Type': 'application/json',
+        'x-key-rtn-ttt': `${process.env.NEXT_PUBLIC_KEY}`,
+    },
+    transformRequest: [function (data, headers) {
+        const refresh_token = cookies.get('refresh_token');
+        if (refresh_token) {
+            headers.Authorization = "Bearer " + refresh_token;
+        }
+        return JSON.stringify(data);
+    }],
+});
+
 export const refreshToken = async (dispatch?: any) => {
     try {
-        const cookies = new Cookies();
-        const refresh_token = cookies.get("refresh_token");
-        const { data }: any = await Api.post(`/token/access_token`, { refresh_token })
-        // console.log('data.data :>> ', data.data);
+        const { data }: any = await Axios.get(`/refresh-token`)
         cookies.remove("access_token", { path: '/' });
         if (data.data.access_token) {
             cookies.set("access_token", data.data.access_token, { path: "/" });
@@ -66,7 +98,6 @@ export const logout = (dispatch?: any) => {
 };
 
 const removeCookieUserAuth = (dispatch?: any) => {
-    const cookies = new Cookies();
     cookies.remove("access_token", { path: '/' });
     cookies.remove("refresh_token", { path: '/' });
     location.reload()

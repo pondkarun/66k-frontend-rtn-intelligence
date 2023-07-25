@@ -3,6 +3,7 @@ const INIT_STATE = {
     profile: undefined,
     access_token: undefined,
     refresh_token: undefined,
+    menus: []
 };
 
 type AuthAction = { type: string; payload: any };
@@ -20,6 +21,10 @@ const authReducer = (state = INIT_STATE, action: AuthAction) => {
         case "REFRESH_TOKEN_SET":
             return {
                 ...state, refresh_token: action.payload
+            }
+        case "MENUS_SET":
+            return {
+                ...state, menus: action.payload
             }
         default:
             return {

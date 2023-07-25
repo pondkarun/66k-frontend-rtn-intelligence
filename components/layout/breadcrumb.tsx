@@ -60,18 +60,18 @@ const BreadcrumbLayoutComponents = () => {
     return (
         <div>
             <BreadcrumbNav separator=">">
-                <span style={{ paddingRight: 5 }}>เลือกหัวข้อ : </span>
-                <BreadcrumbNav.Item>ความสัมพันธ์ระหว่างรัฐบาล</BreadcrumbNav.Item>
+                {/* <span style={{ paddingRight: 5 }}>เลือกหัวข้อ : </span> */}
+                {/* <BreadcrumbNav.Item>ความสัมพันธ์ระหว่างรัฐบาล</BreadcrumbNav.Item>
                 <BreadcrumbNav.Item>การเยี่ยมเยือนผู้บังคับบัญชา</BreadcrumbNav.Item>
-                <BreadcrumbNav.Item>การไปเยือน</BreadcrumbNav.Item>
+                <BreadcrumbNav.Item>การไปเยือน</BreadcrumbNav.Item> */}
             </BreadcrumbNav>
-            <BreadcrumbManage>
+            {/* <BreadcrumbManage>
                 <LayoutButton>
                     <BreadcrumbButton color="#fff" background='#0066FF' onClick={detailData}><MdContentPaste /></BreadcrumbButton>
                     <BreadcrumbButton color='#000' background='#FFC12B' onClick={searchData}><MdOutlineSearch /></BreadcrumbButton>
                     <BreadcrumbButton color='#fff' background='#00963F' disabled onClick={addData}><HiPlus /></BreadcrumbButton>
                 </LayoutButton>
-            </BreadcrumbManage>
+            </BreadcrumbManage> */}
         </div>
     )
 }

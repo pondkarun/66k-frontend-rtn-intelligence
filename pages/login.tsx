@@ -9,6 +9,8 @@ import { imgSrc, primary_color } from "./_app";
 import { loginService } from "@/services/auth";
 import { useSelector } from 'react-redux';
 import { isArray } from 'lodash'
+import { getAuthUser } from "@/redux/actions/authActions";
+import { useDispatch } from 'react-redux';
 
 const Wrapper = styled(Layout.Content)`
     display: flex;
@@ -131,15 +133,13 @@ const ButtonLogin = styled(Button)`
 `
 
 const LoginPage = () => {
-
+    const dispatch = useDispatch();
     const { profile, access_token } = useSelector(({ auth }) => auth);
     useEffect(() => {
         if (profile && access_token) {
             Router.push('/');
         }
         /* guest_access del */
-        cookies.remove("access_token", { path: '/' });
-        cookies.remove("refresh_token", { path: '/' });
     }, [profile, access_token]);
 
     const cookies = new Cookies();
@@ -192,6 +192,7 @@ const LoginPage = () => {
                 if (data) {
                     cookies.set("access_token", data.access_token, { path: "/" });
                     cookies.set("refresh_token", data.refresh_token, { path: "/" });
+                    await getAuthUser(dispatch)
                     Router.push('/');
                 } else if (error) {
                     message.error(error.message)
@@ -226,6 +227,12 @@ const LoginPage = () => {
                     style={{ marginTop: "25px" }}
                     onFinish={onFinish}
                     autoComplete="off"
+                    initialValues={
+                        {
+                            username: "superadmin",
+                            password: "RTN_P@ssw0rd",
+                        }
+                    }
                 >
                     <Form.Item
                         validateStatus={isError.username?.validateStatus}
