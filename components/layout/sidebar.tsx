@@ -1,12 +1,12 @@
-import { Badge, Button, Col, Collapse, Layout, Menu, Modal, Row, Space } from 'antd';
+import { Badge, Button, Col, Collapse, Layout, Modal, Row } from 'antd';
 import { useSelector } from 'react-redux';
-import type { MenuProps } from 'antd';
 import { useEffect, useState } from 'react';
 import styled from "styled-components";
 import { primary_color } from '@/pages/_app';
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 const { Sider } = Layout;
 
+
+//#region -> styled
 const H1 = styled("h1")`
    color: ${primary_color};
 `
@@ -147,6 +147,9 @@ const CollapseToppic = styled(Collapse)`
 `
 const PanelToppic = styled(Collapse.Panel)``
 
+//#endregion
+
+//#region -> SidebarLayoutComponents
 const SidebarLayoutComponents = () => {
     const { country_group } = useSelector(({ country }) => country);
     const { profile } = useSelector(({ auth }) => auth);
@@ -277,7 +280,9 @@ const SidebarLayoutComponents = () => {
         </>
     )
 }
+//#endregion
 
+//#region -> IonsWorkingGroups
 const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
     const [open, setOpen] = useState(false);
     const [memberฉountries, setMemberฉountries] = useState<any[]>([]);
@@ -350,5 +355,6 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
         </>
     )
 }
+//#endregion
 
 export default SidebarLayoutComponents
