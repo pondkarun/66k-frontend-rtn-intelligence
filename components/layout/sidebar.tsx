@@ -1,9 +1,10 @@
-import { Badge, Button, Col, Layout, Menu, Modal, Row, Space } from 'antd';
+import { Badge, Button, Col, Collapse, Layout, Menu, Modal, Row, Space } from 'antd';
 import { useSelector } from 'react-redux';
 import type { MenuProps } from 'antd';
 import { useEffect, useState } from 'react';
 import styled from "styled-components";
 import { primary_color } from '@/pages/_app';
+import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 const { Sider } = Layout;
 
 const H1 = styled("h1")`
@@ -104,6 +105,39 @@ const ButtonIWG = styled(Button)`
     color: ${primary_color};
     width: 100%;
 `
+const CollapseToppic = styled(Collapse)`
+    .ant-collapse-header-text , .ant-collapse-expand-icon {
+        color: #fff
+    }
+    .ant-collapse-header {
+        border-bottom: 1px solid #fff;
+        &:hover {
+            border-bottom: 1px solid ${primary_color};
+            .ant-collapse-header-text , .ant-collapse-expand-icon {
+                color: ${primary_color};
+            }
+        }
+    }
+    .ant-collapse-content-box {
+        padding-block: 0px !important;
+        padding: 0px 0px !important;
+        .toppic {
+            padding: 10px 0px 10px 47px;
+            color: #fff;
+            border-bottom: 1px solid #fff;
+            cursor: pointer;
+            &:hover { 
+                color: ${primary_color};
+                border-bottom: 1px solid ${primary_color};
+            }
+        }
+    }
+    .ant-collapse-item:last-child {
+        border-radius: 0 0 0px 0px;
+    }
+   
+`
+const PanelToppic = styled(Collapse.Panel)``
 
 const SidebarLayoutComponents = () => {
     const { country_group } = useSelector(({ country }) => country);
@@ -119,6 +153,9 @@ const SidebarLayoutComponents = () => {
     const findCountryGroup = (key: string) => {
         return country_group.find((w: any) => w.name == key)
     }
+
+    // menu
+
 
     return (
         <>
@@ -136,7 +173,7 @@ const SidebarLayoutComponents = () => {
                     </section>
                     <div style={{
                         overflow: 'auto',
-                        height: '70vh',
+                        maxHeight: '80vh',
                     }}>
                         <H1>เลือกประเทศ</H1>
                         <>
@@ -184,7 +221,48 @@ const SidebarLayoutComponents = () => {
                         </>
 
                         <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
-                        <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>
+                        {/* <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p> */}
+                        <CollapseToppic ghost>
+                            <PanelToppic header="1. This is panel header" key="1">
+                                <CollapseToppic ghost>
+                                    <PanelToppic header="1.1. This is panel header" key="1.1">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                    <PanelToppic header="1.2. This is panel header" key="1.2">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                    <PanelToppic header="1.3. This is panel header" key="1.3">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                </CollapseToppic>
+                            </PanelToppic>
+                            <PanelToppic header="2. This is panel header" key="2">
+                                <CollapseToppic ghost>
+                                    <PanelToppic header="2.1. This is panel header" key="2.1">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                    <PanelToppic header="2.2. This is panel header" key="=2.2">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                    <PanelToppic header="2.3. This is panel header" key="2.3">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                </CollapseToppic>
+                            </PanelToppic>
+                            <PanelToppic header="3. This is panel header" key="3">
+                                <CollapseToppic ghost>
+                                    <PanelToppic header="3.1. This is panel header" key="3.1">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                    <PanelToppic header="3.2. This is panel header" key="3.2">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                    <PanelToppic header="3.3. This is panel header" key="3.3">
+                                        <div className='toppic'>This is panel header</div>
+                                    </PanelToppic>
+                                </CollapseToppic>
+                            </PanelToppic>
+                        </CollapseToppic>
                     </div>
                 </div>
             </Sidebar>
