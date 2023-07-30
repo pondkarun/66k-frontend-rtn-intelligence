@@ -1,68 +1,43 @@
-import { Badge, Form, Input, Layout, Menu, Space } from 'antd';
-import { SearchOutlined, } from '@ant-design/icons';
+import { Badge, Col, Layout, Menu, Row, Space } from 'antd';
+import { useSelector } from 'react-redux';
 import type { MenuProps } from 'antd';
 import { useState } from 'react';
 import styled from "styled-components";
 import { primary_color } from '@/pages/_app';
 const { Sider } = Layout;
 
+const H1 = styled("h1")`
+   color: ${primary_color};
+`
+const ColText = styled(Col)`
+   color: ${primary_color};
+//    text-align: center;
+`
+
 const Sidebar = styled(Sider)`
     .ant-layout-sider-children {
         background-image: url('/images/page/layout/sidebar.png');
+        width: 100%;
+        background-position: left;
+        background-repeat: no-repeat;
+        background-size: cover;
     }
 `
 const Logo = styled("div")`
-    height: 110px;
+    height: 113px;
     background-image: url('/images/page/layout/logo.png');
-    width: 100%;
+    width: 80%;
     background-position: left;
     background-repeat: no-repeat;
     background-size: cover;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 `
 const NameUser = styled("div")`
     position: absolute;
     top: 81px;
     left: 138px;
-    
     div {
         color: #fff
-    }
-`
-
-const FormSearch = styled(Form)`
-    .ant-input-affix-wrapper {
-        background-color: #ffffff00;
-        color: #FFFFFF;
-        border-width: 0px;
-        border-bottom: 1px solid #FFFFFF;
-        border-radius: 0px;
-        opacity: 0.6;
-        &:hover {
-            border-color: #ffffff;
-            border-inline-end-width: 0px;
-            opacity: 0.8;
-        }
-        .ant-input {
-            background-color: #ffffff00;
-            color: #FFFFFF;
-            padding-left: 15px;
-        }
-        .anticon.ant-input-password-icon {
-            color: #FFFFFF;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        input::placeholder {
-            color: #FFFFFF;
-        }
-        
-       
-    }
-    .ant-input-affix-wrapper-status-error {
-        input::placeholder {
-            color: #ff4d4f;
-        }
     }
 `
 
@@ -92,23 +67,32 @@ const Line = styled("div")`
     height: 0px;
     border: 1px solid ${primary_color};
     position: relative;
-    margin: 20px 5px 20px 5px;
+    margin: 2px 0px 10px 0px;
+`
+
+const MenuFlag = styled("div")`
+   text {
+     font-size: 18px;
+     color: #fff;
+   }
+`
+const ColMenuFlag = styled(Col)`
+    padding-top: 2px;
+    text-align: start;
+    padding-bottom: 5px;
 `
 
 
 type MenuItem = Required<MenuProps>['items'][number];
 const SidebarLayoutComponents = () => {
-
+    const { country_group } = useSelector(({ country }) => country);
     const [collapsed, setCollapsed] = useState(false);
 
     const Flag = styled("img")`
-        width: ${!collapsed ? 40 : 30}px;
-        margin-right: 10px;
+        width: 30px;
         ${collapsed ? `
-            margin: 6px 0 0 -3px !important;
-            font-size: 24px !important;
-            line-height: 40px !important;`
-        : ``}
+            display:none;`
+            : ``}
     `
     const getName = (name: string, value?: number | null) => {
         return (
@@ -140,9 +124,13 @@ const SidebarLayoutComponents = () => {
         getItem(getName('Puerto Rico', null), '005', <Flag width={40} src="/images/flag_icon/005-puerto-rico.png" />),
     ];
 
+    const findCountryGroup = (key: string) => {
+        return country_group.find((w: any) => w.name == key)
+    }
+
     return (
-        <Sidebar width={300} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} >
-            <div style={{ margin: 15 }} >
+        <Sidebar width={350} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} >
+            <div style={{ margin: "15px 10px 15px 10px" }} >
                 <section>
                     <Logo />
                     {!collapsed ?
@@ -153,24 +141,50 @@ const SidebarLayoutComponents = () => {
                         : null
                     }
                 </section>
-                <section style={{ marginBottom: 20 }}>
-                    {!collapsed ?
-                        <FormSearch
-                            name="search"
-                            autoComplete="off"
-                        >
-                            <Input prefix={<SearchOutlined />} placeholder="ค้นหาจากชื่อประเทศ" />
-                        </FormSearch>
-                        : null
-                    }
-                </section>
                 <div style={{
                     overflow: 'auto',
                     height: '70vh',
                 }}>
-                    <MenuList theme="dark" defaultSelectedKeys={['001']} mode="inline" items={itemsData} style={{ background: "#00152900" }} />
+                    <H1>เลือกประเทศ</H1>
+                    <Row>
+                        <ColText span={8}>{findCountryGroup("อาเซียน")?.name}</ColText>
+                        <ColText span={8}>{findCountryGroup("อาเซียน+9")?.name}</ColText>
+                        <ColText span={8}>{findCountryGroup("อื่นๆ")?.name}</ColText>
+                    </Row>
                     <Line />
-                    <MenuList theme="dark" defaultSelectedKeys={['001']} mode="inline" items={itemsNonData} style={{ background: "#00152900" }} />
+                    <Row>
+                        <ColText span={8}>
+                            {findCountryGroup("อาเซียน")?.countries.map((e: any) => (
+                                <MenuFlag key={e.id}>
+                                    <Row>
+                                        <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
+                                        <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                    </Row>
+                                </MenuFlag>
+                            ))}
+                        </ColText>
+                        <ColText span={8}>
+                            {findCountryGroup("อาเซียน+9")?.countries.map((e: any) => (
+                                <MenuFlag key={e.id}>
+                                    <Row>
+                                        <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
+                                        <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                    </Row>
+                                </MenuFlag>
+                            ))}
+                        </ColText>
+                        <ColText span={8}>
+                            {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
+                                <MenuFlag key={e.id} style={{ paddingBottom: 0 }}>
+                                    <Row>
+                                        <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
+                                        <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                    </Row>
+                                </MenuFlag>
+                            ))}
+                        </ColText>
+
+                    </Row>
                 </div>
             </div>
         </Sidebar>
