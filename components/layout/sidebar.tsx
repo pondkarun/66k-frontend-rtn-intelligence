@@ -1,4 +1,4 @@
-import { Badge, Col, Layout, Menu, Modal, Row, Space } from 'antd';
+import { Badge, Button, Col, Layout, Menu, Modal, Row, Space } from 'antd';
 import { useSelector } from 'react-redux';
 import type { MenuProps } from 'antd';
 import { useEffect, useState } from 'react';
@@ -37,28 +37,6 @@ const NameUser = styled("div")`
     left: 138px;
     div {
         color: #fff
-    }
-`
-
-const MenuList = styled(Menu)`
-    .ant-menu-item-selected {
-        background-color: #96c0ff70;
-        border-radius: 5px;
-    }
-`
-
-const BadgeValue = styled(Badge)`
-    min-width: 34px;
-    max-height: 20px;
-    margin-bottom: 5px;
-`
-const BadgeNonValue = styled(Badge)`
-    max-height: 20px;
-    margin-bottom: 5px;
-    sup {
-        background: rgba(255, 6, 32, 0.2) !important;
-        color: #F55061 !important;
-        box-shadow: 0 0 0 1px #FF0620 !important;
     }
 `
 
@@ -119,7 +97,14 @@ const FlagIWGGroup = styled("div")`
     flex-wrap: wrap;
 `
 
-type MenuItem = Required<MenuProps>['items'][number];
+const ButtonIWG = styled(Button)`
+    margin-top: 10px;
+    background-color: #ffffff00;
+    border-color: ${primary_color};
+    color: ${primary_color};
+    width: 100%;
+`
+
 const SidebarLayoutComponents = () => {
     const { country_group } = useSelector(({ country }) => country);
     const { profile } = useSelector(({ auth }) => auth);
@@ -131,36 +116,6 @@ const SidebarLayoutComponents = () => {
             display:none;`
             : ``}
     `
-    const getName = (name: string, value?: number | null) => {
-        return (
-            <Space>
-                <span style={{ fontSize: 22 }}>{name}</span> {value ?
-                    <BadgeValue count={`${value}`} showZero color='#0066FF' size="small" /> :
-                    <BadgeNonValue count={`non-data`} showZero color='#F55061' size="small" />}
-            </Space>
-        )
-    }
-
-    const getItem = (label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem => {
-        return {
-            key,
-            icon,
-            children,
-            label,
-        } as MenuItem;
-    }
-
-    const itemsData: MenuItem[] = [
-        getItem(getName('Ethiopia', 11), '001', <Flag width={40} src="/images/flag_icon/001-ethiopia.png" />),
-        getItem(getName('Oman', 9), '002', <Flag width={40} src="/images/flag_icon/002-oman.png" />),
-        getItem(getName('Tanzania', 5), '003', <Flag width={40} src="/images/flag_icon/003-tanzania.png" />),
-    ];
-
-    const itemsNonData: MenuItem[] = [
-        getItem(getName('Slovenia', null), '004', <Flag width={40} src="/images/flag_icon/004-slovenia.png" />),
-        getItem(getName('Puerto Rico', null), '005', <Flag width={40} src="/images/flag_icon/005-puerto-rico.png" />),
-    ];
-
     const findCountryGroup = (key: string) => {
         return country_group.find((w: any) => w.name == key)
     }
@@ -184,47 +139,52 @@ const SidebarLayoutComponents = () => {
                         height: '70vh',
                     }}>
                         <H1>เลือกประเทศ</H1>
-                        <Row>
-                            <ColText span={8}>{findCountryGroup("อาเซียน")?.name}</ColText>
-                            <ColText span={8}>{findCountryGroup("อาเซียน+9")?.name}</ColText>
-                            <ColText span={8}>{findCountryGroup("อื่นๆ")?.name}</ColText>
-                        </Row>
-                        <Line />
-                        <Row>
-                            <ColText span={8}>
-                                {findCountryGroup("อาเซียน")?.countries.map((e: any) => (
-                                    <MenuFlag key={e.id}>
-                                        <Row>
-                                            <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
-                                            <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
-                                        </Row>
-                                    </MenuFlag>
-                                ))}
-                            </ColText>
-                            <ColText span={8}>
-                                {findCountryGroup("อาเซียน+9")?.countries.map((e: any) => (
-                                    <MenuFlag key={e.id}>
-                                        <Row>
-                                            <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
-                                            <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
-                                        </Row>
-                                    </MenuFlag>
-                                ))}
-                            </ColText>
-                            <ColText span={8}>
-                                {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
-                                    <MenuFlag key={e.id} style={{ paddingBottom: 0 }}>
-                                        <Row>
-                                            <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
-                                            <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
-                                        </Row>
-                                    </MenuFlag>
-                                ))}
-                            </ColText>
+                        <>
+                            <Row>
+                                <ColText span={8}>{findCountryGroup("อาเซียน")?.name}</ColText>
+                                <ColText span={8}>{findCountryGroup("อาเซียน+9")?.name}</ColText>
+                                <ColText span={8}>{findCountryGroup("อื่นๆ")?.name}</ColText>
+                            </Row>
+                            <Line />
+                            <Row>
+                                <ColText span={8}>
+                                    {findCountryGroup("อาเซียน")?.countries.map((e: any) => (
+                                        <MenuFlag key={e.id}>
+                                            <Row>
+                                                <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
+                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                            </Row>
+                                        </MenuFlag>
+                                    ))}
+                                </ColText>
+                                <ColText span={8}>
+                                    {findCountryGroup("อาเซียน+9")?.countries.map((e: any) => (
+                                        <MenuFlag key={e.id}>
+                                            <Row>
+                                                <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
+                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                            </Row>
+                                        </MenuFlag>
+                                    ))}
+                                </ColText>
+                                <ColText span={8}>
+                                    {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
+                                        <MenuFlag key={e.id} style={{ paddingBottom: 0 }}>
+                                            <Row>
+                                                <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
+                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                            </Row>
+                                        </MenuFlag>
+                                    ))}
+                                </ColText>
 
-                        </Row>
+                            </Row>
 
-                        <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
+                            <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
+                        </>
+
+                        <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
+                        <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>
                     </div>
                 </div>
             </Sidebar>
@@ -256,7 +216,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 
     return (
         <>
-            <a onClick={showModal}><H1 style={{ paddingTop: 10 }}><u>IONS Working Groups</u></H1></a>
+            <ButtonIWG style={{ marginTop: 10 }} onClick={showModal}>IONS Working Groups</ButtonIWG>
             <ModalIWG
                 bodyStyle={{
                     maxHeight: 700,
@@ -300,7 +260,6 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
                         </tr>
                     </tbody>
                 </table>
-
             </ModalIWG>
         </>
     )
