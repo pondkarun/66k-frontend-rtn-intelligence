@@ -49,9 +49,16 @@ const Line = styled("div")`
 `
 
 const MenuFlag = styled("div")`
+   cursor: pointer;
+   &.active {
+     background: ${primary_color};
+   }
    text {
      font-size: 18px;
      color: #fff;
+   }
+   &:hover {
+     background: ${primary_color};
    }
 `
 const ColMenuFlag = styled(Col)`
@@ -110,6 +117,7 @@ const CollapseToppic = styled(Collapse)`
         color: #fff
     }
     .ant-collapse-header {
+        border-radius: 0 0 0 0 !important;
         border-bottom: 1px solid #fff;
         &:hover {
             border-bottom: 1px solid ${primary_color};
@@ -173,7 +181,7 @@ const SidebarLayoutComponents = () => {
                     </section>
                     <div style={{
                         overflow: 'auto',
-                        maxHeight: '80vh',
+                        maxHeight: '78vh',
                     }}>
                         <H1>เลือกประเทศ</H1>
                         <>
@@ -186,7 +194,7 @@ const SidebarLayoutComponents = () => {
                             <Row>
                                 <ColText span={8}>
                                     {findCountryGroup("อาเซียน")?.countries.map((e: any) => (
-                                        <MenuFlag key={e.id}>
+                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -196,7 +204,7 @@ const SidebarLayoutComponents = () => {
                                 </ColText>
                                 <ColText span={8}>
                                     {findCountryGroup("อาเซียน+9")?.countries.map((e: any) => (
-                                        <MenuFlag key={e.id}>
+                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -206,7 +214,7 @@ const SidebarLayoutComponents = () => {
                                 </ColText>
                                 <ColText span={8}>
                                     {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
-                                        <MenuFlag key={e.id} style={{ paddingBottom: 0 }}>
+                                        <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == "" ? 'active' : ""}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -222,9 +230,9 @@ const SidebarLayoutComponents = () => {
 
                         <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
                         {/* <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p> */}
-                        <CollapseToppic ghost>
+                        <CollapseToppic ghost expandIconPosition={"end"}>
                             <PanelToppic header="1. This is panel header" key="1">
-                                <CollapseToppic ghost>
+                                <CollapseToppic ghost expandIconPosition={"end"}>
                                     <PanelToppic header="1.1. This is panel header" key="1.1">
                                         <div className='toppic'>This is panel header</div>
                                     </PanelToppic>
@@ -237,7 +245,7 @@ const SidebarLayoutComponents = () => {
                                 </CollapseToppic>
                             </PanelToppic>
                             <PanelToppic header="2. This is panel header" key="2">
-                                <CollapseToppic ghost>
+                                <CollapseToppic ghost expandIconPosition={"end"}>
                                     <PanelToppic header="2.1. This is panel header" key="2.1">
                                         <div className='toppic'>This is panel header</div>
                                     </PanelToppic>
@@ -250,7 +258,7 @@ const SidebarLayoutComponents = () => {
                                 </CollapseToppic>
                             </PanelToppic>
                             <PanelToppic header="3. This is panel header" key="3">
-                                <CollapseToppic ghost>
+                                <CollapseToppic ghost expandIconPosition={"end"}>
                                     <PanelToppic header="3.1. This is panel header" key="3.1">
                                         <div className='toppic'>This is panel header</div>
                                     </PanelToppic>
