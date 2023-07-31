@@ -89,6 +89,13 @@ const ModalIWG = styled(Modal)`
 const FlagIWG = styled("div")`
     text-align: center;
     padding: 15px;
+    &.active {
+        background: ${primary_color};
+        .text {
+            color: #fff;
+            font-size: 18px;
+        }
+    }
     &:hover {
         background: ${primary_color};
         .text {
@@ -141,6 +148,10 @@ const CollapseToppic = styled(Collapse)`
                 color: ${primary_color};
                 border-bottom: 1px solid ${primary_color};
             }
+            &.active { 
+                color: ${primary_color};
+                border-bottom: 1px solid ${primary_color};
+            }
         }
     }
     .ant-collapse-item:last-child {
@@ -153,13 +164,16 @@ const PanelToppic = styled(Collapse.Panel)``
 //#endregion
 
 //#region -> SidebarLayoutComponents
+
+type useSelectorAuth = {
+    profile: any;
+    topics: international_relations_topicsAttributes[];
+}
 const SidebarLayoutComponents = () => {
     const dispatch = useDispatch();
     const { country_group } = useSelector(({ country }) => country);
-    const { profile, topics }: {
-        profile: any,
-        topics: international_relations_topicsAttributes[]
-    } = useSelector(({ auth }) => auth);
+    const { profile, topics }: useSelectorAuth = useSelector(({ auth }) => auth);
+    const { country } = useSelector(({ toppic_menu }) => toppic_menu);
     const [collapsed, setCollapsed] = useState(false);
 
     const Flag = styled("img")`
@@ -205,7 +219,7 @@ const SidebarLayoutComponents = () => {
                             <Row>
                                 <ColText span={8}>
                                     {findCountryGroup("อาเซียน")?.countries.map((e: any) => (
-                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""} onClick={() => onClick(e.id)}>
+                                        <MenuFlag key={e.id} id={e.id} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -215,7 +229,7 @@ const SidebarLayoutComponents = () => {
                                 </ColText>
                                 <ColText span={8}>
                                     {findCountryGroup("อาเซียน+9")?.countries.map((e: any) => (
-                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""} onClick={() => onClick(e.id)}>
+                                        <MenuFlag key={e.id} id={e.id} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -225,7 +239,7 @@ const SidebarLayoutComponents = () => {
                                 </ColText>
                                 <ColText span={8}>
                                     {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
-                                        <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == "" ? 'active' : ""} onClick={() => onClick(e.id)}>
+                                        <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -239,12 +253,10 @@ const SidebarLayoutComponents = () => {
                             <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
 
                             <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
-                            {/* <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p> */}
-                            <ToppicMenu list={topics} />
+                            {country ? <ToppicMenu list={topics} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
+
 
                         </>
-
-
                     </div>
                 </div>
             </Sidebar>
@@ -259,6 +271,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
     const [open, setOpen] = useState(false);
     const [memberฉountries, setMemberฉountries] = useState<any[]>([]);
     const [observerฉountries, setObserverฉountries] = useState<any[]>([]);
+    const { country } = useSelector(({ toppic_menu }) => toppic_menu);
 
     useEffect(() => {
         if (countries) {
@@ -307,7 +320,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
                             <td style={{ borderRight: "1px solid #dddddd" }}>
                                 <FlagIWGGroup>
                                     {memberฉountries.map((e: any) => (
-                                        <FlagIWG key={e.icon_path} onClick={() => onClick(e.id)}>
+                                        <FlagIWG key={e.icon_path} onClick={() => onClick(e.id)} className={e.id == country ? 'active' : ""}>
                                             <img src={e.icon_path} />
                                             <div className='text'>{e.initials_th}</div>
                                         </FlagIWG>
@@ -317,7 +330,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
                             <td style={{ display: "flex" }}>
                                 <FlagIWGGroup>
                                     {observerฉountries.map((e: any) => (
-                                        <FlagIWG key={e.icon_path} onClick={() => onClick(e.id)}>
+                                        <FlagIWG key={e.icon_path} onClick={() => onClick(e.id)} className={e.id == country ? 'active' : ""}>
                                             <img src={e.icon_path} />
                                             <div className='text'>{e.initials_th}</div>
                                         </FlagIWG>
@@ -337,6 +350,8 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 
 const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes[], index?: string }) => {
     const dispatch = useDispatch();
+    const { toppic } = useSelector(({ toppic_menu }) => toppic_menu);
+
     const onChange = (value: any) => {
         console.log('value :>> ', value);
     }
@@ -358,7 +373,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                             :
                             <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
                                 {is_last_node.map((_e, _i) => (
-                                    <div className='toppic' onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
+                                    <div className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
                                 ))}
                             </PanelToppic>
                     )
