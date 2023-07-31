@@ -12,6 +12,7 @@ const Navbar = styled(Layout.Header)`
 `
 
 const NavRow = styled("div")`
+    height: 100%;
     display: flex;
     justify-content: space-between;
 `
