@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import styled from "styled-components";
 import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
-import { SwitcherOutlined } from '@ant-design/icons';
+import { useDispatch } from 'react-redux';
+import { setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
 const { Sider } = Layout;
 
 
@@ -153,6 +154,7 @@ const PanelToppic = styled(Collapse.Panel)``
 
 //#region -> SidebarLayoutComponents
 const SidebarLayoutComponents = () => {
+    const dispatch = useDispatch();
     const { country_group } = useSelector(({ country }) => country);
     const { profile, topics }: {
         profile: any,
@@ -171,7 +173,7 @@ const SidebarLayoutComponents = () => {
     }
 
     const onClick = (id: string) => {
-        console.log('id :>> ', id);
+        dispatch(setSelectCountry(id))
     }
 
     return (
@@ -236,7 +238,7 @@ const SidebarLayoutComponents = () => {
 
                             <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
 
-                            <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ <Button type='link'><SwitcherOutlined /></Button></H1>
+                            <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
                             {/* <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p> */}
                             <ToppicMenu list={topics} />
 
@@ -253,6 +255,7 @@ const SidebarLayoutComponents = () => {
 
 //#region -> IonsWorkingGroups
 const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
+    const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
     const [memberฉountries, setMemberฉountries] = useState<any[]>([]);
     const [observerฉountries, setObserverฉountries] = useState<any[]>([]);
@@ -275,7 +278,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
     };
 
     const onClick = (id: string) => {
-      console.log('id :>> ', id);
+        dispatch(setSelectCountry(id))
     };
 
     return (
@@ -333,11 +336,13 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 //#region -> ToppicMenu
 
 const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes[], index?: string }) => {
+    const dispatch = useDispatch();
     const onChange = (value: any) => {
         console.log('value :>> ', value);
     }
     const onClick = (id: string) => {
-        console.log('id :>> ', id);
+        // console.log('id :>> ', id);
+        dispatch(setSelectToppic(id))
     }
     return (
         <>
@@ -347,19 +352,15 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                     return (
 
                         (is_last_node.length == 0) ?
-                            <>
-                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                    <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
-                                </PanelToppic>
-                            </>
+                            <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
+                            </PanelToppic>
                             :
-                            <>
-                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                    {is_last_node.map((_e, _i) => (
-                                        <div className='toppic' onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
-                                    ))}
-                                </PanelToppic>
-                            </>
+                            <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                {is_last_node.map((_e, _i) => (
+                                    <div className='toppic' onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
+                                ))}
+                            </PanelToppic>
                     )
                 })}
             </CollapseToppic>
