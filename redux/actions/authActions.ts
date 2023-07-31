@@ -6,6 +6,7 @@ import { countriesService } from "@/services/countries";
 import { Cookies } from "react-cookie";
 import { setCountries } from "./countryActions";
 import { menusService } from "@/services/menus";
+import { internationalRelationsTopicsService } from "@/services/internationalRelationsTopics";
 
 const cookies = new Cookies();
 
@@ -16,9 +17,16 @@ export const setProfile = (data: any) => {
     };
 };
 
-export const setmenus = (data: any) => {
+export const setMenus = (data: any) => {
     return {
         type: "MENUS_SET",
+        payload: data,
+    };
+};
+
+export const setTopics = (data: any) => {
+    return {
+        type: "TOPICS_SET",
         payload: data,
     };
 };
@@ -37,7 +45,10 @@ export const getAuthUser = (dispatch?: any) => {
                 if (res.data.data) dispatch(setCountries(res.data.data));
             })
             menusService().then(res => {
-                if (res.data.data) dispatch(setmenus(res.data.data));
+                if (res.data.data) dispatch(setMenus(res.data.data));
+            })
+            internationalRelationsTopicsService().then(res => {
+                if (res.data.data) dispatch(setTopics(res.data.data));
             })
             if (dispatch) dispatch(setProfile(data));
         } else {
