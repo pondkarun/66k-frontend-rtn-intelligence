@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import styled from "styled-components";
 import { primary_color } from '@/pages/_app';
+import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
+import { SwitcherOutlined } from '@ant-design/icons';
 const { Sider } = Layout;
 
 
@@ -130,7 +132,7 @@ const CollapseToppic = styled(Collapse)`
         padding-block: 0px !important;
         padding: 0px 0px !important;
         .toppic {
-            padding: 10px 0px 10px 47px;
+            padding: 10px 0px 10px 25px;
             color: #fff;
             border-bottom: 1px solid #fff;
             cursor: pointer;
@@ -152,7 +154,10 @@ const PanelToppic = styled(Collapse.Panel)``
 //#region -> SidebarLayoutComponents
 const SidebarLayoutComponents = () => {
     const { country_group } = useSelector(({ country }) => country);
-    const { profile } = useSelector(({ auth }) => auth);
+    const { profile, topics }: {
+        profile: any,
+        topics: international_relations_topicsAttributes[]
+    } = useSelector(({ auth }) => auth);
     const [collapsed, setCollapsed] = useState(false);
 
     const Flag = styled("img")`
@@ -165,8 +170,9 @@ const SidebarLayoutComponents = () => {
         return country_group.find((w: any) => w.name == key)
     }
 
-    // menu
-
+    const onClick = (id: string) => {
+        console.log('id :>> ', id);
+    }
 
     return (
         <>
@@ -197,7 +203,7 @@ const SidebarLayoutComponents = () => {
                             <Row>
                                 <ColText span={8}>
                                     {findCountryGroup("อาเซียน")?.countries.map((e: any) => (
-                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""}>
+                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -207,7 +213,7 @@ const SidebarLayoutComponents = () => {
                                 </ColText>
                                 <ColText span={8}>
                                     {findCountryGroup("อาเซียน+9")?.countries.map((e: any) => (
-                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""}>
+                                        <MenuFlag key={e.id} id={e.id} className={e.id == "" ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -217,7 +223,7 @@ const SidebarLayoutComponents = () => {
                                 </ColText>
                                 <ColText span={8}>
                                     {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
-                                        <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == "" ? 'active' : ""}>
+                                        <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == "" ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
                                                 <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
@@ -229,51 +235,14 @@ const SidebarLayoutComponents = () => {
                             </Row>
 
                             <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
+
+                            <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ <Button type='link'><SwitcherOutlined /></Button></H1>
+                            {/* <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p> */}
+                            <ToppicMenu list={topics} />
+
                         </>
 
-                        <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
-                        {/* <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p> */}
-                        <CollapseToppic ghost expandIconPosition={"end"}>
-                            <PanelToppic header="1. This is panel header" key="1">
-                                <CollapseToppic ghost expandIconPosition={"end"}>
-                                    <PanelToppic header="1.1. This is panel header" key="1.1">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                    <PanelToppic header="1.2. This is panel header" key="1.2">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                    <PanelToppic header="1.3. This is panel header" key="1.3">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                </CollapseToppic>
-                            </PanelToppic>
-                            <PanelToppic header="2. This is panel header" key="2">
-                                <CollapseToppic ghost expandIconPosition={"end"}>
-                                    <PanelToppic header="2.1. This is panel header" key="2.1">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                    <PanelToppic header="2.2. This is panel header" key="=2.2">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                    <PanelToppic header="2.3. This is panel header" key="2.3">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                </CollapseToppic>
-                            </PanelToppic>
-                            <PanelToppic header="3. This is panel header" key="3">
-                                <CollapseToppic ghost expandIconPosition={"end"}>
-                                    <PanelToppic header="3.1. This is panel header" key="3.1">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                    <PanelToppic header="3.2. This is panel header" key="3.2">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                    <PanelToppic header="3.3. This is panel header" key="3.3">
-                                        <div className='toppic'>This is panel header</div>
-                                    </PanelToppic>
-                                </CollapseToppic>
-                            </PanelToppic>
-                        </CollapseToppic>
+
                     </div>
                 </div>
             </Sidebar>
@@ -305,6 +274,10 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
         setOpen(false);
     };
 
+    const onClick = (id: string) => {
+      console.log('id :>> ', id);
+    };
+
     return (
         <>
             <ButtonIWG style={{ marginTop: 10 }} onClick={showModal}>IONS Working Groups</ButtonIWG>
@@ -331,7 +304,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
                             <td style={{ borderRight: "1px solid #dddddd" }}>
                                 <FlagIWGGroup>
                                     {memberฉountries.map((e: any) => (
-                                        <FlagIWG key={e.icon_path}>
+                                        <FlagIWG key={e.icon_path} onClick={() => onClick(e.id)}>
                                             <img src={e.icon_path} />
                                             <div className='text'>{e.initials_th}</div>
                                         </FlagIWG>
@@ -341,7 +314,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
                             <td style={{ display: "flex" }}>
                                 <FlagIWGGroup>
                                     {observerฉountries.map((e: any) => (
-                                        <FlagIWG key={e.icon_path}>
+                                        <FlagIWG key={e.icon_path} onClick={() => onClick(e.id)}>
                                             <img src={e.icon_path} />
                                             <div className='text'>{e.initials_th}</div>
                                         </FlagIWG>
@@ -352,6 +325,44 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
                     </tbody>
                 </table>
             </ModalIWG>
+        </>
+    )
+}
+//#endregion
+
+//#region -> ToppicMenu
+
+const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes[], index?: string }) => {
+    const onChange = (value: any) => {
+        console.log('value :>> ', value);
+    }
+    const onClick = (id: string) => {
+        console.log('id :>> ', id);
+    }
+    return (
+        <>
+            <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
+                {list.map((e, i) => {
+                    const is_last_node = e.children.filter(w => w.last_node == true);
+                    return (
+
+                        (is_last_node.length == 0) ?
+                            <>
+                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                    <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
+                                </PanelToppic>
+                            </>
+                            :
+                            <>
+                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                    {is_last_node.map((_e, _i) => (
+                                        <div className='toppic' onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
+                                    ))}
+                                </PanelToppic>
+                            </>
+                    )
+                })}
+            </CollapseToppic>
         </>
     )
 }
