@@ -6,7 +6,7 @@ const INIT_STATE = {
 
 type AuthAction = { type: string; payload: any };
 
-const authReducer = (state = INIT_STATE, action: AuthAction) => {
+const toppicMenuReducer = (state = INIT_STATE, action: AuthAction) => {
     switch (action.type) {
         case "SELECT_COUNTRY_SET":
             return {
@@ -23,4 +23,4 @@ const authReducer = (state = INIT_STATE, action: AuthAction) => {
     }
 }
 
-export default authReducer;
+export default toppicMenuReducer;
