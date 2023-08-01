@@ -2,9 +2,9 @@
 
 import Api from "@/services/Api";
 import axios from 'axios';
-import { countriesService } from "@/services/countries";
+import { countriesAllService, countriesService } from "@/services/countries";
 import { Cookies } from "react-cookie";
-import { setCountries } from "./countryActions";
+import { setCountries, setCountriesAll } from "./countryActions";
 import { menusService } from "@/services/menus";
 import { internationalRelationsTopicsService } from "@/services/internationalRelationsTopics";
 
@@ -43,6 +43,9 @@ export const getAuthUser = (dispatch?: any) => {
         if (data) {
             countriesService().then(res => {
                 if (res.data.data) dispatch(setCountries(res.data.data));
+            })
+            countriesAllService().then(res => {
+                if (res.data.data) dispatch(setCountriesAll(res.data.data));
             })
             menusService().then(res => {
                 if (res.data.data) dispatch(setMenus(res.data.data));
