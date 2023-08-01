@@ -4,6 +4,10 @@ import { FiLogOut } from "react-icons/fi";
 import { logout } from "@/redux/actions/authActions";
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from "react";
+import { useDispatch } from 'react-redux';
+import { setLoaging } from "@/redux/actions/configActions";
+import { getByIDInternationalRelationsTopicsService } from "@/services/internationalRelationsTopics";
+import { international_relations_topicsAttributes } from "@/interface/international_relations_topics.interface";
 
 //#region -> styled
 const Navbar = styled(Layout.Header)`
@@ -47,33 +51,45 @@ const FlagName = styled("div")`
     left: 80px;
     font-size: 40px;
 `
-const FlagRecords = styled("div")`
-    font-size: 20px;
-    padding: 7px 0 0 25px;
-`
 //#endregion
 
 const NavbarcrumbLayoutComponents = () => {
     const { countries } = useSelector(({ country }) => country);
     const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
     const [dataCountry, setDataCountry] = useState<any>(null)
+    const [dataToppic, setDataToppic] = useState<international_relations_topicsAttributes | undefined>(undefined)
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (country) {
             const data_country = countries.find((w: any) => w.id == country);
             setDataCountry(data_country)
         }
+
+        if (toppic) {
+            getToppicData(toppic)
+        }
     }, [country, toppic])
+
+    const getToppicData = async (id: string) => {
+        try {
+            dispatch(setLoaging(true))
+            const { data } = await getByIDInternationalRelationsTopicsService(id);
+            setDataToppic(data.data)
+            dispatch(setLoaging(false))
+        } catch (error) {
+            dispatch(setLoaging(false))
+        }
+    }
 
     return (
         <Navbar>
             <NavRow>
-
-
                 <Flag>
                     {dataCountry ? <img src={dataCountry.icon_path} /> : <img style={{ width: 27 }} src={"./images/Royal_Thai_Navy.svg"} />}
                     <FlagName> {dataCountry ?
-                        <span>{dataCountry.initials_th}</span> :
+                        <span>{dataCountry.initials_th} {`${dataToppic ? ` - ${dataToppic.name}` : ""}`}</span> :
                         <span>ระบบข้อมูลความสัมพันธ์ระหว่างประเทศ</span>}
                     </FlagName>
                 </Flag>
