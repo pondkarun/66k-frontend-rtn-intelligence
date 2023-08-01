@@ -35,6 +35,7 @@ const LoadingDiv = styled("div")`
 const LayoutComponents = ({ children }: Props) => {
     const { token: { colorBgContainer }, } = theme.useToken();
     const { loading } = useSelector(({ configs }) => configs);
+    const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
@@ -48,11 +49,10 @@ const LayoutComponents = ({ children }: Props) => {
                 <Navbar />
                 <BreadcrumbLayoutComponents />
                 <Content style={{ margin: '0 16px' }}>
-                    <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
+                    <div style={{ padding: 24, minHeight: 360, background: country && toppic ? colorBgContainer : "#111730" }}>
                         {children}
                     </div>
                 </Content>
-                {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}
             </Layout>
         </Layout>
     )
