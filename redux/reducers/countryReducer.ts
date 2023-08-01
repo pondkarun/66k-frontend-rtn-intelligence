@@ -1,7 +1,7 @@
 
 const INIT_STATE = {
     country_group: [],
-    country: []
+    countries: []
 };
 
 type CountryAction = { type: string; payload: any };
@@ -14,7 +14,7 @@ const countryReducer = (state = INIT_STATE, action: CountryAction) => {
             }
         case "COUNTRIES_ALL_SET":
             return {
-                ...state, country: action.payload
+                ...state, countries: action.payload
             }
         default:
             return {

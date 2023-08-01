@@ -2,7 +2,10 @@ import { Layout } from "antd";
 import styled from "styled-components";
 import { FiLogOut } from "react-icons/fi";
 import { logout } from "@/redux/actions/authActions";
+import { useSelector } from 'react-redux';
+import { useEffect, useState } from "react";
 
+//#region -> styled
 const Navbar = styled(Layout.Header)`
     background-image: url('/images/page/layout/header.png');
     width: 100%;
@@ -37,37 +40,45 @@ const Flag = styled("div")`
         width: 65px;
     }  
 `
-const FlagNameTh = styled("div")`
+const FlagName = styled("div")`
     position: relative;
-    top: -78px;
+    top: -65px;
     color: #fff;
     left: 80px;
-    font-size: 18px;
-`
-const FlagNameEn = styled(FlagNameTh)`
-    display: flex;
-    top: -120px;
-    font-size: 45px;
+    font-size: 40px;
 `
 const FlagRecords = styled("div")`
     font-size: 20px;
     padding: 7px 0 0 25px;
 `
+//#endregion
+
 const NavbarcrumbLayoutComponents = () => {
+    const { countries } = useSelector(({ country }) => country);
+    const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
+    const [dataCountry, setDataCountry] = useState<any>(null)
+
+    useEffect(() => {
+        if (country) {
+            const data_country = countries.find((w: any) => w.id == country);
+            setDataCountry(data_country)
+        }
+    }, [country, toppic])
 
     return (
         <Navbar>
             <NavRow>
+
+
                 <Flag>
-                    <img src="/images/flag_icon/001-ethiopia.png" />
-                    <FlagNameTh>ประเทศเอธิโอเปีย</FlagNameTh>
-                    <FlagNameEn>
-                        <text>Ethiopia</text>
-                        <FlagRecords>Found : 9,900 Records</FlagRecords>
-                    </FlagNameEn>
+                    {dataCountry ? <img src={dataCountry.icon_path} /> : <img style={{ width: 27 }} src={"./images/Royal_Thai_Navy.svg"} />}
+                    <FlagName> {dataCountry ?
+                        <span>{dataCountry.initials_th}</span> :
+                        <span>ระบบข้อมูลความสัมพันธ์ระหว่างประเทศ</span>}
+                    </FlagName>
                 </Flag>
                 <Logout onClick={logout}>
-                    <text>ออกจากระบบ</text>
+                    <span style={{ paddingRight: 5 }}>ออกจากระบบ</span>
                     <FiLogOut />
                 </Logout>
             </NavRow>
