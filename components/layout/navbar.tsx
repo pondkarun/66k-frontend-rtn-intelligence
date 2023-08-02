@@ -87,7 +87,7 @@ const NavbarcrumbLayoutComponents = () => {
         <Navbar>
             <NavRow>
                 <Flag>
-                    {dataCountry ? <img src={dataCountry.icon_path} /> : <img style={{ width: 27 }} src={"./images/Royal_Thai_Navy.svg"} />}
+                    {dataCountry ? <img src={dataCountry.icon_path} /> : <img style={{ width: 27 }} src={"/images/Royal_Thai_Navy.svg"} />}
                     <FlagName> {dataCountry ?
                         <span>{dataCountry.initials_th} {`${dataToppic ? ` - ${dataToppic.name}` : ""}`}</span> :
                         <span>ระบบข้อมูลความสัมพันธ์ระหว่างประเทศ</span>}

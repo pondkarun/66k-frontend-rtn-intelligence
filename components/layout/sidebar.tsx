@@ -56,7 +56,7 @@ const MenuFlag = styled("div")`
    &.active {
      background: ${primary_color};
    }
-   text {
+   span {
      font-size: 18px;
      color: #fff;
    }
@@ -222,7 +222,7 @@ const SidebarLayoutComponents = () => {
                                         <MenuFlag key={e.id} id={e.id} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
-                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><span>{e.initials_th}</span></ColMenuFlag>
                                             </Row>
                                         </MenuFlag>
                                     ))}
@@ -232,7 +232,7 @@ const SidebarLayoutComponents = () => {
                                         <MenuFlag key={e.id} id={e.id} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
-                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><span>{e.initials_th}</span></ColMenuFlag>
                                             </Row>
                                         </MenuFlag>
                                     ))}
@@ -242,7 +242,7 @@ const SidebarLayoutComponents = () => {
                                         <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
                                                 <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
-                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><text>{e.initials_th}</text></ColMenuFlag>
+                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><span>{e.initials_th}</span></ColMenuFlag>
                                             </Row>
                                         </MenuFlag>
                                     ))}

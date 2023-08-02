@@ -20,14 +20,17 @@ const useAuthToken = () => {
             const refresh_token = cookies.get("refresh_token");
 
             if (refresh_token) dispatch(setRefreshToken(refresh_token));
-            if (token && num == 1) {
-                dispatch(setAuthToken(token));
-                try {
-                    getAuthUser(dispatch)
-                    return;
-                } catch (err) {
-                    console.error("err in auth: ", err)
-                    return;
+            // console.log('token :>> ', token);
+            if (token) {
+                if (num == 1) {
+                    dispatch(setAuthToken(token));
+                    try {
+                        getAuthUser(dispatch)
+                        return;
+                    } catch (err) {
+                        console.error("err in auth: ", err)
+                        return;
+                    }
                 }
             } else {
                 Router.push('/login');
