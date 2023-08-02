@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { setLoaging } from "@/redux/actions/configActions";
 import { getByIDInternationalRelationsTopicsService } from "@/services/internationalRelationsTopics";
 import { international_relations_topicsAttributes } from "@/interface/international_relations_topics.interface";
+import { getByIdCountriesAllService } from "@/services/countries";
 
 //#region -> styled
 const Navbar = styled(Layout.Header)`
@@ -50,6 +51,12 @@ const FlagName = styled("div")`
     color: #fff;
     left: 80px;
     font-size: 40px;
+    .ellipsis-text {
+        white-space: nowrap; /* ไม่ให้ข้อความขึ้นบรรทัดใหม่ */
+        overflow: hidden; /* ซ่อนข้อความที่เกินขอบเขต */
+        text-overflow: ellipsis; /* แสดง "..." เมื่อข้อความเกิน */
+        max-width: 150px; /* กำหนดความยาวสูงสุดของข้อความที่จะแสดง */
+    }
 `
 //#endregion
 
@@ -64,7 +71,13 @@ const NavbarcrumbLayoutComponents = () => {
     useEffect(() => {
         if (country) {
             const data_country = countries.find((w: any) => w.id == country);
-            setDataCountry(data_country)
+            if (!data_country) {
+                getByIdCountriesAllService(country).then(({ data }) => {
+                    setDataCountry(data.data)
+                })
+            } else {
+                setDataCountry(data_country)
+            }
         }
 
         if (toppic) {
@@ -89,8 +102,8 @@ const NavbarcrumbLayoutComponents = () => {
                 <Flag>
                     {dataCountry ? <img src={dataCountry.icon_path} /> : <img style={{ width: 27 }} src={"/images/Royal_Thai_Navy.svg"} />}
                     <FlagName> {dataCountry ?
-                        <span>{dataCountry.initials_th} {`${dataToppic ? ` - ${dataToppic.name}` : ""}`}</span> :
-                        <span>ระบบข้อมูลความสัมพันธ์ระหว่างประเทศ</span>}
+                        <span className="ellipsis-text">{dataCountry.initials_th} {`${dataToppic ? ` - ${dataToppic.name}` : ""}`}</span> :
+                        <span className="ellipsis-text">ระบบข้อมูลความสัมพันธ์ระหว่างประเทศ</span>}
                     </FlagName>
                 </Flag>
                 <Logout onClick={logout}>

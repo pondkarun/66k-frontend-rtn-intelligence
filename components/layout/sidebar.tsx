@@ -6,6 +6,8 @@ import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
 import { useDispatch } from 'react-redux';
 import { setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
+import { setBackground } from '@/redux/actions/configActions';
+import Router from "next/router";
 const { Sider } = Layout;
 
 
@@ -173,8 +175,18 @@ const SidebarLayoutComponents = () => {
     const dispatch = useDispatch();
     const { country_group } = useSelector(({ country }) => country);
     const { profile, topics }: useSelectorAuth = useSelector(({ auth }) => auth);
-    const { country } = useSelector(({ toppic_menu }) => toppic_menu);
+    const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
     const [collapsed, setCollapsed] = useState(false);
+
+    useEffect(() => {
+        dispatch(setBackground("#111730"));
+    }, [])
+
+    useEffect(() => {
+        if (country && toppic) {
+            dispatch(setBackground("#fff"));
+        }
+    }, [country, toppic])
 
     const Flag = styled("img")`
         width: 30px;
@@ -188,6 +200,11 @@ const SidebarLayoutComponents = () => {
 
     const onClick = (id: string) => {
         dispatch(setSelectCountry(id))
+
+        if (toppic) {
+            Router.push(`/international-relations-topics/${id}/${toppic}`);
+        }
+
     }
 
     return (
@@ -350,14 +367,15 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 
 const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes[], index?: string }) => {
     const dispatch = useDispatch();
-    const { toppic } = useSelector(({ toppic_menu }) => toppic_menu);
+    const { toppic, country } = useSelector(({ toppic_menu }) => toppic_menu);
 
     const onChange = (value: any) => {
-        console.log('value :>> ', value);
+        // console.log('value :>> ', value);
     }
     const onClick = (id: string) => {
         // console.log('id :>> ', id);
         dispatch(setSelectToppic(id))
+        Router.push(`/international-relations-topics/${country}/${id}`);
     }
     return (
         <>

@@ -33,10 +33,7 @@ const LoadingDiv = styled("div")`
 //#endregion
 
 const LayoutComponents = ({ children }: Props) => {
-    const { token: { colorBgContainer }, } = theme.useToken();
-    const { loading } = useSelector(({ configs }) => configs);
-    const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
-
+    const { loading, background } = useSelector(({ configs }) => configs);
     return (
         <Layout style={{ minHeight: '100vh' }}>
 
@@ -49,7 +46,7 @@ const LayoutComponents = ({ children }: Props) => {
                 <Navbar />
                 <BreadcrumbLayoutComponents />
                 <Content style={{ margin: '0 16px' }}>
-                    <div style={{ padding: 24, minHeight: 360, background: country && toppic ? colorBgContainer : "#111730" }}>
+                    <div style={{ padding: 24, minHeight: 360, background: background }}>
                         {children}
                     </div>
                 </Content>
