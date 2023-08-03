@@ -9,6 +9,7 @@ import { setLoaging } from "@/redux/actions/configActions";
 import { getByIDInternationalRelationsTopicsService } from "@/services/internationalRelationsTopics";
 import { international_relations_topicsAttributes } from "@/interface/international_relations_topics.interface";
 import { getByIdCountriesAllService } from "@/services/countries";
+import { setObjCountry, setObjToppic } from "@/redux/actions/toppicMenuActions";
 
 //#region -> styled
 const Navbar = styled(Layout.Header)`
@@ -74,9 +75,11 @@ const NavbarcrumbLayoutComponents = () => {
             if (!data_country) {
                 getByIdCountriesAllService(country).then(({ data }) => {
                     setDataCountry(data.data)
+                    dispatch(setObjCountry(data.data))
                 })
             } else {
                 setDataCountry(data_country)
+                dispatch(setObjCountry(data_country))
             }
         }
 
@@ -90,6 +93,7 @@ const NavbarcrumbLayoutComponents = () => {
             dispatch(setLoaging(true))
             const { data } = await getByIDInternationalRelationsTopicsService(id);
             setDataToppic(data.data)
+            dispatch(setObjToppic(data.data))
             dispatch(setLoaging(false))
         } catch (error) {
             dispatch(setLoaging(false))

@@ -4,6 +4,7 @@ import Layout from "@/components/layout";
 import { useDispatch } from 'react-redux';
 import styled from "styled-components";
 import { setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
+import ManageInternationalRelationsTopics from '@/components/page/international-relations-topics/manage-international-relations-topics';
 //#region -> styled
 
 //#endregion
@@ -23,7 +24,9 @@ const AddInternationalRelationsTopics = () => {
     }, [country, toppic]);
     return (
         <Layout>
-            <div>ยินดีต้นรับ (Add)</div>
+            <>
+                <ManageInternationalRelationsTopics mode='add' />
+            </>
         </Layout>
     )
 }

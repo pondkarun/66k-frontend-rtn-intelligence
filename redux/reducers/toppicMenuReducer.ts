@@ -2,6 +2,8 @@
 const INIT_STATE = {
     country: undefined,
     toppic: undefined,
+    country_obj: undefined,
+    toppic_obj: undefined,
 };
 
 type AuthAction = { type: string; payload: any };
@@ -15,6 +17,14 @@ const toppicMenuReducer = (state = INIT_STATE, action: AuthAction) => {
         case "SELECT_TOPPIC_SET":
             return {
                 ...state, toppic: action.payload
+            }
+        case "OBJ_COUNTRY_SET":
+            return {
+                ...state, country_obj: action.payload
+            }
+        case "OBJ_TOPPIC_SET":
+            return {
+                ...state, toppic_obj: action.payload
             }
         default:
             return {

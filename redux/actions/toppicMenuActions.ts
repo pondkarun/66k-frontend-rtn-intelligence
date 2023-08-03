@@ -11,3 +11,17 @@ export const setSelectToppic = (id: string) => {
         payload: id,
     };
 };
+
+export const setObjCountry = (id: any) => {
+    return {
+        type: "OBJ_COUNTRY_SET",
+        payload: id,
+    };
+};
+
+export const setObjToppic = (id: any) => {
+    return {
+        type: "OBJ_TOPPIC_SET",
+        payload: id,
+    };
+};
