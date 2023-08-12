@@ -2,7 +2,16 @@ import { Layout } from "antd";
 import styled from "styled-components";
 import { FiLogOut } from "react-icons/fi";
 import { logout } from "@/redux/actions/authActions";
+import { useSelector } from 'react-redux';
+import { useEffect, useState } from "react";
+import { useDispatch } from 'react-redux';
+import { setLoaging } from "@/redux/actions/configActions";
+import { getByIDInternationalRelationsTopicsService } from "@/services/internationalRelationsTopics";
+import { international_relations_topicsAttributes } from "@/interface/international_relations_topics.interface";
+import { getByIdCountriesAllService } from "@/services/countries";
+import { setObjCountry, setObjToppic } from "@/redux/actions/toppicMenuActions";
 
+//#region -> styled
 const Navbar = styled(Layout.Header)`
     background-image: url('/images/page/layout/header.png');
     width: 100%;
@@ -37,37 +46,72 @@ const Flag = styled("div")`
         width: 65px;
     }  
 `
-const FlagNameTh = styled("div")`
+const FlagName = styled("div")`
     position: relative;
-    top: -78px;
+    top: -65px;
     color: #fff;
     left: 80px;
-    font-size: 18px;
+    font-size: 40px;
+    .ellipsis-text {
+        white-space: nowrap; /* ไม่ให้ข้อความขึ้นบรรทัดใหม่ */
+        overflow: hidden; /* ซ่อนข้อความที่เกินขอบเขต */
+        text-overflow: ellipsis; /* แสดง "..." เมื่อข้อความเกิน */
+        max-width: 150px; /* กำหนดความยาวสูงสุดของข้อความที่จะแสดง */
+    }
 `
-const FlagNameEn = styled(FlagNameTh)`
-    display: flex;
-    top: -120px;
-    font-size: 45px;
-`
-const FlagRecords = styled("div")`
-    font-size: 20px;
-    padding: 7px 0 0 25px;
-`
+//#endregion
+
 const NavbarcrumbLayoutComponents = () => {
+    const { countries } = useSelector(({ country }) => country);
+    const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
+    const [dataCountry, setDataCountry] = useState<any>(null)
+    const [dataToppic, setDataToppic] = useState<international_relations_topicsAttributes | undefined>(undefined)
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (country) {
+            const data_country = countries.find((w: any) => w.id == country);
+            if (!data_country) {
+                getByIdCountriesAllService(country).then(({ data }) => {
+                    setDataCountry(data.data)
+                    dispatch(setObjCountry(data.data))
+                })
+            } else {
+                setDataCountry(data_country)
+                dispatch(setObjCountry(data_country))
+            }
+        }
+
+        if (toppic) {
+            getToppicData(toppic)
+        }
+    }, [country, toppic])
+
+    const getToppicData = async (id: string) => {
+        try {
+            dispatch(setLoaging(true))
+            const { data } = await getByIDInternationalRelationsTopicsService(id);
+            setDataToppic(data.data)
+            dispatch(setObjToppic(data.data))
+            dispatch(setLoaging(false))
+        } catch (error) {
+            dispatch(setLoaging(false))
+        }
+    }
 
     return (
         <Navbar>
             <NavRow>
                 <Flag>
-                    <img src="/images/flag_icon/001-ethiopia.png" />
-                    <FlagNameTh>ประเทศเอธิโอเปีย</FlagNameTh>
-                    <FlagNameEn>
-                        <text>Ethiopia</text>
-                        <FlagRecords>Found : 9,900 Records</FlagRecords>
-                    </FlagNameEn>
+                    {dataCountry ? <img src={dataCountry.icon_path} /> : <img style={{ width: 27 }} src={"/images/Royal_Thai_Navy.svg"} />}
+                    <FlagName> {dataCountry ?
+                        <span className="ellipsis-text">{dataCountry.initials_th} {`${dataToppic ? ` - ${dataToppic.name}` : ""}`}</span> :
+                        <span className="ellipsis-text">ระบบข้อมูลความสัมพันธ์ระหว่างประเทศ</span>}
+                    </FlagName>
                 </Flag>
                 <Logout onClick={logout}>
-                    <text>ออกจากระบบ</text>
+                    <span style={{ paddingRight: 5 }}>ออกจากระบบ</span>
                     <FiLogOut />
                 </Logout>
             </NavRow>

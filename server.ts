@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import next from 'next';
 import dotenv from 'dotenv';
+import apiRoutes from "./api";
 dotenv.config();
 
 const config = {
@@ -19,6 +20,7 @@ app.prepare().then(() => {
 
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
+    server.use("/api", apiRoutes);
     server.all("*", (req, res) => {
         return handle(req, res);
     });

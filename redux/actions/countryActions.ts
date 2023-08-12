@@ -4,3 +4,10 @@ export const setCountries = (data: any) => {
         payload: data,
     };
 };
+
+export const setCountriesAll = (data: any) => {
+    return {
+        type: "COUNTRIES_ALL_SET",
+        payload: data,
+    };
+};
