@@ -12,6 +12,7 @@ import '../styles/globals.scss';
 export const primary_color = "#E4B354"
 export const imgSrc = "/images/page/login/logo.png"
 export const version = publicRuntimeConfig?.version
+import locale from 'antd/locale/th_TH'
 
 const App = ({ Component, pageProps }: AppProps) => {
     return (
@@ -19,7 +20,7 @@ const App = ({ Component, pageProps }: AppProps) => {
             <Head>
                 <title>ระบบข้อมูลความสัมพันธ์ ระหว่างประเทศ</title>
             </Head>
-            <ConfigProvider theme={{
+            <ConfigProvider locale={locale} theme={{
                 token: {
                     colorPrimary: primary_color,
                     fontFamily: 'MNPimai',
