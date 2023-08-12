@@ -46,7 +46,7 @@ const LayoutComponents = ({ children }: Props) => {
                 <Navbar />
                 <BreadcrumbLayoutComponents />
                 <Content style={{ margin: '0 16px' }}>
-                    <div style={{ padding: 24, minHeight: 360, background: background }}>
+                    <div style={{ padding: 24, minHeight: 360, background: background, maxHeight: "87dvh", overflowY: "auto" }}>
                         {children}
                     </div>
                 </Content>

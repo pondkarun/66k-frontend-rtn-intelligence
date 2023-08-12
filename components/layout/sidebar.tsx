@@ -1,4 +1,4 @@
-import { Badge, Button, Col, Collapse, Layout, Modal, Row } from 'antd';
+import { Badge, Button, Col, Collapse, Layout, Menu, MenuProps, Modal, Row } from 'antd';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import styled from "styled-components";
@@ -8,6 +8,8 @@ import { useDispatch } from 'react-redux';
 import { setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
 import { setBackground } from '@/redux/actions/configActions';
 import Router from "next/router";
+import { AppstoreOutlined, DownOutlined, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
+import { isArray } from 'lodash';
 const { Sider } = Layout;
 
 
@@ -163,6 +165,60 @@ const CollapseToppic = styled(Collapse)`
 `
 const PanelToppic = styled(Collapse.Panel)``
 
+
+const MenuSidebar = styled(Menu)`
+    color: #fff;
+    background: #ffffff00;
+    .ant-menu-submenu-title {
+        padding-left: 0px !important;
+        border-radius: 0 0 0 0 !important;
+        border-bottom: 1px solid #fff;
+        width: 100%;
+        margin-inline: 0px;
+    } 
+    .ant-menu-item {
+        padding-left: 30px !important;
+        &:hover {
+            border-bottom: 1px solid ${primary_color};
+            .ant-menu-title-content {
+                color: ${primary_color};
+            }
+        }
+    }
+    .ant-menu-submenu-title {
+        padding-inline-end: 15px;
+        .ant-menu-title-content {
+            padding-left: 15px !important;
+        }
+        &:hover {
+            border-bottom: 1px solid ${primary_color};
+            .ant-menu-title-content {
+                color: ${primary_color};
+            }
+            svg {
+                color: ${primary_color};
+            }
+        }
+    }
+    .ant-menu-item-selected {
+        border-bottom: 1px solid ${primary_color};
+        background-color: #e4b35400;
+        color: #e4b354;
+    }
+    svg {
+        font-size: 18px;
+    }
+    ul {
+        color: #fff !important;
+        background: #ffffff00 !important;
+       li {
+            border-radius: 0 0 0 0 !important;
+            border-bottom: 1px solid #fff;
+       }
+      
+    }
+`
+
 //#endregion
 
 //#region -> SidebarLayoutComponents
@@ -170,11 +226,12 @@ const PanelToppic = styled(Collapse.Panel)``
 type useSelectorAuth = {
     profile: any;
     topics: international_relations_topicsAttributes[];
+    menus: any[];
 }
 const SidebarLayoutComponents = () => {
     const dispatch = useDispatch();
     const { country_group } = useSelector(({ country }) => country);
-    const { profile, topics }: useSelectorAuth = useSelector(({ auth }) => auth);
+    const { profile, topics, menus }: useSelectorAuth = useSelector(({ auth }) => auth);
     const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
     const [collapsed, setCollapsed] = useState(false);
 
@@ -205,6 +262,50 @@ const SidebarLayoutComponents = () => {
             Router.push(`/international-relations-topics/${id}/${toppic}`);
         }
 
+    }
+
+    /** menu */
+    const [currentMenu, setCurrentMenu] = useState('mail');
+    const [itemsMenu, setItemsMenu] = useState<any[]>([]);
+
+    useEffect(() => {
+        const menuItem: any[] = [];
+        if (isArray(menus)) {
+            menus.forEach(e => {
+                const model: any = {
+                    label: e.name,
+                    key: e.id,
+                    path: e.path ?? null,
+                    children: []
+                }
+                if (isArray(e.children)) {
+                    e.children.forEach((w: any) => {
+                        model.children.push({
+                            label: w.name,
+                            key: w.id,
+                            path: w.path
+                        })
+                    })
+                }
+                menuItem.push(model)
+            })
+        }
+        // console.log('menuItem :>> ', menuItem);
+        setItemsMenu(menuItem)
+    }, [menus])
+
+    const onClickMenu: MenuProps['onClick'] = (e) => {
+        // console.log('click ', e);
+        if (e.keyPath.length >= 2) {
+            const find = itemsMenu.find(w => w.key == e.keyPath[1]);
+            if (find) {
+                const findChildren = find.children.find((w: any) => w.key == e.key);
+                if (findChildren?.path) {
+                    Router.push(findChildren.path);
+                }
+            }
+        }
+        setCurrentMenu(e.key);
     }
 
     return (
@@ -272,11 +373,18 @@ const SidebarLayoutComponents = () => {
                             <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
                             {country ? <ToppicMenu list={topics} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
 
-
+                            {itemsMenu.length > 0 ? (
+                                <>
+                                    <H1 style={{ paddingTop: 20 }}>เมนู</H1>
+                                    <MenuSidebar theme="dark" expandIcon={(props) => (
+                                        props.isOpen ? <DownOutlined /> : <RightOutlined />
+                                    )} onClick={onClickMenu} selectedKeys={[currentMenu]} items={itemsMenu} mode="inline" />
+                                </>
+                            ) : null}
                         </>
                     </div>
                 </div>
-            </Sidebar>
+            </Sidebar >
         </>
     )
 }
@@ -287,14 +395,14 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
     const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
     const [memberฉountries, setMemberฉountries] = useState<any[]>([]);
-    const [observerฉountries, setObserverฉountries] = useState<any[]>([]);
+    const [observerฉountries, setObserverCountries] = useState<any[]>([]);
     const { country } = useSelector(({ toppic_menu }) => toppic_menu);
 
     useEffect(() => {
         if (countries) {
             // 1 คือ สมาชิก 2 คือ ผู้สังเกตการณ์
             setMemberฉountries(countries.filter(w => w.status === 1))
-            setObserverฉountries(countries.filter(w => w.status === 2))
+            setObserverCountries(countries.filter(w => w.status === 2))
         }
     }, [countries])
 
