@@ -24,7 +24,7 @@ const App = ({ Component, pageProps }: AppProps) => {
                 token: {
                     colorPrimary: primary_color,
                     fontFamily: 'MNPimai',
-                    fontSize: 21
+                    fontSize: 20
                 },
             }}>
                 <Initiative>
