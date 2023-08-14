@@ -106,7 +106,7 @@ const FormUpload = ({ form, type, name }: FormUploadType) => {
                 </p>
             </Dragger>
             <Row style={{ padding: 10 }}>
-                <Col span={12}><h1>อัพโฟลดไฟล์</h1></Col>
+                <Col span={12}><h1>อัพโหลดไฟล์</h1></Col>
                 <Col span={12} style={{ textAlign: "end" }}>
                     <Upload {...propsButton}>
                         <Button icon={<UploadOutlined />}>Click to Upload</Button>

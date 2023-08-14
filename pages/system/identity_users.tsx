@@ -1,7 +1,7 @@
 import Layout from '@/components/layout'
 import { setBackground } from '@/redux/actions/configActions';
 import { ColumnsType } from 'antd/es/table';
-import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Row, Select, Table, Tooltip } from 'antd';
+import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Table, Tooltip, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -42,6 +42,7 @@ const IdentityUsers = () => {
     const [data, setData] = useState([]);
     const [departments, setDepartments] = useState([]);
     const [formSearch] = Form.useForm();
+    const [modal, contextHolder] = Modal.useModal();
 
     useEffect(() => {
         dispatch(setBackground("#fff"));
@@ -54,21 +55,47 @@ const IdentityUsers = () => {
             const res: any = await searchIdentityUsersService(search);
             setData(res.data?.data ?? [])
         } catch (error) {
-
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
         }
+    }
+
+    function buildTree(data: any) {
+        const idMap = new Map();
+        const resTree: any = [];
+
+        data.forEach((item: any) => {
+            idMap.set(item.id, { ...item, children: [] });
+        });
+
+        idMap.forEach((item, id) => {
+            if (item.parent_id === null) {
+                resTree.push(item);
+            } else {
+                const parent = idMap.get(item.parent_id);
+                parent.children.push(item);
+            }
+        });
+
+        return resTree;
     }
 
     const getAllDepartments = async () => {
         try {
             const res: any = await getAllDepartmentsService();
-            const data: any = [];
+            let data: any = [];
             if (res.data?.data) {
-                res.data.data.forEach((e: any) => {
-                    data.push({
+                const map_data = res.data.data.map((e: any) => {
+                    return {
+                        id: e.id,
                         value: e.id,
-                        label: e.initials
-                    })
+                        title: e.initials,
+                        parent_id: e.parent_id
+                    }
                 });
+                data = buildTree(map_data);
             }
             setDepartments(data)
         } catch (error) {
@@ -113,15 +140,20 @@ const IdentityUsers = () => {
                     <Manage onClick={() => addEditViewModal("view", obj.id)}><EyeOutlined /></Manage>
                 </Tooltip>
 
-                <Tooltip title={`แก้ไขข้อมูล`}>
-                    <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
-                </Tooltip>
 
-                <Tooltip title={`ลบข้อมูล`}>
-                    <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => console.log('Del :>> ')} okText="ตกลง" cancelText="ยกเลิก">
-                        <Manage><DeleteOutlined /></Manage>
-                    </Popconfirm>
-                </Tooltip>
+                {obj.username !== "superadmin" ? <>
+                    <Tooltip title={`แก้ไขข้อมูล`}>
+                        <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
+                    </Tooltip>
+
+                    <Tooltip title={`ลบข้อมูล`}>
+                        <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => delData(obj.id)} okText="ตกลง" cancelText="ยกเลิก">
+                            <Manage><DeleteOutlined /></Manage>
+                        </Popconfirm>
+                    </Tooltip></>
+                    : null}
+
+
             </>,
         },
     ];
@@ -142,10 +174,29 @@ const IdentityUsers = () => {
         if (id) {
             setIsDataId(id)
             const callback: any = await getByIdIdentityUsersService(id);
-            console.log('callback.data.data :>> ', callback.data.data);
             form.setFieldsValue(callback.data.data)
         }
         setIsModalOpen(true);
+    }
+
+    const delData = async (id: string) => {
+        try {
+            await updateIdentityUsersService({
+                is_use: false,
+                is_active: false,
+            }, id)
+            modal.success({
+                centered: true,
+                content: 'บันทึกสำเร็จ',
+            });
+            handleCancel()
+            searchData(formSearch.getFieldValue("search"))
+        } catch (error) {
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
+        }
     }
 
     const handleOk = () => {
@@ -160,18 +211,34 @@ const IdentityUsers = () => {
 
     const onFinish = async (value: any) => {
         try {
+            let isError = false, textError = null;
             if (mode == "add") {
-                value.password = "$2a$05$5eNVr0cQkwBkxLjTY1fuCObubVMlL0Ek2VXHPF7GhRH0uVH9PRy0q";
-                value.role_id = "b18f2822-9259-40d4-aa00-dbdb51a5d10b";
-                await addIdentityUsersService(value)
+                const callback: any = await addIdentityUsersService(value);
+                isError = callback.data.error ? true : false;
+                textError = isError ? callback.data.error : null;
             } else if (mode == "edit") {
                 await updateIdentityUsersService(value, dataId)
             }
-
-            handleCancel()
-            searchData(formSearch.getFieldValue("search"))
+            if (isError) {
+                modal.error({
+                    centered: true,
+                    content: textError
+                });
+            } else {
+                if (mode != "view") {
+                    modal.success({
+                        centered: true,
+                        content: 'บันทึกสำเร็จ',
+                    });
+                    await searchData(formSearch.getFieldValue("search"))
+                }
+                handleCancel()
+            }
         } catch (error) {
-
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
         }
     }
 
@@ -265,16 +332,19 @@ const IdentityUsers = () => {
                             name="department_id"
                             rules={[{ required: true }]}
                         >
-                            <Select
+                            <TreeSelect
                                 showSearch
-                                filterOption={(input, option: any) => (option?.label ?? '').includes(input)}
-                                style={{ width: "100%" }}
-                                options={departments}
+                                style={{ width: '100%' }}
+                                dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                                allowClear
+                                treeDefaultExpandAll
+                                treeData={departments}
                                 disabled={mode == "view" ? true : false}
                             />
                         </Form.Item>
                     </Form>
                 </Modal>
+                {contextHolder}
             </>
         </Layout >
     )
