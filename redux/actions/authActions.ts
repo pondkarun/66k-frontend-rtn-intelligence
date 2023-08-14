@@ -43,16 +43,16 @@ export const getAuthUser = (dispatch?: any) => {
         if (data) {
             countriesService().then(res => {
                 if (res.data.data) dispatch(setCountries(res.data.data));
-            })
+            }).catch(error => { })
             countriesAllService().then(res => {
                 if (res.data.data) dispatch(setCountriesAll(res.data.data));
-            })
+            }).catch(error => { })
             menusService().then(res => {
                 if (res.data.data) dispatch(setMenus(res.data.data));
-            })
+            }).catch(error => { })
             internationalRelationsTopicsService().then(res => {
                 if (res.data.data) dispatch(setTopics(res.data.data));
-            })
+            }).catch(error => { })
             if (dispatch) dispatch(setProfile(data));
         } else {
             logout(dispatch)
@@ -114,5 +114,6 @@ export const logout = (dispatch?: any) => {
 const removeCookieUserAuth = (dispatch?: any) => {
     cookies.remove("access_token", { path: '/' });
     cookies.remove("refresh_token", { path: '/' });
-    location.reload()
+    location.href = "/login";
+
 }

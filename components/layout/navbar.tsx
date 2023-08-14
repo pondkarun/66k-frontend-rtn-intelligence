@@ -76,6 +76,8 @@ const NavbarcrumbLayoutComponents = () => {
                 getByIdCountriesAllService(country).then(({ data }) => {
                     setDataCountry(data.data)
                     dispatch(setObjCountry(data.data))
+                }).catch(error => {
+                    
                 })
             } else {
                 setDataCountry(data_country)
