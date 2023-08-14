@@ -1,13 +1,11 @@
 import Layout from '@/components/layout'
 import { setBackground } from '@/redux/actions/configActions';
-import { ColumnsType } from 'antd/es/table';
-import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Row, Select, Table, Tooltip } from 'antd';
+import { Badge, Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { addIdentityUsersService, getByIdIdentityUsersService, searchIdentityUsersService, updateIdentityUsersService } from '@/services/identity_users';
-import { DeleteOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import { getAllDepartmentsService } from '@/services/departments';
+import { DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -15,6 +13,14 @@ const Title = styled("h1")`
     font-size: 36px;
     font-weight: revert;
     margin-bottom: 0em;
+`
+const TitleText = styled("h3")`
+    color: #00408E;
+    font-size: 26px;
+    font-weight: revert;
+    margin-bottom: 0em;
+    color: #000;
+    border-bottom: 1px solid #000;
 `
 const ButtonSearch = styled(Button)`
     height: 38px;
@@ -40,37 +46,44 @@ const TableSearch = styled(Table)`
 const InternationalRelationsTopics = () => {
     const dispatch = useDispatch();
     const [data, setData] = useState([]);
-    const [departments, setDepartments] = useState([]);
+    const [topics, setTopics] = useState([]);
     const [formSearch] = Form.useForm();
+    const [modal, contextHolder] = Modal.useModal();
 
     useEffect(() => {
         dispatch(setBackground("#fff"));
-        getAllDepartments()
+        getAllTopics()
         searchData("")
     }, [])
 
     const searchData = async (search?: string) => {
         try {
-            const res: any = await searchIdentityUsersService(search);
+            const res: any = await searchInternationalRelationsTopicsService(search);
             setData(res.data?.data ?? [])
         } catch (error) {
-
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
         }
     }
 
-    const getAllDepartments = async () => {
+    const getAllTopics = async () => {
         try {
-            const res: any = await getAllDepartmentsService();
-            const data: any = [];
+            const res: any = await internationalRelationsTopicsService();
+            let data: any = [];
             if (res.data?.data) {
-                res.data.data.forEach((e: any) => {
-                    data.push({
-                        value: e.id,
-                        label: e.initials
-                    })
-                });
+                const setData = (arr: any) => {
+                    arr.forEach((e: any) => {
+                        e.value = e.id;
+                        e.title = e.name;
+                        setData(e.children)
+                    });
+                }
+                setData(res.data.data)
+                data = res.data.data
             }
-            setDepartments(data)
+            setTopics(data)
         } catch (error) {
 
         }
@@ -78,30 +91,25 @@ const InternationalRelationsTopics = () => {
 
     const columns: any = [
         {
-            title: 'Username',
-            dataIndex: 'username',
-            key: 'username',
+            title: 'หัวข้อ',
+            dataIndex: 'name',
+            key: 'name',
             width: 150,
         },
         {
-            title: 'ชื่อ - สกุล',
-            dataIndex: 'age',
-            key: 'age',
-            width: 200,
-            render: (text: any, obj: any) => <>{obj.rank ? `${obj.rank} ` : ""}{obj.first_name} {obj.last_name}</>,
+            title: 'Specific',
+            dataIndex: 'guide_line_specific_field',
+            key: 'guide_line_specific_field',
+            width: 80,
+            align: 'center',
+            render: (text: any, obj: any) => <Badge color={!text ? "red" : "green"} />,
         },
         {
-            title: 'หน่วยงาน',
-            dataIndex: 'address',
-            key: 'address',
+            title: 'หัวข้อแม่',
+            dataIndex: 'parent',
+            key: 'parent',
             width: 200,
-            render: (text: any, obj: any) => <>{obj.department?.initials}</>,
-        },
-        {
-            title: 'ตำแหน่ง',
-            dataIndex: 'position',
-            key: 'position',
-            width: 200,
+            render: (text: any, obj: any) => <>{text ? text.name : "-"}</>,
         },
         {
             title: 'จัดการ',
@@ -113,21 +121,25 @@ const InternationalRelationsTopics = () => {
                     <Manage onClick={() => addEditViewModal("view", obj.id)}><EyeOutlined /></Manage>
                 </Tooltip>
 
-                <Tooltip title={`แก้ไขข้อมูล`}>
-                    <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
-                </Tooltip>
 
-                <Tooltip title={`ลบข้อมูล`}>
-                    <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => console.log('Del :>> ')} okText="ตกลง" cancelText="ยกเลิก">
-                        <Manage><DeleteOutlined /></Manage>
-                    </Popconfirm>
-                </Tooltip>
+                {obj.username !== "superadmin" ? <>
+                    <Tooltip title={`แก้ไขข้อมูล`}>
+                        <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
+                    </Tooltip>
+
+                    <Tooltip title={`ลบข้อมูล`}>
+                        <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => delData(obj.id)} okText="ตกลง" cancelText="ยกเลิก">
+                            <Manage><DeleteOutlined /></Manage>
+                        </Popconfirm>
+                    </Tooltip></>
+                    : null}
+
+
             </>,
         },
     ];
 
     const onFinishSearch = (value: any) => {
-        console.log('Finish:', value);
         searchData(value.search)
     }
 
@@ -141,11 +153,30 @@ const InternationalRelationsTopics = () => {
         setIsMode(mode)
         if (id) {
             setIsDataId(id)
-            const callback: any = await getByIdIdentityUsersService(id);
-            console.log('callback.data.data :>> ', callback.data.data);
+            const callback: any = await getByIDInternationalRelationsTopicsService(id);
             form.setFieldsValue(callback.data.data)
         }
         setIsModalOpen(true);
+    }
+
+    const delData = async (id: string) => {
+        try {
+            await updateInternationalRelationsTopicsService({
+                is_use: false,
+                is_active: false,
+            }, id)
+            modal.success({
+                centered: true,
+                content: 'บันทึกสำเร็จ',
+            });
+            handleCancel()
+            searchData(formSearch.getFieldValue("search"))
+        } catch (error) {
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
+        }
     }
 
     const handleOk = () => {
@@ -160,16 +191,35 @@ const InternationalRelationsTopics = () => {
 
     const onFinish = async (value: any) => {
         try {
+            // console.log('value :>> ', value);
+            let isError = false, textError = null;
             if (mode == "add") {
-                await addIdentityUsersService(value)
+                const callback: any = await addInternationalRelationsTopicsService(value);
+                isError = callback.data.error ? true : false;
+                textError = isError ? callback.data.error : null;
             } else if (mode == "edit") {
-                await updateIdentityUsersService(value, dataId)
+                await updateInternationalRelationsTopicsService(value, dataId)
             }
-
-            handleCancel()
-            searchData(formSearch.getFieldValue("search"))
+            if (isError) {
+                modal.error({
+                    centered: true,
+                    content: textError
+                });
+            } else {
+                if (mode != "view") {
+                    modal.success({
+                        centered: true,
+                        content: 'บันทึกสำเร็จ',
+                    });
+                    await searchData(formSearch.getFieldValue("search"))
+                }
+                handleCancel()
+            }
         } catch (error) {
-
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
         }
     }
 
@@ -210,72 +260,96 @@ const InternationalRelationsTopics = () => {
                     <TableSearch rowKey={"id"} columns={columns} dataSource={data} scroll={{ x: "100%", y: "100%" }} />
                 </ConfigProvider>
 
-                <Modal width={600} title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Modal width={700} title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                     <Form
                         form={form}
                         labelCol={{ span: 6 }}
-                        wrapperCol={{ span: 16 }}
+                        wrapperCol={{ span: 21 }}
                         onFinish={onFinish}
                         onFinishFailed={onFinishFailed}
                         autoComplete="off"
                     >
-                        <Form.Item
-                            label="Username"
-                            name="username"
-                            rules={[{ required: true }]}
-                        >
-                            <Input disabled={mode == "add" ? false : true} />
-                        </Form.Item>
 
                         <Form.Item
-                            label="คำนำหน้า"
-                            name="rank"
+                            label="หัวข้อแม่"
+                            name="parent_id"
                         >
-                            <Input disabled={mode == "view" ? true : false} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="ชื่อจริง"
-                            name="first_name"
-                            rules={[{ required: true }]}
-                        >
-                            <Input disabled={mode == "view" ? true : false} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="นามสกุล"
-                            name="last_name"
-                            rules={[{ required: true }]}
-                        >
-                            <Input disabled={mode == "view" ? true : false} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="ตำแหน่ง"
-                            name="position"
-                            rules={[{ required: true }]}
-                        >
-                            <Input disabled={mode == "view" ? true : false} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="หน่วยงาน"
-                            name="department_id"
-                            rules={[{ required: true }]}
-                        >
-                            <Select
+                            <TreeSelect
                                 showSearch
-                                filterOption={(input, option: any) => (option?.label ?? '').includes(input)}
-                                style={{ width: "100%" }}
-                                options={departments}
+                                style={{ width: '85%' }}
+                                dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                                allowClear
+                                treeDefaultExpandAll
+                                treeData={topics}
                                 disabled={mode == "view" ? true : false}
                             />
                         </Form.Item>
+
+                        <Form.Item
+                            label="หัวข้อ"
+                            name="name"
+                            rules={[{ required: true }]}
+                        >
+                            <Input disabled={mode == "view" ? true : false} style={{ width: "85%" }} />
+                        </Form.Item>
+
+                        <TitleText>Specific</TitleText>
+
+                        <Form.List name="guide_line_specific_field">
+                            {(fields, { add, remove }) => (
+                                <div style={{ paddingTop: 25, paddingLeft: 80 }}>
+                                    {fields.map((field) => (
+                                        <Space key={field.key} align="baseline">
+                                            <Form.Item
+                                                // noStyle
+                                                shouldUpdate={(prevValues, curValues) =>
+                                                    prevValues.groups !== curValues.groups || prevValues.value !== curValues.value
+                                                }
+                                            >
+                                                {() => (
+                                                    <Form.Item
+                                                        {...field}
+                                                        label="Groups"
+                                                        name={[field.name, 'groups']}
+                                                        rules={[{ required: true, message: 'Missing groups name' }]}
+                                                    >
+                                                        <Input style={{ width: 180 }} disabled={mode == "view" ? true : false} />
+                                                    </Form.Item>
+                                                )}
+                                            </Form.Item>
+                                            <Form.Item
+                                                {...field}
+                                                name={[field.name, 'value']}
+                                                rules={[{ required: true, message: 'Missing value' }]}
+                                            >
+
+                                                <Select
+                                                    mode="tags"
+                                                    style={{ width: 240 }}
+                                                    options={[]}
+                                                    disabled={mode == "view" ? true : false}
+                                                />
+                                            </Form.Item>
+
+                                            {mode !== "view" ? <MinusCircleOutlined onClick={() => remove(field.name)} /> : null}
+                                        </Space>
+                                    ))}
+                                    {mode !== "view" ? <Form.Item>
+                                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                            เพิ่ม
+                                        </Button>
+                                    </Form.Item> : null}
+
+                                </div>
+                            )}
+                        </Form.List>
+
                     </Form>
                 </Modal>
+                {contextHolder}
             </>
         </Layout >
     )
 }
 
-export default InternationalRelationsTopics;
+export default InternationalRelationsTopics
