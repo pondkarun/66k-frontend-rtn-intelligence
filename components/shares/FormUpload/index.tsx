@@ -81,6 +81,7 @@ const FormUpload = ({ form, type, name }: FormUploadType) => {
     useEffect(() => {
         const fileForm = form.getFieldValue(name);
         if (fileForm) {
+            console.log('fileForm :>> ', fileForm);
             setFile(fileForm)
         }
     }, [])
