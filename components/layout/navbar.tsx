@@ -65,7 +65,7 @@ const NavbarcrumbLayoutComponents = () => {
     const { countries } = useSelector(({ country }) => country);
     const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
     const [dataCountry, setDataCountry] = useState<any>(null)
-    const [dataToppic, setDataToppic] = useState<international_relations_topicsAttributes | undefined>(undefined)
+    const [dataToppic, setDataToppic] = useState<international_relations_topicsAttributes['data'] | undefined>(undefined)
 
     const dispatch = useDispatch();
 
@@ -94,8 +94,8 @@ const NavbarcrumbLayoutComponents = () => {
         try {
             dispatch(setLoaging(true))
             const { data } = await getByIDInternationalRelationsTopicsService(id);
-            setDataToppic(data.data)
-            dispatch(setObjToppic(data.data))
+            setDataToppic(data)
+            dispatch(setObjToppic(data))
             dispatch(setLoaging(false))
         } catch (error) {
             dispatch(setLoaging(false))

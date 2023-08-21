@@ -80,11 +80,12 @@ const Home = () => {
     ({ toppic_menu }) => toppic_menu,
   ) as MenuT
 
-  const onFinish = (value: any) => {
-    try {
-      console.log('value :>> ', value)
-      Router.push('/international-relations-topics')
-    } catch (error) {}
+  const [form] = Form.useForm<{ search: string }>()
+
+  const onFinish = (_value: unknown) => {
+    console.log('value :>> ', _value)
+    const value = _value as { search?: string }
+    Router.push(`/international-relations-topics/${menu.country}`)
   }
 
   return (
@@ -95,6 +96,7 @@ const Home = () => {
 
         {typeof menu.country !== 'undefined' && (
           <FormSearch
+            form={form}
             name='login'
             layout={'inline'}
             style={{ marginTop: '25px' }}

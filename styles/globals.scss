@@ -1,16 +1,22 @@
 @font-face {
-  font-family: "MNPimai";
-  src: url(/fonts/MNPaethaiMed.ttf) format("truetype");
+  font-family: 'MNPimai';
+  src: url(/fonts/MNPaethaiMed.ttf) format('truetype');
 }
 
 html,
 body {
-  font-family: "MNPimai", sans-serif;
+  font-family: 'MNPimai', sans-serif;
   font-size: 1rem;
   padding: 0px;
   margin: 0px;
 }
 
 .text-center {
+  text-align: center;
+}
+
+.ant-table-container .ant-table-header > table .ant-table-thead > tr > th {
+  background: #00408e;
+  color: rgb(255 255 255);
   text-align: center;
 }
