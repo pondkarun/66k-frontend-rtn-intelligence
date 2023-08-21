@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { HiOutlineDocumentText } from "react-icons/hi";
 import { BsImage } from "react-icons/bs";
+import { Tforminternational } from '@/interface/international_relations_topics.interface';
 
 type ManageInternationalRelationsTopicsType = {
     mode: "add" | "edit"
@@ -35,7 +36,7 @@ const Line = styled("div")`
 const ManageInternationalRelationsTopics = ({ mode }: ManageInternationalRelationsTopicsType) => {
 
     const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu);
-    const [form]: any = Form.useForm();
+    const [form] = Form.useForm<Tforminternational>();
 
     useEffect(() => {
         form.setFieldsValue({
@@ -54,8 +55,8 @@ const ManageInternationalRelationsTopics = ({ mode }: ManageInternationalRelatio
         })
     }, [])
 
-    const onFinish = (value: any) => {
-        const data = form.getFieldValue()
+    const onFinish = () => {
+        const data = form.getFieldsValue()
         console.log('data :>> ', data);
     }
 

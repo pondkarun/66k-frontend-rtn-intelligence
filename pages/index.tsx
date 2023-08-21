@@ -1,12 +1,15 @@
-import styled from "styled-components";
-import Layout from "../components/layout";
-import { Button, Form, Input } from "antd";
-import { primary_color } from "./_app";
-import { SearchOutlined } from "@ant-design/icons";
-import Router from "next/router";
+import styled from 'styled-components'
+import Layout from '../components/layout'
+import { Button, Form, Input } from 'antd'
+import { primary_color } from './_app'
+import { SearchOutlined } from '@ant-design/icons'
+import Router from 'next/router'
+import { useSelector } from 'react-redux'
+import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
+import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 
 //#region -> styled
-const LandingPage = styled("div")`
+const LandingPage = styled('div')`
   height: 80vh;
   text-align: center;
   img {
@@ -20,95 +23,100 @@ const LandingPage = styled("div")`
 `
 
 const FormSearch = styled(Form)`
-    margin-top: 25px;
-    justify-content: center;
-    .ant-input-affix-wrapper {
-        background-color: #ffffff00;
-        color: ${primary_color};
-        border-width: 0px;
-        border-bottom: 1px solid ${primary_color};
-        border-radius: 0px;
+  margin-top: 25px;
+  justify-content: center;
+  .ant-input-affix-wrapper {
+    background-color: #ffffff00;
+    color: ${primary_color};
+    border-width: 0px;
+    border-bottom: 1px solid ${primary_color};
+    border-radius: 0px;
 
-        .ant-input {
-            background-color: #ffffff00;
-            color: ${primary_color};
-            padding-left: 15px;
-        }
-        .anticon.ant-input-password-icon {
-            color: ${primary_color};
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        input::placeholder {
-            color: ${primary_color};
-        }
-       
+    .ant-input {
+      background-color: #ffffff00;
+      color: ${primary_color};
+      padding-left: 15px;
     }
-    .ant-input-affix-wrapper-status-error {
-        input::placeholder {
-            color: #ff4d4f;
-        }
+    .anticon.ant-input-password-icon {
+      color: ${primary_color};
+      cursor: pointer;
+      transition: all 0.3s;
     }
-    @media only screen and (max-width: 640px) {
-        margin-top: 0px !important;
+    input::placeholder {
+      color: ${primary_color};
     }
-    @media only screen and (max-width: 550px) {
-        padding: 40px 0px 0 0px;
+  }
+  .ant-input-affix-wrapper-status-error {
+    input::placeholder {
+      color: #ff4d4f;
     }
+  }
+  @media only screen and (max-width: 640px) {
+    margin-top: 0px !important;
+  }
+  @media only screen and (max-width: 550px) {
+    padding: 40px 0px 0 0px;
+  }
 `
 
 const ButtonSearch = styled(Button)`
-    border: 1px solid ${primary_color};
-    background-color: #e4b35400;
-    font-size: 25px !important;
-    color: ${primary_color};
-    &:hover {
-        color: #0b1741 !important;
-    }
+  border: 1px solid ${primary_color};
+  background-color: #e4b35400;
+  font-size: 25px !important;
+  color: ${primary_color};
+  &:hover {
+    color: #0b1741 !important;
+  }
 
-    @media only screen and (max-width: 550px) {
-        font-size: 20px !important;
-        height: 50px !important;
-    }
+  @media only screen and (max-width: 550px) {
+    font-size: 20px !important;
+    height: 50px !important;
+  }
 `
 //#endregion
 
 const Home = () => {
+  const menu = useSelector<KeyTypestateRedux>(
+    ({ toppic_menu }) => toppic_menu,
+  ) as MenuT
 
   const onFinish = (value: any) => {
     try {
-      console.log('value :>> ', value);
-      Router.push('/international-relations-topics');
-    } catch (error) {
-
-    }
+      console.log('value :>> ', value)
+      Router.push('/international-relations-topics')
+    } catch (error) {}
   }
 
   return (
     <Layout>
       <LandingPage>
-        <img src="./images/Royal_Thai_Navy.svg" />
+        <img src='./images/Royal_Thai_Navy.svg' alt='Royal_Thai_Navy.svg' />
         <h1>ระบบข้อมูลความสัมพันธ์ระหว่างประเทศ</h1>
-        <FormSearch
-          name="login"
-          layout={"inline"}
-          style={{ marginTop: "25px" }}
 
-          onFinish={onFinish}
-          autoComplete="off"
-        >
-          <Form.Item name="search" >
-            <Input size="large" placeholder="ค้นหาข้อมูล" prefix={<SearchOutlined />} style={{ width: 400 }} />
-          </Form.Item>
+        {typeof menu.country !== 'undefined' && (
+          <FormSearch
+            name='login'
+            layout={'inline'}
+            style={{ marginTop: '25px' }}
+            onFinish={onFinish}
+            autoComplete='off'
+          >
+            <Form.Item name='search'>
+              <Input
+                size='large'
+                placeholder='ค้นหาข้อมูล'
+                prefix={<SearchOutlined />}
+                style={{ width: 400 }}
+              />
+            </Form.Item>
 
-          <Form.Item>
-            <ButtonSearch size="large" type="primary" htmlType="submit">
-              ค้นหา
-            </ButtonSearch>
-          </Form.Item>
-
-        </FormSearch>
-
+            <Form.Item>
+              <ButtonSearch size='large' type='primary' htmlType='submit'>
+                ค้นหา
+              </ButtonSearch>
+            </Form.Item>
+          </FormSearch>
+        )}
       </LandingPage>
     </Layout>
   )

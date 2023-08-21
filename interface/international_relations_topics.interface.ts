@@ -12,3 +12,13 @@ export interface international_relations_topicsAttributes {
     updated_date?: Date;
     children: international_relations_topicsAttributes[] | []
 }
+
+export type Tforminternational = {
+    event_name: string
+    event_venue: string
+    leader_name_thai: string
+    leader_name_foreign: string
+    event_date: string
+    file: File
+    image: File
+}
