@@ -16,9 +16,10 @@ export const addInternationalDataRelationsTopicsService = async (
 
 export const getAllCountryInternationalDataRelationsTopicsServices = async (
   country_id: string,
+  query?: string
 ) => {
   const response: AxiosResponse<TallFieldInternationalRelationsdatas> = await Api.get(
-    `/international_relations_dates/country/${country_id}`,
+    `/international_relations_dates/country/${country_id}${query}`,
   )
   return response.data
 }

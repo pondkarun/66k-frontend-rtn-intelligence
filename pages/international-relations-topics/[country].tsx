@@ -5,14 +5,14 @@ import { useDispatch } from 'react-redux'
 import { setBackground } from '@/redux/actions/configActions'
 import { setSelectCountry } from '@/redux/actions/toppicMenuActions'
 import { getAllCountryInternationalDataRelationsTopicsServices } from '@/services/internationalRelationsDatas'
-import { Button, Col, ConfigProvider, Form, Input, Row, Table } from 'antd'
-import styled, { css } from 'styled-components'
-import {
-  TallFieldInternationalRelationsdatas,
-  Tforminternational,
-} from '@/interface/international_relations_datas.interface'
-import type { ColumnsType, TableProps } from 'antd/es/table'
-import { PlusCircleOutlined } from '@ant-design/icons'
+import { Button, Col, Form, Input, Row, Table } from 'antd'
+import styled from 'styled-components'
+import { TallFieldInternationalRelationsdatas } from '@/interface/international_relations_datas.interface'
+import type { ColumnsType } from 'antd/es/table'
+
+type QueryProps = {
+  search: string
+}
 
 const InternationalRelationsTopics = () => {
   const router = useRouter()
@@ -23,10 +23,15 @@ const InternationalRelationsTopics = () => {
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
 
+  const [form] = Form.useForm<QueryProps>()
+
+  const [search, setSearch] = useState<string>('')
+
   const randerQueryApi = async () => {
     if (query.country) {
       const data = await getAllCountryInternationalDataRelationsTopicsServices(
         query.country,
+        search,
       )
       const datatype =
         data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
@@ -39,23 +44,43 @@ const InternationalRelationsTopics = () => {
       dispatch(setSelectCountry(query.country))
       dispatch(setBackground('#fff'))
     }
-    randerQueryApi()
   }, [query.country])
+
+  useEffect(() => {
+    randerQueryApi()
+  }, [search])
 
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> = [
     {
       key: 'event_name',
       title: 'หัวข้อ',
-      dataIndex: 'event_name',
-      className: 'ant-head-th',
-      render: (value) => value,
+      render: (_value, record) => {
+        return <span style={{ color: '00408e' }}>{record.ir_topic.name}</span>
+      },
     },
     {
       key: 'event_name',
       title: 'ห้วงเวลา',
-      render: (_value, record) => (
-        <>{`${record.event_date_start}-${record.event_date_end}`}</>
-      ),
+      render: (_value, record) => {
+        const start_date = new Date(record.event_date_start).toLocaleDateString(
+          'th-TH',
+          {
+            year: '2-digit',
+            month: 'short',
+            day: 'numeric',
+          },
+        )
+        const start_end = new Date(record.event_date_end).toLocaleDateString(
+          'th-TH',
+          {
+            year: '2-digit',
+            month: 'short',
+            day: 'numeric',
+          },
+        )
+
+        return `${start_date} - ${start_end}`
+      },
     },
     {
       key: 'event_name',
@@ -83,6 +108,11 @@ const InternationalRelationsTopics = () => {
     },
   ]
 
+  const onFinish = () => {
+    const data = form.getFieldsValue()
+    setSearch(data.search ? `?search=${data.search}` : '')
+  }
+
   return (
     <Layout>
       <>
@@ -91,20 +121,19 @@ const InternationalRelationsTopics = () => {
         <Row style={{ paddingTop: 10 }}>
           <Col span={6}>
             <Form
-              // form={formSearch}
-              name='search_identity_users'
+              form={form}
               layout='vertical'
               autoComplete='off'
-              // onFinish={onFinishSearch}
+              onFinish={onFinish}
             >
               <Form.Item name='search'>
                 <Input
                   placeholder='ค้นหา'
-                  // onKeyPress={(event) => {
-                  //   if (event.key === 'Enter') {
-                  //     formSearch.submit()
-                  //   }
-                  // }}
+                  onKeyPress={(event) => {
+                    if (event.key === 'Enter') {
+                      form.submit()
+                    }
+                  }}
                   allowClear
                 />
               </Form.Item>
@@ -112,10 +141,11 @@ const InternationalRelationsTopics = () => {
           </Col>
           <Col span={6}>
             <Form.Item>
-              <ButtonSearch onClick={() => {}}>ค้นหา</ButtonSearch>
-              <ButtonSearch onClick={() => {}}>
-                <PlusCircleOutlined /> เพิ่ม
-              </ButtonSearch>
+              <BtnMain onClick={() => form.submit()}>ค้นหา</BtnMain>
+              <BtnMain onClick={() => {}}>Export</BtnMain>
+              <BtnMain bgColor='#15bf3a' onClick={() => {}}>
+                Excel
+              </BtnMain>
             </Form.Item>
           </Col>
         </Row>
@@ -142,10 +172,10 @@ const Title = styled.h1`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const ButtonSearch = styled(Button)`
+const BtnMain = styled(Button)<{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
-  background-color: #00408e;
+  background-color: ${(poprs) => (poprs.bgColor ? poprs.bgColor : '#00408e')};
   color: #fff;
 `

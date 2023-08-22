@@ -54,5 +54,13 @@ export type TallFieldInternationalRelationsdatas = {
     created_date: Date
     updated_by: string
     updated_date: Date
+    ir_topic: {
+      id: string
+      name: string
+      last_node: true
+      parent_id: string
+      sort: string
+      is_use: boolean
+    }
   } & Omit<Tforminternational, 'event_date'>
 }
