@@ -84,9 +84,7 @@ const InternationalRelationsTopics = () => {
                 data = res.data.data
             }
             setTopics(data)
-        } catch (error) {
-
-        }
+        } catch (error) { /* empty */ }
     }
 
     const columns: any = [

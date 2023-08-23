@@ -2,7 +2,7 @@ import { logout, refreshToken } from '../../redux/actions/authActions';
 import Api from './Api'
 
 
-const apiPost = (url: string, data?: any) => {
+const apiPost = (url: string, data?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
         Api.post(url, data).then((res) => {
             resolve(res);
@@ -21,7 +21,7 @@ const apiPost = (url: string, data?: any) => {
     });
 }
 
-const apiGet = (url: string, data?: any) => {
+const apiGet = (url: string, data?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
         Api.get(url, data).then((res) => {
             resolve(res);
@@ -40,7 +40,7 @@ const apiGet = (url: string, data?: any) => {
     });
 }
 
-const apiPut = (url: string, data?: any) => {
+const apiPut = (url: string, data?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
         Api.put(url, data).then((res) => {
             resolve(res);
@@ -59,7 +59,7 @@ const apiPut = (url: string, data?: any) => {
     });
 }
 
-const apiPatch = (url: string, data?: any) => {
+const apiPatch = (url: string, data?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
         Api.patch(url, data).then((res) => {
             resolve(res);
@@ -78,7 +78,7 @@ const apiPatch = (url: string, data?: any) => {
     });
 }
 
-const apiDelete = (url: string, data?: any) => {
+const apiDelete = (url: string, data?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
         Api.delete(url, data).then((res) => {
             resolve(res);

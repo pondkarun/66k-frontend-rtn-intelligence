@@ -34,3 +34,4 @@ const toppicMenuReducer = (state = INIT_STATE, action: AuthAction) => {
 }
 
 export default toppicMenuReducer;
+export type MenuT = typeof INIT_STATE
