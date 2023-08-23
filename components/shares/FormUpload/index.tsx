@@ -1,8 +1,10 @@
-import getBase64 from '@/libs/getBase64';
 import { InboxOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Col, Form, FormInstance, Modal, Row, Upload, UploadFile, UploadProps, message } from 'antd';
-import { RcFile } from 'antd/es/upload';
+import { Button, Col, Modal, Row, Upload } from 'antd';
 import { useEffect, useState } from 'react';
+import { RcFile } from 'antd/lib/upload';
+import getBase64 from '@/libs/getBase64';
+import type { FormInstance, UploadProps, UploadFile } from 'antd'
+
 const { Dragger } = Upload;
 
 export type FormUploadType = {
@@ -23,7 +25,7 @@ const FormUpload = ({ form, type, name }: FormUploadType) => {
         action: '/api/upload',
         onChange(info) {
             // console.log('info :>> ', info);
-            info.file.status = "done";
+            info.file.status = "done"; 
             setFile([...file, ...info.fileList])
         },
         fileList: [],
