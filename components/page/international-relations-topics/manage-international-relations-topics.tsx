@@ -75,7 +75,7 @@ const ManageInternationalRelationsTopics = ({
     const event_date_start = data.event_date[0].toISOString()
     const event_date_end = data.event_date[1].toISOString()
 
-    const modalRequst: Omit<Tforminternational, 'event_date'> = {
+    const modalRequst: Omit<Tforminternational, 'event_date' | 'field_id'> = {
       event_date_start,
       event_date_end,
       country_id: router.query.country as string,

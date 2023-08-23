@@ -24,11 +24,13 @@ export type Tforminternational = {
   event_date_end: string
   event_date_start: string
   specific_field?: []
-  file_documents?: Array<{ name: string; url: string }>
-  image_documents?: Array<{ name: string; url: string }>
+  file_documents: Array<{ name: string; url: string }>
+  image_documents: Array<{ name: string; url: string }>
   ir_topic_id: string
   country_id: string
   ir_topic_breadcrumb: null
+  toppic_name?: string
+  field_id: string
 }
 
 export type InternationalRelationsdatasField = {
@@ -63,4 +65,8 @@ export type TallFieldInternationalRelationsdatas = {
       is_use: boolean
     }
   } & Omit<Tforminternational, 'event_date'>
+}
+
+export type IgetByInternational = {
+  data: Tforminternational
 }

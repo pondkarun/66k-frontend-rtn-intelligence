@@ -5,13 +5,12 @@ import styled from 'styled-components'
 import { Cookies } from 'react-cookie'
 import { Layout, Button, Form, Input, message } from 'antd'
 import { UnlockOutlined, UserOutlined } from '@ant-design/icons'
-import { imgSrc, primary_color } from './_app'
-import { loginService } from '@/services/auth'
-import { useSelector } from 'react-redux'
+import { useSelector , useDispatch } from 'react-redux'
 import { isArray } from 'lodash'
 import { getAuthUser } from '@/redux/actions/authActions'
-import { useDispatch } from 'react-redux'
+import { loginService } from '@/services/auth'
 import { loginInterface } from '@/interface/auth.interface'
+import { imgSrc, primary_color } from './_app'
 
 const Wrapper = styled(Layout.Content)`
   display: flex;
@@ -217,7 +216,7 @@ const LoginPage = () => {
 
       <Card>
         <Logo>
-          <img src={imgSrc} />
+          <img src={imgSrc} alt=''/>
         </Logo>
         <FormLogin
           name='login'

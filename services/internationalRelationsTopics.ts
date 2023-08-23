@@ -1,6 +1,7 @@
-import { international_relations_topicsAttributes, Tforminternational } from "@/interface/international_relations_topics.interface";
+import { international_relations_topicsAttributes } from "@/interface/international_relations_topics.interface";
+import { Tforminternational } from "@/interface/international_relations_datas.interface";
 import Api from "./Api";
-import { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 
 const searchInternationalRelationsTopicsService = async (search?: string) => {
     return await Api.get(`/international_relations_topics?search=${search ?? ""}`);

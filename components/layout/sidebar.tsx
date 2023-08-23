@@ -1,15 +1,15 @@
-import { Badge, Button, Col, Collapse, Layout, Menu, MenuProps, Modal, Row } from 'antd';
-import { useSelector } from 'react-redux';
+import { Badge, Button, Col, Collapse, Layout, Menu, Modal, Row } from 'antd';
+import { useSelector , useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import styled from "styled-components";
-import { primary_color } from '@/pages/_app';
-import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
-import { useDispatch } from 'react-redux';
-import { setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
-import { setBackground } from '@/redux/actions/configActions';
 import Router from "next/router";
 import { AppstoreOutlined, DownOutlined, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
 import { isArray } from 'lodash';
+import { primary_color } from '@/pages/_app';
+import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
+import { setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
+import { setBackground } from '@/redux/actions/configActions';
+import type {  MenuProps } from 'antd';
 const { Sider } = Layout;
 
 
@@ -376,7 +376,8 @@ const SidebarLayoutComponents = () => {
                             {itemsMenu.length > 0 ? (
                                 <>
                                     <H1 style={{ paddingTop: 20 }}>เมนู</H1>
-                                    <MenuSidebar theme="dark" expandIcon={(props) => (
+                                    <Menu className='ant-customize-menu' theme="dark" expandIcon={(props) => (
+                                        // eslint-disable-next-line react/prop-types
                                         props.isOpen ? <DownOutlined /> : <RightOutlined />
                                     )} onClick={onClickMenu} selectedKeys={[currentMenu]} items={itemsMenu} mode="inline" />
                                 </>
@@ -488,8 +489,8 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     return (
         <>
             <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
-                {list.map((e, i) => {
-                    const is_last_node = e.children.filter(w => w.last_node == true);
+                {list.map((e: any, i) => {
+                    const is_last_node = e.children.filter((w: any) => w.last_node == true);
                     return (
 
                         (is_last_node.length == 0) ?
@@ -498,7 +499,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                             </PanelToppic>
                             :
                             <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                {is_last_node.map((_e, _i) => (
+                                {is_last_node.map((_e: any, _i: number) => (
                                     <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
                                 ))}
                             </PanelToppic>

@@ -1,12 +1,12 @@
 import styled from 'styled-components'
-import Layout from '../components/layout'
 import { Button, Form, Input } from 'antd'
-import { primary_color } from './_app'
 import { SearchOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 import { useSelector } from 'react-redux'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
+import Layout from '../components/layout'
+import { primary_color } from './_app'
 
 //#region -> styled
 const LandingPage = styled('div')`
@@ -83,9 +83,11 @@ const Home = () => {
   const [form] = Form.useForm<{ search: string }>()
 
   const onFinish = (_value: unknown) => {
-    console.log('value :>> ', _value)
-    const value = _value as { search?: string }
-    Router.push(`/international-relations-topics/${menu.country}`)
+    const value = _value as { search: string }
+    Router.push({
+      pathname: `/international-relations-topics/${menu.country}`,
+      query: value.search ? { search: value.search } : undefined,
+    })
   }
 
   return (

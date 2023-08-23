@@ -1,13 +1,13 @@
-import Layout from '@/components/layout'
-import { setBackground } from '@/redux/actions/configActions';
-import { ColumnsType } from 'antd/es/table';
 import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Table, Tooltip, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { addIdentityUsersService, getByIdIdentityUsersService, searchIdentityUsersService, updateIdentityUsersService } from '@/services/identity_users';
 import { DeleteOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { addIdentityUsersService, getByIdIdentityUsersService, searchIdentityUsersService, updateIdentityUsersService } from '@/services/identity_users';
+import { setBackground } from '@/redux/actions/configActions';
+import Layout from '@/components/layout'
 import { getAllDepartmentsService } from '@/services/departments';
+import type { ColumnsType } from 'antd/es/table';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -98,9 +98,7 @@ const IdentityUsers = () => {
                 data = buildTree(map_data);
             }
             setDepartments(data)
-        } catch (error) {
-
-        }
+        } catch (error) { /* empty */ }
     }
 
     const columns: any = [
