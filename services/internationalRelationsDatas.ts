@@ -7,12 +7,6 @@ import {
 import Api from './Api'
 import type { AxiosResponse } from 'axios'
 
-type EditInternationalProps = {
-  country_id: string
-  ir_topic_id: string
-  [key: string]: string
-}
-
 export const addInternationalDataRelationsTopicsService = async (
   payload: Omit<Tforminternational, 'event_date' | 'field_id'>,
 ) => {
@@ -37,7 +31,7 @@ export const getByInternationalDatasService = async (id: string) => {
   return response.data
 }
 
-export const editInternationalDatasService = async (payload: EditInternationalProps, id: string) => {
+export const editInternationalDatasService = async (payload: unknown, id: string) => {
   const response: AxiosResponse = await Api.put(`international_relations_dates/${id}`, payload)
   return response.data
 }

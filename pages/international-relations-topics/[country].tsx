@@ -10,12 +10,8 @@ import { setSelectCountry } from '@/redux/actions/toppicMenuActions'
 import {
   editInternationalDatasService,
   getAllCountryInternationalDataRelationsTopicsServices,
-  getByInternationalDatasService,
 } from '@/services/internationalRelationsDatas'
-import {
-  TallFieldInternationalRelationsdatas,
-  Tforminternational,
-} from '@/interface/international_relations_datas.interface'
+import { TallFieldInternationalRelationsdatas } from '@/interface/international_relations_datas.interface'
 import DocumentIcon from '@/components/svg/DocumentIcon'
 import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
@@ -37,11 +33,15 @@ const InternationalRelationsTopics = () => {
   ) as MenuT
 
   const [form] = Form.useForm<QueryProps>()
-  const [formInternational] = Form.useForm<Tforminternational>()
+  const [formInternational] =
+    Form.useForm<TallFieldInternationalRelationsdatas['data']>()
 
   const [search, setSearch] = useState<string>('')
   const [mode, setMode] = useState<'view' | 'edit' | ''>('')
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const [toppicId, setToppicId] = useState('')
+  const [internationalId, setInternationalId] = useState('')
 
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
@@ -74,14 +74,14 @@ const InternationalRelationsTopics = () => {
 
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> = [
     {
-      key: 'event_name',
+      key: 'ir_topic',
       title: 'หัวข้อ',
       render: (_value, record) => {
         return <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
       },
     },
     {
-      key: 'event_name',
+      key: 'event_date',
       title: 'ห้วงเวลา',
       render: (_value, record) => {
         const start_date = new Date(record.event_date_start).toLocaleDateString(
@@ -117,31 +117,50 @@ const InternationalRelationsTopics = () => {
       render: (value) => value,
     },
     {
-      key: 'event_name',
+      key: 'file-record',
       title: 'ไฟล์แนบ',
-      dataIndex: 'event_name',
-      render: (_value, recoard) => {
+      render: (_value, record) => {
         return (
           <FileTableContentField>
-            <Tooltip>
-              <EventContentField>
-                <DocumentIcon />
-              </EventContentField>
-            </Tooltip>
-            <Tooltip>
-              <EventContentField>
-                <ImageBackgroundIcon />
-              </EventContentField>
-            </Tooltip>
+            {record.file_documents.length > 0 && (
+              <Tooltip>
+                <EventContentField>
+                  <DocumentIcon />
+                </EventContentField>
+              </Tooltip>
+            )}
+            {record.image_documents.length > 0 && (
+              <Tooltip>
+                <EventContentField>
+                  <ImageBackgroundIcon />
+                </EventContentField>
+              </Tooltip>
+            )}
+            {record.file_documents.length > 0 &&
+              record.image_documents.length > 0 && (
+                <>
+                  <Tooltip>
+                    <EventContentField>
+                      <DocumentIcon />
+                    </EventContentField>
+                  </Tooltip>
+                  <Tooltip>
+                    <EventContentField>
+                      <ImageBackgroundIcon />
+                    </EventContentField>
+                  </Tooltip>
+                </>
+              )}
+            {record.file_documents.length === 0 &&
+              record.image_documents.length === 0 && <></>}
           </FileTableContentField>
         )
       },
     },
     {
-      key: 'event_name',
+      key: 'maneage',
       title: 'จัดการ',
-      dataIndex: 'event_name',
-      render: (_value, recoard) => {
+      render: (_value, record) => {
         return (
           <FileTableContentField>
             <Tooltip>
@@ -149,12 +168,9 @@ const InternationalRelationsTopics = () => {
                 onClick={async () => {
                   setIsModalOpen(true)
                   setMode('view')
-                  const response = await getByInternationalDatasService(
-                    recoard.id,
-                  )
                   formInternational.setFieldsValue({
-                    ...response.data,
-                    toppic_name: recoard.ir_topic.name,
+                    ...record,
+                    toppic_name: record.ir_topic.name,
                   } as any)
                 }}
               >
@@ -163,19 +179,15 @@ const InternationalRelationsTopics = () => {
             </Tooltip>
             <Tooltip>
               <EventContentField
-                onClick={async () => {
+                onClick={() => {
                   setIsModalOpen(true)
                   setMode('edit')
-                  const response = await getByInternationalDatasService(
-                    recoard.id,
-                  )
+                  setToppicId(record.ir_topic_id)
+                  setInternationalId(record.id)
                   formInternational.setFieldsValue({
-                    ...response.data,
-                    toppic_name: recoard.ir_topic.name,
-                    field_id: recoard.ir_topic.id,
+                    ...record,
+                    toppic_name: record.ir_topic.name,
                   } as any)
-                  const _data = formInternational.getFieldsValue()
-                  console.log('_data', _data)
                 }}
               >
                 <EditOutlined />
@@ -193,18 +205,18 @@ const InternationalRelationsTopics = () => {
   }
 
   const onFinishInternational = async () => {
-    const _data = formInternational.getFieldsValue()
-    console.log('_data', _data)
-    delete _data.toppic_name
-    await editInternationalDatasService(
+    const itemsForm = formInternational.getFieldsValue()
+
+    const modelRequest: Partial<TallFieldInternationalRelationsdatas['data']> =
       {
-        country_id: menuSelector.country as never,
-        ir_topic_id: _data.field_id,
-        event_name: _data.event_name,
-        event_venue: _data.event_venue as string,
-      },
-      _data.field_id,
-    )
+        country_id: menuSelector.country as unknown as string,
+        ir_topic_id: toppicId,
+        event_name: itemsForm.event_name,
+        event_venue: itemsForm.event_venue,
+      }
+    await editInternationalDatasService(modelRequest, internationalId)
+    formInternational.resetFields()
+    setIsModalOpen(!isModalOpen)
   }
 
   return (

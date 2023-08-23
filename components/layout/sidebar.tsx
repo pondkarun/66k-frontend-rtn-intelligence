@@ -243,6 +243,7 @@ const SidebarLayoutComponents = () => {
         if (country && toppic) {
             dispatch(setBackground("#fff"));
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [country, toppic])
 
     const Flag = styled("img")`
@@ -257,7 +258,7 @@ const SidebarLayoutComponents = () => {
 
     const onClick = (id: string) => {
         dispatch(setSelectCountry(id))
-
+        Router.replace(`/international-relations-topics/${id}`)
         if (toppic) {
             Router.push(`/international-relations-topics/${id}/${toppic}`);
         }

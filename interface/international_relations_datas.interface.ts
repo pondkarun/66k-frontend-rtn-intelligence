@@ -29,8 +29,6 @@ export type Tforminternational = {
   ir_topic_id: string
   country_id: string
   ir_topic_breadcrumb: null
-  toppic_name?: string
-  field_id: string
 }
 
 export type InternationalRelationsdatasField = {
@@ -56,6 +54,7 @@ export type TallFieldInternationalRelationsdatas = {
     created_date: Date
     updated_by: string
     updated_date: Date
+    toppic_name?: string
     ir_topic: {
       id: string
       name: string

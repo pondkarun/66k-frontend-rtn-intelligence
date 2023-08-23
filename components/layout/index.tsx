@@ -1,9 +1,9 @@
-import { Layout, Spin, theme } from 'antd';
+import { Layout, Spin } from 'antd';
+import styled from 'styled-components';
+import { useSelector } from 'react-redux';
 import Sidebar from './sidebar';
 import Navbar from './navbar';
 import BreadcrumbLayoutComponents from './breadcrumb';
-import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 const { Content } = Layout;
 
 type Props = {
