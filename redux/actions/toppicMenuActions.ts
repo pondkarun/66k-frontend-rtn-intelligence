@@ -5,6 +5,13 @@ export const setSelectCountry = (id: string) => {
     };
 };
 
+export const setDefaultSearch = (search: string) => {
+    return {
+        type: "SEARCH",
+        payload: search,
+    };
+};
+
 export const setSelectToppic = (id: string) => {
     return {
         type: "SELECT_TOPPIC_SET",

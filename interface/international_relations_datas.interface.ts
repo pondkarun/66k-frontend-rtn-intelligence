@@ -1,3 +1,5 @@
+import { TMapReason } from './international_relations_topics.interface'
+
 export interface international_relations_datasAttributes {
   data: {
     id: string
@@ -23,7 +25,9 @@ export type Tforminternational = {
   leader_name_foreign?: string
   event_date_end: string
   event_date_start: string
-  specific_field?: []
+  specific_field?: {
+    [k: string]: TMapReason
+  }
   file_documents: Array<{ name: string; url: string }>
   image_documents: Array<{ name: string; url: string }>
   ir_topic_id: string
@@ -46,24 +50,26 @@ export type InternationalRelationsdatasFieldParent = {
   is_use: boolean
 }
 
-export type TallFieldInternationalRelationsdatas = {
-  data: {
+export type TfieldInternationdata = {
+  id: string
+  is_use: boolean
+  created_by: string
+  created_date: Date
+  updated_by: string
+  updated_date: Date
+  toppic_name?: string
+  ir_topic: {
     id: string
+    name: string
+    last_node: true
+    parent_id: string
+    sort: string
     is_use: boolean
-    created_by: string
-    created_date: Date
-    updated_by: string
-    updated_date: Date
-    toppic_name?: string
-    ir_topic: {
-      id: string
-      name: string
-      last_node: true
-      parent_id: string
-      sort: string
-      is_use: boolean
-    }
-  } & Omit<Tforminternational, 'event_date'>
+  }
+} & Omit<Tforminternational, 'event_date'>
+
+export type TallFieldInternationalRelationsdatas = {
+  data: TfieldInternationdata
 }
 
 export type IgetByInternational = {

@@ -1,10 +1,10 @@
-import Layout from '@/components/layout'
-import { setBackground } from '@/redux/actions/configActions';
 import { Badge, Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { setBackground } from '@/redux/actions/configActions';
+import Layout from '@/components/layout'
 import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
 
 //#region -> styled
@@ -152,7 +152,7 @@ const InternationalRelationsTopics = () => {
         if (id) {
             setIsDataId(id)
             const callback: any = await getByIDInternationalRelationsTopicsService(id);
-            form.setFieldsValue(callback.data.data)
+            form.setFieldsValue(callback.data)
         }
         setIsModalOpen(true);
     }
