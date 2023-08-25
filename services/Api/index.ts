@@ -1,10 +1,11 @@
 import { logout, refreshToken } from '../../redux/actions/authActions';
 import Api from './Api'
+import type { AxiosRequestConfig } from 'axios';
 
 
-const apiPost = (url: string, data?: any): Promise<any> => {
+const apiPost = (url: string, data?: any, configs?: AxiosRequestConfig): Promise<any> => {
     return new Promise((resolve, reject) => {
-        Api.post(url, data).then((res) => {
+        Api.post(url, data, { ...configs }).then((res) => {
             resolve(res);
         }).catch((eror) => {
             refreshToken().then((res) => {

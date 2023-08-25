@@ -15,9 +15,15 @@ import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
-import { Tforminternational } from '@/interface/international_relations_datas.interface'
 import { useRouter } from 'next/router'
+import { Tforminternational } from '@/interface/international_relations_datas.interface'
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
+import { TMapReason } from '@/interface/international_relations_topics.interface'
+
+type SpecificFieldType = {
+  groups: string
+  value: string[]
+}
 
 type ManageInternationalRelationsTopicsType = {
   mode: 'add' | 'edit'
@@ -70,7 +76,33 @@ const ManageInternationalRelationsTopics = ({
   }, [])
 
   const onFinish = async () => {
+    const objCustom = new Map<string, TMapReason>()
     const data = form.getFieldsValue()
+
+    const createReason: TMapReason = []
+
+    for (const [key1, values] of Object.entries(
+      data.specific_field as unknown as never,
+    )) {
+      const subReason = []
+      const fields = Object.entries(values as unknown as never)
+
+      for (let index = 0; index < fields.length; index++) {
+        const element = fields[index] as any
+        subReason.push({
+          name: element[0],
+          value: element[1].value,
+        })
+      }
+
+      createReason.push({
+        topic_reason_name: key1,
+        sub_reason_name: subReason,
+      })
+    }
+    objCustom.set('reason', createReason)
+
+    const map_specific = Object.fromEntries(objCustom)
 
     const event_date_start = data.event_date[0].toISOString()
     const event_date_end = data.event_date[1].toISOString()
@@ -84,7 +116,7 @@ const ManageInternationalRelationsTopics = ({
       event_venue: data.event_venue,
       leader_name_thai: data.leader_name_thai,
       leader_name_foreign: data.leader_name_foreign,
-      specific_field: data.specific_field ?? [],
+      specific_field: map_specific ?? {},
       file_documents: data.file_documents ?? [],
       image_documents: data.image_documents ?? [],
       ir_topic_breadcrumb: null,
@@ -98,11 +130,6 @@ const ManageInternationalRelationsTopics = ({
       form.resetFields()
       message.success('เพิ่มข้อมูลสำเร็จ')
     }
-  }
-
-  type SpecificFieldType = {
-    groups: string
-    value: string[]
   }
 
   return (
@@ -166,11 +193,21 @@ const ManageInternationalRelationsTopics = ({
 
         <Row gutter={[16, 0]}>
           <Col span={12}>
-            <FormUpload form={form} type='file' name='file_documents' />
+            <FormUpload
+              form={form}
+              type='file'
+              name='file_documents'
+              acceptFile='.pdf,.xlsx,.doc,.ptt'
+            />
           </Col>
 
           <Col span={12}>
-            <FormUpload form={form} type='image' name='image_documents' />
+            <FormUpload
+              form={form}
+              type='image'
+              name='image_documents'
+              acceptFile='.jpg,.png,.svg,.webp'
+            />
           </Col>
         </Row>
 

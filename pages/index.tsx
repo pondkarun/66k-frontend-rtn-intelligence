@@ -2,9 +2,13 @@ import styled from 'styled-components'
 import { Button, Form, Input } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 import Router from 'next/router'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
+import {
+  setDefaultSearch,
+  setSelectCountry,
+} from '@/redux/actions/toppicMenuActions'
 import Layout from '../components/layout'
 import { primary_color } from './_app'
 
@@ -76,6 +80,8 @@ const ButtonSearch = styled(Button)`
 //#endregion
 
 const Home = () => {
+  const dispatch = useDispatch()
+
   const menu = useSelector<KeyTypestateRedux>(
     ({ toppic_menu }) => toppic_menu,
   ) as MenuT
@@ -84,9 +90,9 @@ const Home = () => {
 
   const onFinish = (_value: unknown) => {
     const value = _value as { search: string }
+    dispatch(setDefaultSearch(value.search ?? ''))
     Router.push({
       pathname: `/international-relations-topics/${menu.country}`,
-      query: value.search ? { search: value.search } : undefined,
     })
   }
 

@@ -1,17 +1,23 @@
-import { useEffect, useState } from 'react'
-import { Button, Col, Form, Input, Modal, Row, Table, Tooltip } from 'antd'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Button, Col, Form, Input, Modal, Row, Select, Space, Table, Tooltip } from 'antd'
 import styled from 'styled-components'
-import { EditOutlined, EyeOutlined } from '@ant-design/icons'
+import { EditOutlined, EyeOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Layout from '@/components/layout'
 import { setBackground } from '@/redux/actions/configActions'
-import { setSelectCountry } from '@/redux/actions/toppicMenuActions'
+import {
+  setDefaultSearch,
+  setSelectCountry,
+} from '@/redux/actions/toppicMenuActions'
 import {
   editInternationalDatasService,
   getAllCountryInternationalDataRelationsTopicsServices,
 } from '@/services/internationalRelationsDatas'
-import { TallFieldInternationalRelationsdatas } from '@/interface/international_relations_datas.interface'
+import {
+  TallFieldInternationalRelationsdatas,
+  TfieldInternationdata,
+} from '@/interface/international_relations_datas.interface'
 import DocumentIcon from '@/components/svg/DocumentIcon'
 import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
@@ -46,21 +52,21 @@ const InternationalRelationsTopics = () => {
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
 
-  const randerQueryApi = async () => {
+  const randerQueryApi = useCallback(async () => {
     if (menuSelector.country) {
       const data = await getAllCountryInternationalDataRelationsTopicsServices({
         country_id: menuSelector.country,
-        search: search,
+        search: search ? search : `?search=${menuSelector.search}`,
       })
       const datatype =
         data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
       setDataSource(datatype)
     }
-  }
+  }, [menuSelector.country, search, menuSelector.search])
 
   useEffect(() => {
     if (path.country) {
-      dispatch(setSelectCountry(path.country))
+      dispatch(setSelectCountry(path.country as string))
       dispatch(setBackground('#fff'))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,6 +77,17 @@ const InternationalRelationsTopics = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, menuSelector.country])
+
+  const handleEditRecord = (_record: TfieldInternationdata) => {
+    setIsModalOpen(true)
+    setMode('edit')
+    setToppicId(_record.ir_topic_id)
+    setInternationalId(_record.id)
+    formInternational.setFieldsValue({
+      ..._record,
+      toppic_name: _record.ir_topic.name,
+    } as any)
+  }
 
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> = [
     {
@@ -168,9 +185,11 @@ const InternationalRelationsTopics = () => {
                 onClick={async () => {
                   setIsModalOpen(true)
                   setMode('view')
+                  console.log('record', record)
                   formInternational.setFieldsValue({
                     ...record,
                     toppic_name: record.ir_topic.name,
+                    specific_field: record.specific_field?.reason
                   } as any)
                 }}
               >
@@ -178,18 +197,7 @@ const InternationalRelationsTopics = () => {
               </EventContentField>
             </Tooltip>
             <Tooltip>
-              <EventContentField
-                onClick={() => {
-                  setIsModalOpen(true)
-                  setMode('edit')
-                  setToppicId(record.ir_topic_id)
-                  setInternationalId(record.id)
-                  formInternational.setFieldsValue({
-                    ...record,
-                    toppic_name: record.ir_topic.name,
-                  } as any)
-                }}
-              >
+              <EventContentField onClick={() => handleEditRecord(record)}>
                 <EditOutlined />
               </EventContentField>
             </Tooltip>
@@ -201,6 +209,7 @@ const InternationalRelationsTopics = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue()
+    dispatch(setDefaultSearch(''))
     setSearch(data.search ? `?search=${data.search}` : '')
   }
 
@@ -217,6 +226,7 @@ const InternationalRelationsTopics = () => {
     await editInternationalDatasService(modelRequest, internationalId)
     formInternational.resetFields()
     setIsModalOpen(!isModalOpen)
+    randerQueryApi()
   }
 
   return (
@@ -278,19 +288,87 @@ const InternationalRelationsTopics = () => {
             onFinish={onFinishInternational}
             autoComplete='off'
           >
-            <Form.Item label='หัวข้อ' name='toppic_name'>
+            <Form.Item id='toppic_name' label='หัวข้อ' name='toppic_name'>
               <Input
                 disabled={mode === 'view' || mode === 'edit' ? true : false}
               />
             </Form.Item>
-
-            <Form.Item label='ชื่อกิจกรรม' name='event_name'>
+            <Form.Item id='event_name' label='ชื่อกิจกรรม' name='event_name'>
               <Input disabled={mode === 'view' ? true : false} />
             </Form.Item>
-
-            <Form.Item label='สถานที่จัดกิจกรรม' name='event_venue'>
+            <Form.Item
+              id='event_venue'
+              label='สถานที่จัดกิจกรรม'
+              name='event_venue'
+            >
               <Input disabled={mode === 'view' ? true : false} />
             </Form.Item>
+            <Form.List name='specific_field'>
+              {(fields, { add, remove }) => (
+                <div style={{ paddingTop: 25, paddingLeft: 80 }}>
+                  {fields.map((field) => (
+                    <Space key={field.key} align='baseline'>
+                      <Form.Item
+                        // noStyle
+                        shouldUpdate={(prevValues, curValues) =>
+                          prevValues.groups !== curValues.groups ||
+                          prevValues.value !== curValues.value
+                        }
+                      >
+                        {() => (
+                          <Form.Item
+                            {...field}
+                            label='Groups'
+                            name={[field.name, 'groups']}
+                            rules={[
+                              {
+                                required: true,
+                                message: 'Missing groups name',
+                              },
+                            ]}
+                          >
+                            <Input
+                              style={{ width: 180 }}
+                              disabled={mode == 'view' ? true : false}
+                            />
+                          </Form.Item>
+                        )}
+                      </Form.Item>
+                      <Form.Item
+                        {...field}
+                        name={[field.name, 'value']}
+                        rules={[{ required: true, message: 'Missing value' }]}
+                      >
+                        <Select
+                          mode='tags'
+                          style={{ width: 240 }}
+                          options={[]}
+                          disabled={mode == 'view' ? true : false}
+                        />
+                      </Form.Item>
+
+                      {mode !== 'view' ? (
+                        <MinusCircleOutlined
+                          onClick={() => remove(field.name)}
+                        />
+                      ) : null}
+                    </Space>
+                  ))}
+                  {mode !== 'view' ? (
+                    <Form.Item>
+                      <Button
+                        type='dashed'
+                        onClick={() => add()}
+                        block
+                        icon={<PlusOutlined />}
+                      >
+                        เพิ่ม
+                      </Button>
+                    </Form.Item>
+                  ) : null}
+                </div>
+              )}
+            </Form.List>
           </Form>
         </Modal>
       </>

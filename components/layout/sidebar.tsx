@@ -258,7 +258,7 @@ const SidebarLayoutComponents = () => {
 
     const onClick = (id: string) => {
         dispatch(setSelectCountry(id))
-        Router.replace(`/international-relations-topics/${id}`)
+        if (Router.pathname !== '/') Router.replace(`/international-relations-topics/${id}`);
         if (toppic) {
             Router.push(`/international-relations-topics/${id}/${toppic}`);
         }
