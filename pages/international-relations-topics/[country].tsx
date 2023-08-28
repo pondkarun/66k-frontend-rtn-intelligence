@@ -1,7 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Col, Form, Input, Modal, Row, Select, Space, Table, Tooltip } from 'antd'
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tooltip,
+} from 'antd'
 import styled from 'styled-components'
-import { EditOutlined, EyeOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import {
+  EditOutlined,
+  EyeOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Layout from '@/components/layout'
@@ -24,6 +40,11 @@ import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import type { ColumnsType } from 'antd/es/table'
 
+enum EmodeOption {
+  VIEW = 'view',
+  EDIT = 'edit',
+}
+
 type QueryProps = {
   search?: string
 }
@@ -42,8 +63,12 @@ const InternationalRelationsTopics = () => {
   const [formInternational] =
     Form.useForm<TallFieldInternationalRelationsdatas['data']>()
 
+  const [specifics, setSpecifics] =
+    useState<TallFieldInternationalRelationsdatas['data']['specific_field']?.reason>()
+  console.log('specifics', specifics)
+
   const [search, setSearch] = useState<string>('')
-  const [mode, setMode] = useState<'view' | 'edit' | ''>('')
+  const [mode, setMode] = useState<EmodeOption>()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const [toppicId, setToppicId] = useState('')
@@ -78,11 +103,18 @@ const InternationalRelationsTopics = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, menuSelector.country])
 
-  const handleEditRecord = (_record: TfieldInternationdata) => {
+  const handleRecordManage = (
+    _record: TfieldInternationdata,
+    _mode: EmodeOption,
+  ) => {
+    console.log('_record', _record)
+    if (_mode === EmodeOption.EDIT) {
+      setToppicId(_record.ir_topic_id)
+      setInternationalId(_record.id)
+    }
     setIsModalOpen(true)
-    setMode('edit')
-    setToppicId(_record.ir_topic_id)
-    setInternationalId(_record.id)
+    setMode(_mode)
+    setSpecifics(_record.specific_field?.reason)
     formInternational.setFieldsValue({
       ..._record,
       toppic_name: _record.ir_topic.name,
@@ -182,22 +214,15 @@ const InternationalRelationsTopics = () => {
           <FileTableContentField>
             <Tooltip>
               <EventContentField
-                onClick={async () => {
-                  setIsModalOpen(true)
-                  setMode('view')
-                  console.log('record', record)
-                  formInternational.setFieldsValue({
-                    ...record,
-                    toppic_name: record.ir_topic.name,
-                    specific_field: record.specific_field?.reason
-                  } as any)
-                }}
+                onClick={() => handleRecordManage(record, EmodeOption.EDIT)}
               >
                 <EyeOutlined />
               </EventContentField>
             </Tooltip>
             <Tooltip>
-              <EventContentField onClick={() => handleEditRecord(record)}>
+              <EventContentField
+                onClick={() => handleRecordManage(record, EmodeOption.VIEW)}
+              >
                 <EditOutlined />
               </EventContentField>
             </Tooltip>
@@ -303,72 +328,33 @@ const InternationalRelationsTopics = () => {
             >
               <Input disabled={mode === 'view' ? true : false} />
             </Form.Item>
-            <Form.List name='specific_field'>
-              {(fields, { add, remove }) => (
-                <div style={{ paddingTop: 25, paddingLeft: 80 }}>
-                  {fields.map((field) => (
-                    <Space key={field.key} align='baseline'>
-                      <Form.Item
-                        // noStyle
-                        shouldUpdate={(prevValues, curValues) =>
-                          prevValues.groups !== curValues.groups ||
-                          prevValues.value !== curValues.value
-                        }
-                      >
-                        {() => (
-                          <Form.Item
-                            {...field}
-                            label='Groups'
-                            name={[field.name, 'groups']}
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Missing groups name',
-                              },
-                            ]}
-                          >
-                            <Input
-                              style={{ width: 180 }}
-                              disabled={mode == 'view' ? true : false}
-                            />
-                          </Form.Item>
-                        )}
-                      </Form.Item>
-                      <Form.Item
-                        {...field}
-                        name={[field.name, 'value']}
-                        rules={[{ required: true, message: 'Missing value' }]}
-                      >
-                        <Select
-                          mode='tags'
-                          style={{ width: 240 }}
-                          options={[]}
-                          disabled={mode == 'view' ? true : false}
-                        />
-                      </Form.Item>
+            {/* {specifics?.reason.map((specific, index) => {
+              return (
+                <div key={index}>
+                  <SubTitle>{specific.topic_reason_name}</SubTitle>
+                  <Line />
 
-                      {mode !== 'view' ? (
-                        <MinusCircleOutlined
-                          onClick={() => remove(field.name)}
-                        />
-                      ) : null}
-                    </Space>
-                  ))}
-                  {mode !== 'view' ? (
-                    <Form.Item>
-                      <Button
-                        type='dashed'
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                      >
-                        เพิ่ม
-                      </Button>
-                    </Form.Item>
-                  ) : null}
+                  <Row gutter={[16, 0]}>
+                    {e.value.map((item: string, index: number) => (
+                      <Col span={12} key={item + index}>
+                        <Form.Item
+                          name={['specific_field', e.groups, item, 'value']}
+                          label={
+                            <LabelIconUpload
+                              label={item}
+                              form={form}
+                              name={['specific_field', e.groups, item]}
+                            />
+                          }
+                        >
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                    ))}
+                  </Row>
                 </div>
-              )}
-            </Form.List>
+              )
+            })} */}
           </Form>
         </Modal>
       </>
@@ -384,6 +370,18 @@ const Title = styled.h1`
   font-weight: revert;
   margin-bottom: 0em;
 `
+
+const SubTitle = styled.div`
+  font-size: 1.75rem;
+  color: #565252;
+`
+const Line = styled.div`
+  height: 0px;
+  border: 1px solid #d9d9d9;
+  position: relative;
+  margin: 2px 0px 10px 0px;
+`
+
 const ContentCount = styled.span`
   font-size: 26px;
 `
