@@ -2,7 +2,6 @@ import { Breadcrumb } from 'antd'
 import styled from 'styled-components'
 import { MdContentPaste, MdOutlineSearch } from 'react-icons/md'
 import { HiPlus } from 'react-icons/hi'
-import router from './breadcrumb/routes'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   setObjToppic,
