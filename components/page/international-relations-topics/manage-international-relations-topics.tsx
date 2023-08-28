@@ -19,6 +19,7 @@ import { useRouter } from 'next/router'
 import { Tforminternational } from '@/interface/international_relations_datas.interface'
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
+import LabelIconUpload from './country/LabelIconUpload'
 
 type SpecificFieldType = {
   groups: string
@@ -102,7 +103,9 @@ const ManageInternationalRelationsTopics = ({
     }
     objCustom.set('reason', createReason)
 
-    const map_specific = Object.fromEntries(objCustom)
+    const map_specific = Object.fromEntries(objCustom) as {
+      reason: TMapReason
+    }
 
     const event_date_start = data.event_date[0].toISOString()
     const event_date_end = data.event_date[1].toISOString()
@@ -217,165 +220,30 @@ const ManageInternationalRelationsTopics = ({
             <Line />
 
             <Row gutter={[16, 0]}>
-              {e.value.map((item: string, index: number) => (
-                <Col span={12} key={item + index}>
-                  <Form.Item
-                    name={['specific_field', e.groups, item, 'value']}
-                    label={
-                      <LabelIconUpload
-                        label={item}
-                        form={form}
-                        name={['specific_field', e.groups, item]}
-                      />
-                    }
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-              ))}
+              {e.value.map((item: string, index: number) => {
+                return (
+                  <Col span={12} key={item + index}>
+                    <Form.Item
+                      name={['specific_field', e.groups, item, 'value']}
+                      label={
+                        <LabelIconUpload
+                          label={item}
+                          form={form}
+                          name={['specific_field', e.groups, item]}
+                        />
+                      }
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                )
+              })}
             </Row>
           </>
         ))}
 
         <Button onClick={() => form.submit()}>บันทึก</Button>
       </Form>
-    </>
-  )
-}
-
-type IconUploadType = {
-  label: string
-  form: any
-  name: string[]
-}
-
-const Icon = styled('span')`
-  padding-left: 10px;
-  cursor: pointer;
-  .ant-badge-count {
-    top: 17px;
-    min-width: 15px;
-    height: 15px;
-    line-height: 15px;
-  }
-  svg {
-    color: #00408e;
-  }
-`
-
-const LabelIconUpload = ({ label, form, name }: IconUploadType) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [type, setType] = useState<'image' | 'file' | null>(null)
-  const [countFile, setCountFile] = useState<number>(0)
-  const [countImage, setCountImage] = useState<number>(0)
-  const [formUpload]: any = Form.useForm()
-
-  const nameForm = name[name.length - 1]
-
-  const onClick = (type: 'image' | 'file') => {
-    setType(type)
-    setIsModalOpen(true)
-    setFormValue(type)
-  }
-
-  const handleOk = () => {
-    setIsModalOpen(false)
-    if (type) setFormValue(type)
-  }
-
-  const handleCancel = () => {
-    setIsModalOpen(false)
-    if (type) setFormValue(type)
-  }
-
-  const setFormValue = (type: 'image' | 'file') => {
-    // console.log('nameForm :>> ', nameForm);
-    // console.log('name :>> ', name);
-    const formName = form.getFieldValue(name)
-    if (!formName) {
-      form.setFieldValue(name, {
-        upload: {
-          image: [],
-          file: [],
-        },
-      })
-    }
-
-    console.log(' formUpload.getFieldValue :>> ', formUpload.getFieldValue())
-    const _nameForm = formUpload.getFieldValue(`${type}-${nameForm}`)
-    console.log('_nameForm :>> ', _nameForm, `${type}-${nameForm}`)
-    const setData = { ...formName }
-    // console.log('setData :>> ', setData);
-
-    if (type && setData) {
-      if (!setData.upload)
-        setData.upload = {
-          image: [],
-          file: [],
-        }
-      setData.upload[type] = _nameForm
-    }
-    form.setFieldValue(name, setData)
-    const _formName = form.getFieldValue(name)
-    // console.log('_formName :>> ', _formName);
-
-    if (_formName.upload) {
-      setCountImage(_formName.upload.image?.length)
-      setCountFile(_formName.upload.file?.length)
-    }
-  }
-
-  return (
-    <>
-      <span>{label}</span>
-      <Icon onClick={() => onClick('file')}>
-        <Badge count={countFile}>
-          <HiOutlineDocumentText />
-        </Badge>
-      </Icon>
-      <Icon onClick={() => onClick('image')}>
-        {' '}
-        <Badge count={countImage}>
-          <BsImage />
-        </Badge>
-      </Icon>
-
-      <Modal
-        width={700}
-        title={
-          type == 'file' ? (
-            <>
-              <HiOutlineDocumentText /> แนบไฟล์เอกสาร
-            </>
-          ) : (
-            <>
-              <BsImage /> แนบไฟล์ภาพ
-            </>
-          )
-        }
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        footer={<></>}
-      >
-        <Title>{label}</Title>
-
-        {isModalOpen && nameForm ? (
-          type == 'file' ? (
-            <FormUpload
-              form={formUpload}
-              type={'file'}
-              name={`file-${nameForm}`}
-            />
-          ) : (
-            <FormUpload
-              form={formUpload}
-              type={'image'}
-              name={`image-${nameForm}`}
-            />
-          )
-        ) : null}
-      </Modal>
     </>
   )
 }

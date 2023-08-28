@@ -25,8 +25,8 @@ export type Tforminternational = {
   leader_name_foreign?: string
   event_date_end: string
   event_date_start: string
-  specific_field?: {
-    [k: string]: TMapReason
+  specific_field: {
+    reason: TMapReason
   }
   file_documents: Array<{ name: string; url: string }>
   image_documents: Array<{ name: string; url: string }>

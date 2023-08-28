@@ -12,7 +12,7 @@ export const setDefaultSearch = (search: string) => {
     };
 };
 
-export const setSelectToppic = (id: string) => {
+export const setSelectToppic = (id: any) => {
     return {
         type: "SELECT_TOPPIC_SET",
         payload: id,

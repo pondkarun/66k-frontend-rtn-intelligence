@@ -1,7 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Col, Form, Input, Modal, Row, Select, Space, Table, Tooltip } from 'antd'
+import {
+  Badge,
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tooltip,
+} from 'antd'
 import styled from 'styled-components'
-import { EditOutlined, EyeOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import {
+  EditOutlined,
+  EyeOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Layout from '@/components/layout'
@@ -23,6 +40,13 @@ import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import type { ColumnsType } from 'antd/es/table'
+import { BsImage } from 'react-icons/bs'
+import { HiOutlineDocumentText } from 'react-icons/hi'
+
+enum EmodeOption {
+  VIEW = 'view',
+  EDIT = 'edit',
+}
 
 type QueryProps = {
   search?: string
@@ -42,8 +66,13 @@ const InternationalRelationsTopics = () => {
   const [formInternational] =
     Form.useForm<TallFieldInternationalRelationsdatas['data']>()
 
+  const [specifics, setSpecifics] =
+    useState<
+      TallFieldInternationalRelationsdatas['data']['specific_field']['reason']
+    >()
+
   const [search, setSearch] = useState<string>('')
-  const [mode, setMode] = useState<'view' | 'edit' | ''>('')
+  const [mode, setMode] = useState<EmodeOption>()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const [toppicId, setToppicId] = useState('')
@@ -78,11 +107,17 @@ const InternationalRelationsTopics = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, menuSelector.country])
 
-  const handleEditRecord = (_record: TfieldInternationdata) => {
+  const handleRecordManage = (
+    _record: TfieldInternationdata,
+    _mode: EmodeOption,
+  ) => {
+    if (_mode === EmodeOption.EDIT) {
+      setToppicId(_record.ir_topic_id)
+      setInternationalId(_record.id)
+    }
     setIsModalOpen(true)
-    setMode('edit')
-    setToppicId(_record.ir_topic_id)
-    setInternationalId(_record.id)
+    setMode(_mode)
+    setSpecifics(_record.specific_field.reason)
     formInternational.setFieldsValue({
       ..._record,
       toppic_name: _record.ir_topic.name,
@@ -182,22 +217,15 @@ const InternationalRelationsTopics = () => {
           <FileTableContentField>
             <Tooltip>
               <EventContentField
-                onClick={async () => {
-                  setIsModalOpen(true)
-                  setMode('view')
-                  console.log('record', record)
-                  formInternational.setFieldsValue({
-                    ...record,
-                    toppic_name: record.ir_topic.name,
-                    specific_field: record.specific_field?.reason
-                  } as any)
-                }}
+                onClick={() => handleRecordManage(record, EmodeOption.VIEW)}
               >
                 <EyeOutlined />
               </EventContentField>
             </Tooltip>
             <Tooltip>
-              <EventContentField onClick={() => handleEditRecord(record)}>
+              <EventContentField
+                onClick={() => handleRecordManage(record, EmodeOption.EDIT)}
+              >
                 <EditOutlined />
               </EventContentField>
             </Tooltip>
@@ -283,92 +311,76 @@ const InternationalRelationsTopics = () => {
         >
           <Form
             form={formInternational}
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 16 }}
+            layout='vertical'
             onFinish={onFinishInternational}
             autoComplete='off'
           >
-            <Form.Item id='toppic_name' label='หัวข้อ' name='toppic_name'>
-              <Input
-                disabled={mode === 'view' || mode === 'edit' ? true : false}
-              />
-            </Form.Item>
-            <Form.Item id='event_name' label='ชื่อกิจกรรม' name='event_name'>
-              <Input disabled={mode === 'view' ? true : false} />
-            </Form.Item>
-            <Form.Item
-              id='event_venue'
-              label='สถานที่จัดกิจกรรม'
-              name='event_venue'
-            >
-              <Input disabled={mode === 'view' ? true : false} />
-            </Form.Item>
-            <Form.List name='specific_field'>
-              {(fields, { add, remove }) => (
-                <div style={{ paddingTop: 25, paddingLeft: 80 }}>
-                  {fields.map((field) => (
-                    <Space key={field.key} align='baseline'>
-                      <Form.Item
-                        // noStyle
-                        shouldUpdate={(prevValues, curValues) =>
-                          prevValues.groups !== curValues.groups ||
-                          prevValues.value !== curValues.value
-                        }
-                      >
-                        {() => (
-                          <Form.Item
-                            {...field}
-                            label='Groups'
-                            name={[field.name, 'groups']}
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Missing groups name',
-                              },
-                            ]}
-                          >
-                            <Input
-                              style={{ width: 180 }}
-                              disabled={mode == 'view' ? true : false}
-                            />
-                          </Form.Item>
-                        )}
-                      </Form.Item>
-                      <Form.Item
-                        {...field}
-                        name={[field.name, 'value']}
-                        rules={[{ required: true, message: 'Missing value' }]}
-                      >
-                        <Select
-                          mode='tags'
-                          style={{ width: 240 }}
-                          options={[]}
-                          disabled={mode == 'view' ? true : false}
-                        />
-                      </Form.Item>
+            <Row gutter={[16, 0]}>
+              <Col span={12}>
+                <Form.Item id='toppic_name' label='หัวข้อ' name='toppic_name'>
+                  <Input
+                    disabled={mode === 'view' || mode === 'edit' ? true : false}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  id='event_name'
+                  label='ชื่อกิจกรรม'
+                  name='event_name'
+                >
+                  <Input disabled={mode === 'view' ? true : false} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  id='event_venue'
+                  label='สถานที่จัดกิจกรรม'
+                  name='event_venue'
+                >
+                  <Input disabled={mode === 'view' ? true : false} />
+                </Form.Item>
+              </Col>
+            </Row>
 
-                      {mode !== 'view' ? (
-                        <MinusCircleOutlined
-                          onClick={() => remove(field.name)}
-                        />
-                      ) : null}
-                    </Space>
-                  ))}
-                  {mode !== 'view' ? (
-                    <Form.Item>
-                      <Button
-                        type='dashed'
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                      >
-                        เพิ่ม
-                      </Button>
-                    </Form.Item>
-                  ) : null}
+            {specifics?.map((specific, index) => {
+              return (
+                <div key={index}>
+                  <SubTitle>{specific.topic_reason_name}</SubTitle>
+                  <Line />
+
+                  <Row gutter={[16, 0]}>
+                    {specific.sub_reason_name.map((item, index) => {
+                      return (
+                        <Col span={24} key={index}>
+                          <Form.Item
+                            name={['name', item.name, 'value', item.value]}
+                            label={
+                              <>
+                                <span>{item.name}</span>
+                                <Icon onClick={() => {}}>
+                                  <Badge>
+                                    <HiOutlineDocumentText />
+                                  </Badge>
+                                </Icon>
+                                <Icon onClick={() => {}}>
+                                  {' '}
+                                  <Badge>
+                                    <BsImage />
+                                  </Badge>
+                                </Icon>
+                              </>
+                            }
+                          >
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                      )
+                    })}
+                  </Row>
                 </div>
-              )}
-            </Form.List>
+              )
+            })}
           </Form>
         </Modal>
       </>
@@ -380,10 +392,22 @@ export default InternationalRelationsTopics
 
 const Title = styled.h1`
   color: #00408e;
-  font-size: 36px;
+  font-size: 24px;
   font-weight: revert;
   margin-bottom: 0em;
 `
+
+const SubTitle = styled.div`
+  font-size: 1.75rem;
+  color: #565252;
+`
+const Line = styled.div`
+  height: 0px;
+  border: 1px solid #d9d9d9;
+  position: relative;
+  margin: 2px 0px 10px 0px;
+`
+
 const ContentCount = styled.span`
   font-size: 26px;
 `
@@ -402,5 +426,18 @@ const FileTableContentField = styled.div`
 const EventContentField = styled.a`
   :hover {
     cursor: pointer;
+  }
+`
+const Icon = styled.span`
+  padding-left: 10px;
+  cursor: pointer;
+  .ant-badge-count {
+    top: 17px;
+    min-width: 15px;
+    height: 15px;
+    line-height: 15px;
+  }
+  svg {
+    color: #00408e;
   }
 `
