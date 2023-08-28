@@ -7,7 +7,7 @@ import { AppstoreOutlined, DownOutlined, MailOutlined, RightOutlined, SettingOut
 import { isArray } from 'lodash';
 import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
-import { setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
+import { setObjToppic, setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
 import { setBackground } from '@/redux/actions/configActions';
 import type {  MenuProps } from 'antd';
 const { Sider } = Layout;
@@ -262,7 +262,6 @@ const SidebarLayoutComponents = () => {
         if (toppic) {
             Router.push(`/international-relations-topics/${id}/${toppic}`);
         }
-
     }
 
     /** menu */
@@ -493,7 +492,6 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                 {list.map((e: any, i) => {
                     const is_last_node = e.children.filter((w: any) => w.last_node == true);
                     return (
-
                         (is_last_node.length == 0) ?
                             <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
                                 <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />

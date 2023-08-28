@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  Badge,
   Button,
   Col,
   Form,
@@ -39,6 +40,8 @@ import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import type { ColumnsType } from 'antd/es/table'
+import { BsImage } from 'react-icons/bs'
+import { HiOutlineDocumentText } from 'react-icons/hi'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -64,8 +67,9 @@ const InternationalRelationsTopics = () => {
     Form.useForm<TallFieldInternationalRelationsdatas['data']>()
 
   const [specifics, setSpecifics] =
-    useState<TallFieldInternationalRelationsdatas['data']['specific_field']?.reason>()
-  console.log('specifics', specifics)
+    useState<
+      TallFieldInternationalRelationsdatas['data']['specific_field']['reason']
+    >()
 
   const [search, setSearch] = useState<string>('')
   const [mode, setMode] = useState<EmodeOption>()
@@ -107,14 +111,13 @@ const InternationalRelationsTopics = () => {
     _record: TfieldInternationdata,
     _mode: EmodeOption,
   ) => {
-    console.log('_record', _record)
     if (_mode === EmodeOption.EDIT) {
       setToppicId(_record.ir_topic_id)
       setInternationalId(_record.id)
     }
     setIsModalOpen(true)
     setMode(_mode)
-    setSpecifics(_record.specific_field?.reason)
+    setSpecifics(_record.specific_field.reason)
     formInternational.setFieldsValue({
       ..._record,
       toppic_name: _record.ir_topic.name,
@@ -214,14 +217,14 @@ const InternationalRelationsTopics = () => {
           <FileTableContentField>
             <Tooltip>
               <EventContentField
-                onClick={() => handleRecordManage(record, EmodeOption.EDIT)}
+                onClick={() => handleRecordManage(record, EmodeOption.VIEW)}
               >
                 <EyeOutlined />
               </EventContentField>
             </Tooltip>
             <Tooltip>
               <EventContentField
-                onClick={() => handleRecordManage(record, EmodeOption.VIEW)}
+                onClick={() => handleRecordManage(record, EmodeOption.EDIT)}
               >
                 <EditOutlined />
               </EventContentField>
@@ -308,53 +311,76 @@ const InternationalRelationsTopics = () => {
         >
           <Form
             form={formInternational}
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 16 }}
+            layout='vertical'
             onFinish={onFinishInternational}
             autoComplete='off'
           >
-            <Form.Item id='toppic_name' label='หัวข้อ' name='toppic_name'>
-              <Input
-                disabled={mode === 'view' || mode === 'edit' ? true : false}
-              />
-            </Form.Item>
-            <Form.Item id='event_name' label='ชื่อกิจกรรม' name='event_name'>
-              <Input disabled={mode === 'view' ? true : false} />
-            </Form.Item>
-            <Form.Item
-              id='event_venue'
-              label='สถานที่จัดกิจกรรม'
-              name='event_venue'
-            >
-              <Input disabled={mode === 'view' ? true : false} />
-            </Form.Item>
-            {/* {specifics?.reason.map((specific, index) => {
+            <Row gutter={[16, 0]}>
+              <Col span={12}>
+                <Form.Item id='toppic_name' label='หัวข้อ' name='toppic_name'>
+                  <Input
+                    disabled={mode === 'view' || mode === 'edit' ? true : false}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  id='event_name'
+                  label='ชื่อกิจกรรม'
+                  name='event_name'
+                >
+                  <Input disabled={mode === 'view' ? true : false} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  id='event_venue'
+                  label='สถานที่จัดกิจกรรม'
+                  name='event_venue'
+                >
+                  <Input disabled={mode === 'view' ? true : false} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {specifics?.map((specific, index) => {
               return (
                 <div key={index}>
                   <SubTitle>{specific.topic_reason_name}</SubTitle>
                   <Line />
 
                   <Row gutter={[16, 0]}>
-                    {e.value.map((item: string, index: number) => (
-                      <Col span={12} key={item + index}>
-                        <Form.Item
-                          name={['specific_field', e.groups, item, 'value']}
-                          label={
-                            <LabelIconUpload
-                              label={item}
-                              form={form}
-                              name={['specific_field', e.groups, item]}
-                            />
-                          }
-                        >
-                          <Input />
-                        </Form.Item>
-                      </Col>
-                    ))}
+                    {specific.sub_reason_name.map((item, index) => {
+                      return (
+                        <Col span={24} key={index}>
+                          <Form.Item
+                            name={['name', item.name, 'value', item.value]}
+                            label={
+                              <>
+                                <span>{item.name}</span>
+                                <Icon onClick={() => {}}>
+                                  <Badge>
+                                    <HiOutlineDocumentText />
+                                  </Badge>
+                                </Icon>
+                                <Icon onClick={() => {}}>
+                                  {' '}
+                                  <Badge>
+                                    <BsImage />
+                                  </Badge>
+                                </Icon>
+                              </>
+                            }
+                          >
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                      )
+                    })}
                   </Row>
                 </div>
               )
-            })} */}
+            })}
           </Form>
         </Modal>
       </>
@@ -366,7 +392,7 @@ export default InternationalRelationsTopics
 
 const Title = styled.h1`
   color: #00408e;
-  font-size: 36px;
+  font-size: 24px;
   font-weight: revert;
   margin-bottom: 0em;
 `
@@ -400,5 +426,18 @@ const FileTableContentField = styled.div`
 const EventContentField = styled.a`
   :hover {
     cursor: pointer;
+  }
+`
+const Icon = styled.span`
+  padding-left: 10px;
+  cursor: pointer;
+  .ant-badge-count {
+    top: 17px;
+    min-width: 15px;
+    height: 15px;
+    line-height: 15px;
+  }
+  svg {
+    color: #00408e;
   }
 `
