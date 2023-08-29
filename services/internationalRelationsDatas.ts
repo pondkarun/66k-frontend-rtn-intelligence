@@ -8,7 +8,7 @@ import Api from './Api'
 import type { AxiosResponse } from 'axios'
 
 export const addInternationalDataRelationsTopicsService = async (
-  payload: Omit<Tforminternational, 'event_date' | 'field_id'>,
+  payload: Omit<Tforminternational, 'event_date' | 'field_id' | 'id'>,
 ) => {
   const response: AxiosResponse<international_relations_datasAttributes> =
     await Api.post(`/international_relations_dates`, payload)

@@ -110,7 +110,7 @@ const ManageInternationalRelationsTopics = ({
     const event_date_start = data.event_date[0].toISOString()
     const event_date_end = data.event_date[1].toISOString()
 
-    const modalRequst: Omit<Tforminternational, 'event_date' | 'field_id'> = {
+    const modalRequst: Omit<Tforminternational, 'event_date' | 'field_id' | 'id'> = {
       event_date_start,
       event_date_end,
       country_id: router.query.country as string,
@@ -224,12 +224,12 @@ const ManageInternationalRelationsTopics = ({
                 return (
                   <Col span={12} key={item + index}>
                     <Form.Item
-                      name={['specific_field', e.groups, item, 'value']}
+                      name={['specific_field', e.groups, item]}
                       label={
                         <LabelIconUpload
                           label={item}
                           form={form}
-                          name={['specific_field', e.groups, item]}
+                          name={[]}
                         />
                       }
                     >

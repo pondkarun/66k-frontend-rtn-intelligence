@@ -18,6 +18,7 @@ export interface international_relations_datasAttributes {
 }
 
 export type Tforminternational = {
+  id: string
   event_date: { 0: Date; 1: Date }
   event_name: string
   event_venue?: string

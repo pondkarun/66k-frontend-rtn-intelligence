@@ -30,6 +30,7 @@ import {
 import {
   editInternationalDatasService,
   getAllCountryInternationalDataRelationsTopicsServices,
+  getByInternationalDatasService,
 } from '@/services/internationalRelationsDatas'
 import {
   TallFieldInternationalRelationsdatas,
@@ -107,19 +108,20 @@ const InternationalRelationsTopics = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, menuSelector.country])
 
-  const handleRecordManage = (
+  const handleRecordManage = async (
     _record: TfieldInternationdata,
     _mode: EmodeOption,
   ) => {
+    const response = await getByInternationalDatasService(_record.id)
     if (_mode === EmodeOption.EDIT) {
-      setToppicId(_record.ir_topic_id)
-      setInternationalId(_record.id)
+      setToppicId(response.data.ir_topic_id)
+      setInternationalId(response.data.id)
     }
     setIsModalOpen(true)
     setMode(_mode)
-    setSpecifics(_record.specific_field.reason)
+    setSpecifics(response.data.specific_field.reason)
     formInternational.setFieldsValue({
-      ..._record,
+      ...response.data,
       toppic_name: _record.ir_topic.name,
     } as any)
   }
@@ -352,9 +354,14 @@ const InternationalRelationsTopics = () => {
                   <Row gutter={[16, 0]}>
                     {specific.sub_reason_name.map((item, index) => {
                       return (
-                        <Col span={24} key={index}>
+                        <Col span={12} key={index}>
                           <Form.Item
-                            name={['name', item.name, 'value', item.value]}
+                            name={[
+                              'specific_field',
+                              specific.topic_reason_name,
+                              item.name,
+                              'value',
+                            ]}
                             label={
                               <>
                                 <span>{item.name}</span>
@@ -364,7 +371,6 @@ const InternationalRelationsTopics = () => {
                                   </Badge>
                                 </Icon>
                                 <Icon onClick={() => {}}>
-                                  {' '}
                                   <Badge>
                                     <BsImage />
                                   </Badge>
@@ -372,7 +378,7 @@ const InternationalRelationsTopics = () => {
                               </>
                             }
                           >
-                            <Input />
+                            <Input disabled={mode === 'view'} defaultValue={item.value} />
                           </Form.Item>
                         </Col>
                       )
