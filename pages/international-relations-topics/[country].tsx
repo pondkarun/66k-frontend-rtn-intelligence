@@ -1,19 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Badge,
   Button,
   Col,
+  DatePicker,
   Form,
   Input,
   Modal,
+  Popconfirm,
   Row,
   Select,
   Space,
   Table,
   Tooltip,
+  message,
 } from 'antd'
 import styled from 'styled-components'
 import {
+  DeleteOutlined,
   EditOutlined,
   EyeOutlined,
   MinusCircleOutlined,
@@ -21,6 +25,9 @@ import {
 } from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
+import { BsImage } from 'react-icons/bs'
+import { HiOutlineDocumentText } from 'react-icons/hi'
+import dayjs from 'dayjs'
 import Layout from '@/components/layout'
 import { setBackground } from '@/redux/actions/configActions'
 import {
@@ -31,6 +38,7 @@ import {
   editInternationalDatasService,
   getAllCountryInternationalDataRelationsTopicsServices,
   getByInternationalDatasService,
+  removeByInternationalDatasService,
 } from '@/services/internationalRelationsDatas'
 import {
   TallFieldInternationalRelationsdatas,
@@ -41,8 +49,6 @@ import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import type { ColumnsType } from 'antd/es/table'
-import { BsImage } from 'react-icons/bs'
-import { HiOutlineDocumentText } from 'react-icons/hi'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -68,9 +74,7 @@ const InternationalRelationsTopics = () => {
     Form.useForm<TallFieldInternationalRelationsdatas['data']>()
 
   const [specifics, setSpecifics] =
-    useState<
-      TallFieldInternationalRelationsdatas['data']['specific_field']['reason']
-    >()
+    useState<TallFieldInternationalRelationsdatas['data']['specific_field']>()
 
   const [search, setSearch] = useState<string>('')
   const [mode, setMode] = useState<EmodeOption>()
@@ -113,17 +117,50 @@ const InternationalRelationsTopics = () => {
     _mode: EmodeOption,
   ) => {
     const response = await getByInternationalDatasService(_record.id)
+    console.log('response.data', response.data)
     if (_mode === EmodeOption.EDIT) {
       setToppicId(response.data.ir_topic_id)
       setInternationalId(response.data.id)
     }
     setIsModalOpen(true)
     setMode(_mode)
-    setSpecifics(response.data.specific_field.reason)
+    setSpecifics(response.data.specific_field)
+
+    let model: any = {}
+    let modal_reason: any = {}
+
+    for (let i = 0; i < response.data.specific_field.length; i++) {
+      const specific = response.data.specific_field[i]
+      for (let index = 0; index < specific.sub_reason_name.length; index++) {
+        const sub_reason = specific.sub_reason_name[index]
+        console.log('sub_reason', sub_reason)
+
+        model[specific.topic_reason_name] = sub_reason.name
+      }
+    }
+    console.log('model', model)
+    console.log('modal_reason', modal_reason)
+
     formInternational.setFieldsValue({
       ...response.data,
       toppic_name: _record.ir_topic.name,
+      event_date: [
+        dayjs(response.data.event_date_start),
+        dayjs(response.data.event_date_end),
+      ],
     } as any)
+  }
+
+  const handleRemoveRecordFormColumn = async (_record_id: string) => {
+    try {
+      await removeByInternationalDatasService(_record_id)
+    } catch (error) {
+      message.error('เกิดข้อผิดพลาดบางอย่าง')
+      return
+    } finally {
+      message.success('ลบข้อมูลสพเร็จ')
+      randerQueryApi()
+    }
   }
 
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> = [
@@ -190,21 +227,6 @@ const InternationalRelationsTopics = () => {
                 </EventContentField>
               </Tooltip>
             )}
-            {record.file_documents.length > 0 &&
-              record.image_documents.length > 0 && (
-                <>
-                  <Tooltip>
-                    <EventContentField>
-                      <DocumentIcon />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip>
-                    <EventContentField>
-                      <ImageBackgroundIcon />
-                    </EventContentField>
-                  </Tooltip>
-                </>
-              )}
             {record.file_documents.length === 0 &&
               record.image_documents.length === 0 && <></>}
           </FileTableContentField>
@@ -217,19 +239,32 @@ const InternationalRelationsTopics = () => {
       render: (_value, record) => {
         return (
           <FileTableContentField>
-            <Tooltip>
+            <Tooltip title={`ดูข้อมูล`}>
               <EventContentField
                 onClick={() => handleRecordManage(record, EmodeOption.VIEW)}
               >
                 <EyeOutlined />
               </EventContentField>
             </Tooltip>
-            <Tooltip>
+            <Tooltip title={`แก้ไขข้อมูล`}>
               <EventContentField
                 onClick={() => handleRecordManage(record, EmodeOption.EDIT)}
               >
                 <EditOutlined />
               </EventContentField>
+            </Tooltip>
+            <Tooltip title={`ลบข้อมูล`}>
+              <Popconfirm
+                placement='top'
+                title={'ยืนยันการลบข้อมูล'}
+                onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                okText='ตกลง'
+                cancelText='ยกเลิก'
+              >
+                <EventContentField>
+                  <DeleteOutlined />
+                </EventContentField>
+              </Popconfirm>
             </Tooltip>
           </FileTableContentField>
         )
@@ -245,6 +280,7 @@ const InternationalRelationsTopics = () => {
 
   const onFinishInternational = async () => {
     const itemsForm = formInternational.getFieldsValue()
+    console.log('itemsForm', itemsForm)
 
     const modelRequest: Partial<TallFieldInternationalRelationsdatas['data']> =
       {
@@ -253,10 +289,10 @@ const InternationalRelationsTopics = () => {
         event_name: itemsForm.event_name,
         event_venue: itemsForm.event_venue,
       }
-    await editInternationalDatasService(modelRequest, internationalId)
-    formInternational.resetFields()
-    setIsModalOpen(!isModalOpen)
-    randerQueryApi()
+    // await editInternationalDatasService(modelRequest, internationalId)
+    // formInternational.resetFields()
+    // setIsModalOpen(!isModalOpen)
+    // randerQueryApi()
   }
 
   return (
@@ -320,9 +356,7 @@ const InternationalRelationsTopics = () => {
             <Row gutter={[16, 0]}>
               <Col span={12}>
                 <Form.Item id='toppic_name' label='หัวข้อ' name='toppic_name'>
-                  <Input
-                    disabled={mode === 'view' || mode === 'edit' ? true : false}
-                  />
+                  <Input disabled={mode === 'view' || mode === 'edit'} />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -330,6 +364,7 @@ const InternationalRelationsTopics = () => {
                   id='event_name'
                   label='ชื่อกิจกรรม'
                   name='event_name'
+                  rules={[{ required: true }]}
                 >
                   <Input disabled={mode === 'view' ? true : false} />
                 </Form.Item>
@@ -343,14 +378,57 @@ const InternationalRelationsTopics = () => {
                   <Input disabled={mode === 'view' ? true : false} />
                 </Form.Item>
               </Col>
+              <Col span={12}>
+                <Form.Item
+                  id='leader_name_thai'
+                  label='หัวหน้าคณะฝ่ายไทย'
+                  name='leader_name_thai'
+                >
+                  <Input disabled={mode === 'view'} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  id='leader_name_foreign'
+                  label='หัวหน้าคณะฝ่ายต่างประเทศ'
+                  name='leader_name_foreign'
+                >
+                  <Input disabled={mode === 'view'} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name='event_date'
+                  label='ห้วงเวลาเริ่มต้น - สิ้นสุด'
+                  rules={[{ required: true }]}
+                >
+                  <DatePicker.RangePicker
+                    disabled={mode === 'view'}
+                    format={'DD/MM/YYYY'}
+                  />
+                </Form.Item>
+              </Col>
             </Row>
+
+            {/* <Form.List name='specific_field'>
+              {(fields, { add, remove }) => {
+                console.log('fields', fields)
+                return (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => {
+                      console.log('restField', restField)
+                      return <></>
+                    })}
+                  </>
+                )
+              }}
+            </Form.List> */}
 
             {specifics?.map((specific, index) => {
               return (
                 <div key={index}>
                   <SubTitle>{specific.topic_reason_name}</SubTitle>
                   <Line />
-
                   <Row gutter={[16, 0]}>
                     {specific.sub_reason_name.map((item, index) => {
                       return (
@@ -378,7 +456,7 @@ const InternationalRelationsTopics = () => {
                               </>
                             }
                           >
-                            <Input disabled={mode === 'view'} defaultValue={item.value} />
+                            <Input disabled={mode === 'view'} />
                           </Form.Item>
                         </Col>
                       )
