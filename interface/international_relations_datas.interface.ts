@@ -17,6 +17,8 @@ export interface international_relations_datasAttributes {
   }
 }
 
+export type TdocumentsOption = Array<{ name: string; url: string }>
+
 export type Tforminternational = {
   id: string
   event_date: { 0: Date; 1: Date }
@@ -26,11 +28,9 @@ export type Tforminternational = {
   leader_name_foreign?: string
   event_date_end: string
   event_date_start: string
-  specific_field: {
-    reason: TMapReason
-  }
-  file_documents: Array<{ name: string; url: string }>
-  image_documents: Array<{ name: string; url: string }>
+  specific_field: TMapReason
+  file_documents: TdocumentsOption
+  image_documents: TdocumentsOption
   ir_topic_id: string
   country_id: string
   ir_topic_breadcrumb: null

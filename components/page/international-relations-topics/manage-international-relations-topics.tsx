@@ -16,7 +16,10 @@ import styled from 'styled-components'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
 import { useRouter } from 'next/router'
-import { Tforminternational } from '@/interface/international_relations_datas.interface'
+import {
+  TdocumentsOption,
+  Tforminternational,
+} from '@/interface/international_relations_datas.interface'
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
 import LabelIconUpload from './country/LabelIconUpload'
@@ -59,28 +62,28 @@ const ManageInternationalRelationsTopics = ({
   const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu)
   const [form] = Form.useForm<Tforminternational>()
 
-  useEffect(() => {
-    form.setFieldsValue({
-      file_documents: [
-        {
-          name: 'excel.png',
-          url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        },
-      ],
-      image_documents: [
-        {
-          name: 'image.png',
-          url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        },
-      ],
-    })
-  }, [])
+  // useEffect(() => {
+  //   form.setFieldsValue({
+  //     file_documents: [
+  //       {
+  //         name: 'excel.png',
+  //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+  //       },
+  //     ],
+  //     image_documents: [
+  //       {
+  //         name: 'image.png',
+  //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+  //       },
+  //     ],
+  //   })
+  // }, [])
 
   const onFinish = async () => {
-    const objCustom = new Map<string, TMapReason>()
     const data = form.getFieldsValue()
-
     const createReason: TMapReason = []
+    const createValuesReasonImage: TdocumentsOption = []
+    const createValuesReasonFile: TdocumentsOption = []
 
     for (const [key1, values] of Object.entries(
       data.specific_field as unknown as never,
@@ -101,16 +104,29 @@ const ManageInternationalRelationsTopics = ({
         sub_reason_name: subReason,
       })
     }
-    objCustom.set('reason', createReason)
 
-    const map_specific = Object.fromEntries(objCustom) as {
-      reason: TMapReason
+    for (let x = 0; x < data.file_documents.length; x++) {
+      const file_document = data.file_documents[x]
+      createValuesReasonFile.push({
+        url: '',
+        name: file_document.name,
+      })
+    }
+    for (let z = 0; z < data.image_documents.length; z++) {
+      const image_document = data.image_documents[z]
+      createValuesReasonImage.push({
+        url: '',
+        name: image_document.name,
+      })
     }
 
     const event_date_start = data.event_date[0].toISOString()
     const event_date_end = data.event_date[1].toISOString()
 
-    const modalRequst: Omit<Tforminternational, 'event_date' | 'field_id' | 'id'> = {
+    const modalRequst: Omit<
+      Tforminternational,
+      'event_date' | 'field_id' | 'id'
+    > = {
       event_date_start,
       event_date_end,
       country_id: router.query.country as string,
@@ -119,9 +135,9 @@ const ManageInternationalRelationsTopics = ({
       event_venue: data.event_venue,
       leader_name_thai: data.leader_name_thai,
       leader_name_foreign: data.leader_name_foreign,
-      specific_field: map_specific ?? {},
-      file_documents: data.file_documents ?? [],
-      image_documents: data.image_documents ?? [],
+      specific_field: createReason,
+      file_documents: createValuesReasonFile,
+      image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
     }
 
@@ -226,11 +242,7 @@ const ManageInternationalRelationsTopics = ({
                     <Form.Item
                       name={['specific_field', e.groups, item]}
                       label={
-                        <LabelIconUpload
-                          label={item}
-                          form={form}
-                          name={[]}
-                        />
+                        <LabelIconUpload label={item} form={form} name={[]} />
                       }
                     >
                       <Input />

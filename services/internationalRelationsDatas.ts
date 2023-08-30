@@ -27,11 +27,26 @@ export const getAllCountryInternationalDataRelationsTopicsServices =
   }
 
 export const getByInternationalDatasService = async (id: string) => {
-  const response: AxiosResponse<IgetByInternational> = await Api.get(`international_relations_dates/${id}`)
+  const response: AxiosResponse<IgetByInternational> = await Api.get(
+    `international_relations_dates/${id}`,
+  )
   return response.data
 }
 
-export const editInternationalDatasService = async (payload: unknown, id: string) => {
-  const response: AxiosResponse = await Api.put(`international_relations_dates/${id}`, payload)
+export const editInternationalDatasService = async (
+  payload: unknown,
+  id: string,
+) => {
+  const response: AxiosResponse = await Api.put(
+    `international_relations_dates/${id}`,
+    payload,
+  )
+  return response.data
+}
+
+export const removeByInternationalDatasService = async (id: string) => {
+  const response: AxiosResponse<IgetByInternational> = await Api.delete(
+    `international_relations_dates/${id}`,
+  )
   return response.data
 }

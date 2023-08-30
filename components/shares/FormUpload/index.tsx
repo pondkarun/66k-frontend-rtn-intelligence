@@ -1,19 +1,23 @@
 import { InboxOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, Col, Modal, Row, Upload } from 'antd'
+import { Button, Col, Form, Modal, Row, Upload } from 'antd'
 import { useEffect, useState } from 'react'
 import { RcFile } from 'antd/lib/upload'
 import { useRouter } from 'next/router'
 import getBase64 from '@/libs/getBase64'
-import { internalUploadPublic } from '@/services/upload'
+import {
+  internalUploadPublicService,
+  removeInternalUploadPublicService,
+} from '@/services/upload'
+import { Tforminternational } from '@/interface/international_relations_datas.interface'
 import type { FormInstance, UploadProps, UploadFile } from 'antd'
 
 const { Dragger } = Upload
 
 export type FormUploadType = {
-  form: FormInstance
+  form: FormInstance<Tforminternational>
   type: 'file' | 'image'
   name: string
-  acceptFile?: string
+  acceptFile: string
 }
 
 const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
@@ -21,6 +25,7 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewImage, setPreviewImage] = useState('')
   const [previewTitle, setPreviewTitle] = useState('')
+  const [fileType, setFileType] = useState<string | undefined>()
 
   const router = useRouter()
   const params = router.query
@@ -30,10 +35,18 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
     multiple: true,
     action: '/api/upload',
     accept: acceptFile,
-    onChange(info) {
+    onChange: async (info) => {
       // console.log('info :>> ', info);
-      info.file.status = 'done'
-      setFile([...file, ...info.fileList])
+      const fileUploaded = await internalUploadPublicService({
+        formData: info.fileList,
+        country_id: params.country as string,
+        ticpid_id: params.toppic as string,
+      })
+
+      if (fileUploaded === 'OK') {
+        info.file.status = 'done'
+        setFile([...file, ...info.fileList])
+      }
     },
     fileList: [],
     onDrop(e) {
@@ -46,15 +59,17 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
     action: '/api/upload',
     accept: acceptFile,
     onChange: async (info) => {
-      console.log('propsButton :>> ', info)
-
-      internalUploadPublic({
-        file: info.fileList as unknown as File,
+      // console.log('propsButton :>> ', info)
+      const fileUploaded = await internalUploadPublicService({
+        formData: info.fileList,
         country_id: params.country as string,
         ticpid_id: params.toppic as string,
       })
-      info.file.status = 'done'
-      setFile([...file, ...info.fileList])
+
+      if (fileUploaded === 'OK') {
+        info.file.status = 'done'
+        setFile([...file, ...info.fileList])
+      }
     },
     fileList: [],
     onDrop(e) {
@@ -66,9 +81,20 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
     multiple: true,
     accept: acceptFile,
     action: '/api/upload',
-    onChange(info) {
-      console.log('propsUpload :>> ', info)
-      setFile(info.fileList)
+    onChange: (info) => {
+      // console.log('propsUploadssdsds :>> ', info.file)
+
+      const queryField = info.file ? `?file_name=${info.file.name}` : ''
+      try {
+        removeInternalUploadPublicService({
+          country_id: params.country as string,
+          ticpid_id: params.toppic as string,
+          file_name: queryField,
+        })
+        setFile(info.fileList)
+      } catch (error) {
+        setFile([])
+      }
     },
     fileList: file,
     onPreview(e) {
@@ -84,6 +110,7 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
       file.preview = await getBase64(file.originFileObj as RcFile)
     }
 
+    setFileType(file.type?.split('/')[1])
     setPreviewImage(file.url || (file.preview as string))
     setPreviewOpen(true)
     setPreviewTitle(
@@ -95,21 +122,22 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
     form.setFieldsValue({
       [name]: file,
     })
-  }, [file])
+  }, [file, name])
 
   useEffect(() => {
     const fileForm = form.getFieldValue(name)
+    console.log('fileForm', fileForm)
     if (fileForm) {
-      console.log('fileForm :>> ', fileForm)
+      // console.log('fileForm :>> ', fileForm)
       setFile(fileForm)
     }
   }, [])
 
   const uploadButton = (
-    <div>
+    <>
       <PlusOutlined />
       <div style={{ marginTop: 8 }}>Upload</div>
-    </div>
+    </>
   )
 
   return (
@@ -117,31 +145,33 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
       <label>{`อัพโหลดไฟล์เอกสาร ${
         type == 'file' ? '(xlsx, doc, ptt, pdf)' : '(jpg, png, svg)'
       }`}</label>
-      <Dragger {...propsDragger}>
-        <p className='ant-upload-drag-icon'>
-          <InboxOutlined />
-        </p>
-        <p className='ant-upload-text'>
-          คลิกหรือลากไฟล์ไปยังพื้นที่นี้ เพื่ออัปโหลด
-        </p>
-        <p className='ant-upload-hint'>
-          สนับสนุนสำหรับการอัปโหลดครั้งเดียวหรือจำนวนมาก
-        </p>
-      </Dragger>
+      <Form.Item name={name}>
+        <Dragger {...propsDragger}>
+          <p className='ant-upload-drag-icon'>
+            <InboxOutlined />
+          </p>
+          <p className='ant-upload-text'>
+            คลิกหรือลากไฟล์ไปยังพื้นที่นี้ เพื่ออัปโหลด
+          </p>
+          <p className='ant-upload-hint'>
+            สนับสนุนสำหรับการอัปโหลดครั้งเดียวหรือจำนวนมาก
+          </p>
+        </Dragger>
+      </Form.Item>
       <Row style={{ padding: 10 }}>
         <Col span={12}>
           <h3>อัพโหลดไฟล์</h3>
         </Col>
         <Col span={12} style={{ textAlign: 'end' }}>
-          <Upload {...propsButton}>
-            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-          </Upload>
+          <Form.Item name={name}>
+            <Upload {...propsButton}>
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item>
         </Col>
         <Col span={24}>
           {type == 'image' ? (
-            <Upload {...propsUpload} listType={'picture-card'}>
-              {uploadButton}
-            </Upload>
+            <Upload {...propsUpload} listType={'picture-card'} />
           ) : (
             <Upload {...propsUpload} listType={'text'} />
           )}
@@ -151,7 +181,14 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
             footer={null}
             onCancel={() => setPreviewOpen(false)}
           >
-            <img alt='example' style={{ width: '100%' }} src={previewImage} />
+            {fileType === 'pdf' ? (
+              <iframe
+                style={{ width: '100%', height: '100%', minHeight: '400px' }}
+                src={previewImage}
+              />
+            ) : (
+              <img alt='example' style={{ width: '100%' }} src={previewImage} />
+            )}
           </Modal>
         </Col>
       </Row>

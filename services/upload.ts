@@ -1,33 +1,46 @@
 import axios from 'axios'
 
-interface internalUploadPublicProps {
+type TinternalUploadPublicProps = {
   country_id: string
   ticpid_id: string
   dir?: string
-  file: File
+  formData: any
 }
 
-export const internalUploadPublic = async ({
-  file,
+type TpickOnlyInternalProps = Pick<
+  TinternalUploadPublicProps,
+  'country_id' | 'ticpid_id'
+>
+
+type TremoveInternalUploadPublicProps = TpickOnlyInternalProps & {
+  file_name: string
+}
+
+/** change to Host form env */
+const HOSTMAINUPLOADAPI = 'http://127.0.0.1:9000'
+
+export const internalUploadPublicService = async ({
   country_id,
   ticpid_id,
-}: internalUploadPublicProps) => {
-  const formData = new FormData()
-  formData.append('file', file)
+  formData,
+}: TinternalUploadPublicProps) => {
+  await axios.post(
+    `${HOSTMAINUPLOADAPI}/internal/upload/${country_id}/${ticpid_id}`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  )
+  return 'OK'
+}
 
-  //   await axios.post(
-  //     `http://127.0.0.1:9000/internal/upload/${country_id}/${ticpid_id}`,
-  //     formData,
-  //     {
-  //       headers: {
-  //         'Content-Type':
-  //           'multipart/form-data; boundary=<calculated when request is sent>',
-  //       },
-  //     },
-  //   )
-  fetch(`http://127.0.0.1:9000/internal/upload/${country_id}/${ticpid_id}`, {
-    method: 'POST',
-    body: formData,
-  }).then((res) => res.json())
+export const removeInternalUploadPublicService = async (
+  payload: TremoveInternalUploadPublicProps,
+) => {
+  await axios.delete(
+    `${HOSTMAINUPLOADAPI}/internal/public/${payload.country_id}/${payload.ticpid_id}/remove${payload.file_name}`,
+  )
   return 'OK'
 }
