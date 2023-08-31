@@ -8,7 +8,10 @@ import {
   internalUploadPublicService,
   removeInternalUploadPublicService,
 } from '@/services/upload'
-import { Tforminternational } from '@/interface/international_relations_datas.interface'
+import {
+  TdocumentsOption,
+  Tforminternational,
+} from '@/interface/international_relations_datas.interface'
 import type { FormInstance, UploadProps, UploadFile } from 'antd'
 
 const { Dragger } = Upload
@@ -17,10 +20,21 @@ export type FormUploadType = {
   form: FormInstance<Tforminternational>
   type: 'file' | 'image'
   name: string
-  acceptFile: string
+  acceptFile?: string
+  randerList?: TdocumentsOption
+  ticpidId?: string
+  disabled?: boolean
 }
 
-const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
+const FormUpload = ({
+  form,
+  type,
+  name,
+  acceptFile,
+  randerList,
+  ticpidId,
+  disabled,
+}: FormUploadType) => {
   const [file, setFile] = useState<any>([])
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewImage, setPreviewImage] = useState('')
@@ -40,7 +54,9 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
       const fileUploaded = await internalUploadPublicService({
         formData: info.fileList,
         country_id: params.country as string,
-        ticpid_id: params.toppic as string,
+        ticpid_id: params.toppic
+          ? (params.toppic as string)
+          : (ticpidId as string),
       })
 
       if (fileUploaded === 'OK') {
@@ -63,7 +79,9 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
       const fileUploaded = await internalUploadPublicService({
         formData: info.fileList,
         country_id: params.country as string,
-        ticpid_id: params.toppic as string,
+        ticpid_id: params.toppic
+          ? (params.toppic as string)
+          : (ticpidId as string),
       })
 
       if (fileUploaded === 'OK') {
@@ -82,14 +100,13 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
     accept: acceptFile,
     action: '/api/upload',
     onChange: (info) => {
-      // console.log('propsUploadssdsds :>> ', info.file)
-
-      const queryField = info.file ? `?file_name=${info.file.name}` : ''
       try {
         removeInternalUploadPublicService({
           country_id: params.country as string,
-          ticpid_id: params.toppic as string,
-          file_name: queryField,
+          ticpid_id: params.toppic
+            ? (params.toppic as string)
+            : (ticpidId as string),
+          file_name: info.file.name,
         })
         setFile(info.fileList)
       } catch (error) {
@@ -126,12 +143,17 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
 
   useEffect(() => {
     const fileForm = form.getFieldValue(name)
-    console.log('fileForm', fileForm)
     if (fileForm) {
       // console.log('fileForm :>> ', fileForm)
       setFile(fileForm)
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof randerList !== 'undefined') {
+      setFile(randerList)
+    }
+  }, [randerList])
 
   const uploadButton = (
     <>
@@ -145,35 +167,47 @@ const FormUpload = ({ form, type, name, acceptFile }: FormUploadType) => {
       <label>{`อัพโหลดไฟล์เอกสาร ${
         type == 'file' ? '(xlsx, doc, ptt, pdf)' : '(jpg, png, svg)'
       }`}</label>
-      <Form.Item name={name}>
-        <Dragger {...propsDragger}>
-          <p className='ant-upload-drag-icon'>
-            <InboxOutlined />
-          </p>
-          <p className='ant-upload-text'>
-            คลิกหรือลากไฟล์ไปยังพื้นที่นี้ เพื่ออัปโหลด
-          </p>
-          <p className='ant-upload-hint'>
-            สนับสนุนสำหรับการอัปโหลดครั้งเดียวหรือจำนวนมาก
-          </p>
-        </Dragger>
-      </Form.Item>
+      {!disabled && (
+        <Form.Item name={name}>
+          <Dragger {...propsDragger}>
+            <p className='ant-upload-drag-icon'>
+              <InboxOutlined />
+            </p>
+            <p className='ant-upload-text'>
+              คลิกหรือลากไฟล์ไปยังพื้นที่นี้ เพื่ออัปโหลด
+            </p>
+            <p className='ant-upload-hint'>
+              สนับสนุนสำหรับการอัปโหลดครั้งเดียวหรือจำนวนมาก
+            </p>
+          </Dragger>
+        </Form.Item>
+      )}
       <Row style={{ padding: 10 }}>
-        <Col span={12}>
-          <h3>อัพโหลดไฟล์</h3>
-        </Col>
-        <Col span={12} style={{ textAlign: 'end' }}>
-          <Form.Item name={name}>
-            <Upload {...propsButton}>
-              <Button icon={<UploadOutlined />}>Click to Upload</Button>
-            </Upload>
-          </Form.Item>
-        </Col>
+        {!disabled && (
+          <>
+            <Col span={12}>
+              <h3>อัพโหลดไฟล์</h3>
+            </Col>
+            <Col span={12} style={{ textAlign: 'end' }}>
+              <Form.Item name={name}>
+                <Upload disabled={disabled} {...propsButton}>
+                  <Button disabled={disabled} icon={<UploadOutlined />}>
+                    Click to Upload
+                  </Button>
+                </Upload>
+              </Form.Item>
+            </Col>
+          </>
+        )}
         <Col span={24}>
           {type == 'image' ? (
-            <Upload {...propsUpload} listType={'picture-card'} />
+            <Upload
+              disabled={disabled}
+              {...propsUpload}
+              listType={'picture-card'}
+            />
           ) : (
-            <Upload {...propsUpload} listType={'text'} />
+            <Upload disabled={disabled} {...propsUpload} listType={'text'} />
           )}
           <Modal
             open={previewOpen}

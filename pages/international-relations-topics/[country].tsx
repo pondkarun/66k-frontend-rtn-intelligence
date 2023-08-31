@@ -9,20 +9,12 @@ import {
   Modal,
   Popconfirm,
   Row,
-  Select,
-  Space,
   Table,
   Tooltip,
   message,
 } from 'antd'
 import styled from 'styled-components'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-} from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import { BsImage } from 'react-icons/bs'
@@ -42,12 +34,20 @@ import {
 } from '@/services/internationalRelationsDatas'
 import {
   TallFieldInternationalRelationsdatas,
+  TdocumentsOption,
   TfieldInternationdata,
+  Tforminternational,
 } from '@/interface/international_relations_datas.interface'
 import DocumentIcon from '@/components/svg/DocumentIcon'
 import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
+import { TMapReason } from '@/interface/international_relations_topics.interface'
+import {
+  ETinternalUploadPublic,
+  getInternalFilePublicService,
+} from '@/services/upload'
+import FormUpload from '@/components/shares/FormUpload'
 import type { ColumnsType } from 'antd/es/table'
 
 enum EmodeOption {
@@ -70,8 +70,7 @@ const InternationalRelationsTopics = () => {
   ) as MenuT
 
   const [form] = Form.useForm<QueryProps>()
-  const [formInternational] =
-    Form.useForm<TallFieldInternationalRelationsdatas['data']>()
+  const [formInternational] = Form.useForm<Tforminternational>()
 
   const [specifics, setSpecifics] =
     useState<TallFieldInternationalRelationsdatas['data']['specific_field']>()
@@ -82,6 +81,10 @@ const InternationalRelationsTopics = () => {
 
   const [toppicId, setToppicId] = useState('')
   const [internationalId, setInternationalId] = useState('')
+  const [renderFiles, setRenderFiles] = useState<{
+    docs: TdocumentsOption
+    img: TdocumentsOption
+  }>()
 
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
@@ -112,44 +115,78 @@ const InternationalRelationsTopics = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, menuSelector.country])
 
-  const handleRecordManage = async (
-    _record: TfieldInternationdata,
-    _mode: EmodeOption,
-  ) => {
-    const response = await getByInternationalDatasService(_record.id)
-    console.log('response.data', response.data)
-    if (_mode === EmodeOption.EDIT) {
-      setToppicId(response.data.ir_topic_id)
-      setInternationalId(response.data.id)
-    }
-    setIsModalOpen(true)
-    setMode(_mode)
-    setSpecifics(response.data.specific_field)
+  const handleRecordManage = useCallback(
+    async (_record: TfieldInternationdata, _mode: EmodeOption) => {
+      const [responseDatas, responseFiles] = await Promise.all([
+        getByInternationalDatasService(_record.id),
+        getInternalFilePublicService(_record.country_id, _record.ir_topic_id),
+      ])
 
-    let model: any = {}
-    let modal_reason: any = {}
-
-    for (let i = 0; i < response.data.specific_field.length; i++) {
-      const specific = response.data.specific_field[i]
-      for (let index = 0; index < specific.sub_reason_name.length; index++) {
-        const sub_reason = specific.sub_reason_name[index]
-        console.log('sub_reason', sub_reason)
-
-        model[specific.topic_reason_name] = sub_reason.name
+      if (_mode === EmodeOption.EDIT) {
+        setToppicId(responseDatas.data.ir_topic_id)
+        setInternationalId(responseDatas.data.id)
       }
-    }
-    console.log('model', model)
-    console.log('modal_reason', modal_reason)
 
-    formInternational.setFieldsValue({
-      ...response.data,
-      toppic_name: _record.ir_topic.name,
-      event_date: [
-        dayjs(response.data.event_date_start),
-        dayjs(response.data.event_date_end),
-      ],
-    } as any)
-  }
+      const mapDocs: TdocumentsOption = []
+      const mapImage: TdocumentsOption = []
+
+      for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
+        const fileDocument = responseDatas.data.file_documents[z]
+        const docs = responseFiles.data.find((_url) => {
+          const splitSlach = _url.split('/')
+          const pathName = splitSlach[splitSlach.length - 1]
+          return pathName === fileDocument.name
+        })
+        mapDocs.push({ ...fileDocument, url: docs as string })
+      }
+
+      for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
+        const fileImage = responseDatas.data.image_documents[z]
+        const img = responseFiles.data.find((_url) => {
+          const splitSlach = _url.split('/')
+          const pathName = splitSlach[splitSlach.length - 1]
+          return pathName === fileImage.name
+        })
+        mapImage.push({ ...fileImage, url: img as string })
+      }
+
+      const model_main: { [k: string]: unknown } = {}
+
+      for (let i = 0; i < responseDatas.data.specific_field.length; i++) {
+        const specific = responseDatas.data.specific_field[i]
+        const modal_reason: { [k: string]: unknown } = {}
+
+        for (let index = 0; index < specific.sub_reason_name.length; index++) {
+          const sub_reason = specific.sub_reason_name[index]
+          modal_reason[sub_reason.name] = {
+            value: sub_reason.value,
+          }
+        }
+        model_main[specific.topic_reason_name] = modal_reason
+      }
+      setIsModalOpen(true)
+      setMode(_mode)
+      setSpecifics(responseDatas.data.specific_field)
+      setRenderFiles({
+        docs: mapDocs,
+        img: mapImage,
+      })
+
+      formInternational.setFieldsValue({
+        ...responseDatas.data,
+        toppic_name: _record.ir_topic.name,
+        event_date: [
+          dayjs(responseDatas.data.event_date_start),
+          dayjs(responseDatas.data.event_date_end),
+        ],
+        specific_field: model_main,
+        file_documents: mapDocs,
+        image_documents: mapImage,
+      } as any)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
   const handleRemoveRecordFormColumn = async (_record_id: string) => {
     try {
@@ -282,17 +319,80 @@ const InternationalRelationsTopics = () => {
     const itemsForm = formInternational.getFieldsValue()
     console.log('itemsForm', itemsForm)
 
-    const modelRequest: Partial<TallFieldInternationalRelationsdatas['data']> =
-      {
-        country_id: menuSelector.country as unknown as string,
-        ir_topic_id: toppicId,
-        event_name: itemsForm.event_name,
-        event_venue: itemsForm.event_venue,
+    const createReason: TMapReason = []
+    const createValuesReasonImage: TdocumentsOption = []
+    const createValuesReasonFile: TdocumentsOption = []
+
+    for (const [key1, values] of Object.entries(
+      itemsForm.specific_field as unknown as never,
+    )) {
+      const subReason = []
+      const fields = Object.entries(values as unknown as never)
+
+      for (let index = 0; index < fields.length; index++) {
+        const element = fields[index] as any
+        subReason.push({
+          name: element[0],
+          value: element[1].value,
+        })
       }
-    // await editInternationalDatasService(modelRequest, internationalId)
-    // formInternational.resetFields()
-    // setIsModalOpen(!isModalOpen)
-    // randerQueryApi()
+
+      createReason.push({
+        topic_reason_name: key1,
+        sub_reason_name: subReason,
+      })
+    }
+    if (itemsForm.file_documents.length > 0) {
+      for (let x = 0; x < itemsForm.file_documents.length; x++) {
+        const file_document = itemsForm.file_documents[x]
+        createValuesReasonFile.push({
+          url: file_document.url,
+          name: file_document.name,
+        })
+      }
+    }
+
+    if (itemsForm.image_documents.length > 0) {
+      for (let z = 0; z < itemsForm.image_documents.length; z++) {
+        const image_document = itemsForm.image_documents[z]
+        createValuesReasonImage.push({
+          url: image_document.url,
+          name: image_document.name,
+        })
+      }
+    }
+
+    const event_date_start = itemsForm.event_date[0].toISOString()
+    const event_date_end = itemsForm.event_date[1].toISOString()
+
+    const modalRequst: Omit<
+      Tforminternational,
+      'event_date' | 'field_id' | 'id'
+    > = {
+      event_date_start,
+      event_date_end,
+      country_id: router.query.country as string,
+      ir_topic_id: toppicId,
+      event_name: itemsForm.event_name,
+      event_venue: itemsForm.event_venue,
+      leader_name_thai: itemsForm.leader_name_thai,
+      leader_name_foreign: itemsForm.leader_name_foreign,
+      specific_field: createReason,
+      file_documents: createValuesReasonFile,
+      image_documents: createValuesReasonImage,
+      ir_topic_breadcrumb: null,
+    }
+    try {
+      await editInternationalDatasService(modalRequst, internationalId)
+    } catch (error) {
+      message.error('เกิดข้อผิดพลาดบางอย่าง')
+      return
+    } finally {
+      message.success('แก้ไขข้อมูลสำเร็จ')
+      formInternational.resetFields()
+      setIsModalOpen(!isModalOpen)
+      randerQueryApi()
+    }
   }
 
   return (
@@ -345,7 +445,7 @@ const InternationalRelationsTopics = () => {
           open={isModalOpen}
           onOk={() => formInternational.submit()}
           onCancel={() => setIsModalOpen(!isModalOpen)}
-          width={600}
+          width={800}
         >
           <Form
             form={formInternational}
@@ -356,7 +456,11 @@ const InternationalRelationsTopics = () => {
             <Row gutter={[16, 0]}>
               <Col span={12}>
                 <Form.Item id='toppic_name' label='หัวข้อ' name='toppic_name'>
-                  <Input disabled={mode === 'view' || mode === 'edit'} />
+                  <Input
+                    disabled={
+                      mode === EmodeOption.VIEW || mode === EmodeOption.EDIT
+                    }
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -366,7 +470,7 @@ const InternationalRelationsTopics = () => {
                   name='event_name'
                   rules={[{ required: true }]}
                 >
-                  <Input disabled={mode === 'view' ? true : false} />
+                  <Input disabled={mode === EmodeOption.VIEW} />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -375,7 +479,7 @@ const InternationalRelationsTopics = () => {
                   label='สถานที่จัดกิจกรรม'
                   name='event_venue'
                 >
-                  <Input disabled={mode === 'view' ? true : false} />
+                  <Input disabled={mode === EmodeOption.VIEW} />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -384,7 +488,7 @@ const InternationalRelationsTopics = () => {
                   label='หัวหน้าคณะฝ่ายไทย'
                   name='leader_name_thai'
                 >
-                  <Input disabled={mode === 'view'} />
+                  <Input disabled={mode === EmodeOption.VIEW} />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -393,7 +497,7 @@ const InternationalRelationsTopics = () => {
                   label='หัวหน้าคณะฝ่ายต่างประเทศ'
                   name='leader_name_foreign'
                 >
-                  <Input disabled={mode === 'view'} />
+                  <Input disabled={mode === EmodeOption.VIEW} />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -403,26 +507,42 @@ const InternationalRelationsTopics = () => {
                   rules={[{ required: true }]}
                 >
                   <DatePicker.RangePicker
-                    disabled={mode === 'view'}
+                    disabled={mode === EmodeOption.VIEW}
                     format={'DD/MM/YYYY'}
                   />
                 </Form.Item>
               </Col>
+              <Col span={12}>
+                <FormUpload
+                  disabled={mode === EmodeOption.VIEW}
+                  form={formInternational}
+                  type='file'
+                  name='file_documents'
+                  acceptFile='.pdf,.xlsx,.doc,.ptt'
+                  randerList={
+                    typeof renderFiles !== 'undefined'
+                      ? renderFiles.docs
+                      : undefined
+                  }
+                  ticpidId={toppicId}
+                />
+              </Col>
+              <Col span={12}>
+                <FormUpload
+                  disabled={mode === EmodeOption.VIEW}
+                  form={formInternational}
+                  type='image'
+                  name='image_documents'
+                  acceptFile='.jpg,.png,.svg,.webp'
+                  randerList={
+                    typeof renderFiles !== 'undefined'
+                      ? renderFiles.img
+                      : undefined
+                  }
+                  ticpidId={toppicId}
+                />
+              </Col>
             </Row>
-
-            {/* <Form.List name='specific_field'>
-              {(fields, { add, remove }) => {
-                console.log('fields', fields)
-                return (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => {
-                      console.log('restField', restField)
-                      return <></>
-                    })}
-                  </>
-                )
-              }}
-            </Form.List> */}
 
             {specifics?.map((specific, index) => {
               return (
@@ -456,7 +576,7 @@ const InternationalRelationsTopics = () => {
                               </>
                             }
                           >
-                            <Input disabled={mode === 'view'} />
+                            <Input disabled={mode === EmodeOption.VIEW} />
                           </Form.Item>
                         </Col>
                       )

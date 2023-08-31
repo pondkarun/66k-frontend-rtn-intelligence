@@ -1,4 +1,3 @@
-import FormUpload from '@/components/shares/FormUpload'
 import {
   Badge,
   Button,
@@ -13,9 +12,8 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
-import { HiOutlineDocumentText } from 'react-icons/hi'
-import { BsImage } from 'react-icons/bs'
 import { useRouter } from 'next/router'
+import FormUpload from '@/components/shares/FormUpload'
 import {
   TdocumentsOption,
   Tforminternational,
@@ -59,25 +57,10 @@ const ManageInternationalRelationsTopics = ({
 }: ManageInternationalRelationsTopicsType) => {
   const router = useRouter()
 
+  const [finalSubmit, setFinalSubmit] = useState(false)
+
   const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu)
   const [form] = Form.useForm<Tforminternational>()
-
-  // useEffect(() => {
-  //   form.setFieldsValue({
-  //     file_documents: [
-  //       {
-  //         name: 'excel.png',
-  //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-  //       },
-  //     ],
-  //     image_documents: [
-  //       {
-  //         name: 'image.png',
-  //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-  //       },
-  //     ],
-  //   })
-  // }, [])
 
   const onFinish = async () => {
     const data = form.getFieldsValue()
@@ -145,8 +128,10 @@ const ManageInternationalRelationsTopics = ({
       await addInternationalDataRelationsTopicsService(modalRequst)
     } catch (error) {
       message.error('เกิดข้อผิดพลาดบางอย่าง')
+      return
     } finally {
       form.resetFields()
+      setFinalSubmit(!finalSubmit)
       message.success('เพิ่มข้อมูลสำเร็จ')
     }
   }
@@ -240,7 +225,7 @@ const ManageInternationalRelationsTopics = ({
                 return (
                   <Col span={12} key={item + index}>
                     <Form.Item
-                      name={['specific_field', e.groups, item]}
+                      name={['specific_field', e.groups, item, 'value']}
                       label={
                         <LabelIconUpload label={item} form={form} name={[]} />
                       }

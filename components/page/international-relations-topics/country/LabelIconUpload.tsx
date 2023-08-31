@@ -1,10 +1,9 @@
-import FormUpload from '@/components/shares/FormUpload'
 import { Badge, Form, Modal } from 'antd'
 import React, { useState } from 'react'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
 import styled from 'styled-components'
-import exp from 'constants'
+import FormUpload from '@/components/shares/FormUpload'
 
 type IconUploadType = {
   label: string
