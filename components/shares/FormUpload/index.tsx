@@ -136,6 +136,7 @@ const FormUpload = ({
   }
 
   useEffect(() => {
+    console.log('name : useEffect', name)
     form.setFieldsValue({
       [name]: file,
     })
