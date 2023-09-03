@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
-import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
+import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicAllsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -70,7 +70,7 @@ const InternationalRelationsTopics = () => {
 
     const getAllTopics = async () => {
         try {
-            const res: any = await internationalRelationsTopicsService();
+            const res: any = await internationalRelationsTopicAllsService();
             let data: any = [];
             if (res.data?.data) {
                 const setData = (arr: any) => {
@@ -210,6 +210,7 @@ const InternationalRelationsTopics = () => {
                         content: 'บันทึกสำเร็จ',
                     });
                     await searchData(formSearch.getFieldValue("search"))
+                    await getAllTopics()
                 }
                 handleCancel()
             }
@@ -279,7 +280,7 @@ const InternationalRelationsTopics = () => {
                                 allowClear
                                 treeDefaultExpandAll
                                 treeData={topics}
-                                disabled={mode == "view" ? true : false}
+                                disabled={mode != "add" ? true : false}
                             />
                         </Form.Item>
 
