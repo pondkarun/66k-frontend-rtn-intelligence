@@ -11,6 +11,10 @@ const internationalRelationsTopicsService = async () => {
     return await Api.get(`/international_relations_topics/list`);
 }
 
+const internationalRelationsTopicAllsService = async () => {
+    return await Api.get(`/international_relations_topics/all`);
+}
+
 const getByIDInternationalRelationsTopicsService = async (id: string) => {
     const response: AxiosResponse<international_relations_topicsAttributes> = await Api.get(`/international_relations_topics/${id}`)
     return response.data
@@ -29,5 +33,6 @@ export {
     internationalRelationsTopicsService,
     getByIDInternationalRelationsTopicsService,
     addInternationalRelationsTopicsService,
-    updateInternationalRelationsTopicsService
+    updateInternationalRelationsTopicsService,
+    internationalRelationsTopicAllsService
 };
