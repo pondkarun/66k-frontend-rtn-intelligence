@@ -166,7 +166,7 @@ const FormUpload = ({
   return (
     <div>
       <label>{`อัพโหลดไฟล์เอกสาร ${
-        type == 'file' ? '(xlsx, doc, ptt, pdf)' : '(jpg, png, svg)'
+        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
       }`}</label>
       {!disabled && (
         <Form.Item name={name}>
@@ -216,7 +216,7 @@ const FormUpload = ({
             footer={null}
             onCancel={() => setPreviewOpen(false)}
           >
-            {fileType === 'pdf' ? (
+            {fileType === 'pdf' || fileType === 'xlsx' || fileType === 'docx' ? (
               <iframe
                 style={{ width: '100%', height: '100%', minHeight: '400px' }}
                 src={previewImage}

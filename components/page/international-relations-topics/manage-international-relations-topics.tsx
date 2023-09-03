@@ -68,7 +68,6 @@ const ManageInternationalRelationsTopics = (
 
   const onFinish = async () => {
     const data = form.getFieldsValue()
-    console.log('data', data)
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
