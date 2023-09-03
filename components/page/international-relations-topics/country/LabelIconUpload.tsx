@@ -114,12 +114,14 @@ const LabelIconUpload = ({ label, form, name }: IconUploadType) => {
               form={formUpload}
               type='file'
               name={`file-${nameForm}`}
+              acceptFile='.pdf,.xlsx,.doc,.ptt'
             />
           ) : (
             <FormUpload
               form={formUpload}
               type='image'
               name={`image-${nameForm}`}
+              acceptFile='.jpg,.png,.svg,.webp'
             />
           )
         ) : null}

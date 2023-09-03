@@ -62,14 +62,6 @@ const ManageInternationalRelationsTopics = (
   const router = useRouter()
 
   const [finalSubmit, setFinalSubmit] = useState(false)
-  const [getDynamicUploadFiles, setGetdynamicUploadFiles] = useState<{
-    upload: {
-      images: []
-      files: [],
-      key: object
-    }
-  }>()
-  // console.log('getDynamicUploadFiles', getDynamicUploadFiles)
 
   const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu)
   const [form] = Form.useForm<Tforminternational>()
@@ -136,18 +128,17 @@ const ManageInternationalRelationsTopics = (
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
     }
-    console.log('modalRequst', modalRequst)
 
-    // try {
-    //   await addInternationalDataRelationsTopicsService(modalRequst)
-    // } catch (error) {
-    //   message.error('เกิดข้อผิดพลาดบางอย่าง')
-    //   return
-    // } finally {
-    //   form.resetFields()
-    //   setFinalSubmit(!finalSubmit)
-    //   message.success('เพิ่มข้อมูลสำเร็จ')
-    // }
+    try {
+      await addInternationalDataRelationsTopicsService(modalRequst)
+    } catch (error) {
+      message.error('เกิดข้อผิดพลาดบางอย่าง')
+      return
+    } finally {
+      form.resetFields()
+      setFinalSubmit(!finalSubmit)
+      message.success('เพิ่มข้อมูลสำเร็จ')
+    }
   }
 
   return (
@@ -244,7 +235,7 @@ const ManageInternationalRelationsTopics = (
                         <LabelIconUpload
                           label={item}
                           form={form}
-                          name={['specific_field', e.groups]}
+                          name={['specific_field', e.groups, item]}
                         />
                       }
                     >
