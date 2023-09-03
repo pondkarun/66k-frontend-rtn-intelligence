@@ -7,9 +7,10 @@ import {
   Input,
   Modal,
   Row,
+  Space,
   message,
 } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { useRouter } from 'next/router'
@@ -21,6 +22,7 @@ import {
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
 import LabelIconUpload from './country/LabelIconUpload'
+import { ActionTprops } from './country'
 
 type SpecificFieldType = {
   groups: string
@@ -29,6 +31,7 @@ type SpecificFieldType = {
 
 type ManageInternationalRelationsTopicsType = {
   mode: 'add' | 'edit'
+  setActiontype: React.Dispatch<React.SetStateAction<ActionTprops>>
 }
 
 //#region -> styled
@@ -52,9 +55,10 @@ const Line = styled('div')`
 
 //#endregion
 
-const ManageInternationalRelationsTopics = ({
-  mode,
-}: ManageInternationalRelationsTopicsType) => {
+const ManageInternationalRelationsTopics = (
+  props: ManageInternationalRelationsTopicsType,
+) => {
+  const { mode, setActiontype } = props
   const router = useRouter()
 
   const [finalSubmit, setFinalSubmit] = useState(false)
@@ -227,7 +231,11 @@ const ManageInternationalRelationsTopics = ({
                     <Form.Item
                       name={['specific_field', e.groups, item, 'value']}
                       label={
-                        <LabelIconUpload label={item} form={form} name={[]} />
+                        <LabelIconUpload
+                          label={item}
+                          form={form}
+                          name={['specific_field', e.groups, item]}
+                        />
                       }
                     >
                       <Input />
@@ -238,8 +246,18 @@ const ManageInternationalRelationsTopics = ({
             </Row>
           </>
         ))}
-
-        <Button onClick={() => form.submit()}>บันทึก</Button>
+        <Space>
+          <Button type='primary' onClick={() => form.submit()}>
+            บันทึก
+          </Button>
+          <Button
+            onClick={() => {
+              setActiontype('')
+            }}
+          >
+            ยกเลิก
+          </Button>
+        </Space>
       </Form>
     </>
   )
