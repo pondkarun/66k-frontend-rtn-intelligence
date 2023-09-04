@@ -105,7 +105,7 @@ const Departments = () => {
             dataIndex: 'permission_ir_topics',
             key: 'permission_ir_topics',
             width: 100,
-             align: 'center',
+            align: 'center',
             render: (text: any, obj: any) => <>{obj.permission_ir_topics ? obj.permission_ir_topics.length : "0"}</>,
         },
         {
@@ -286,6 +286,7 @@ const Departments = () => {
                                 allowClear
                                 treeDefaultExpandAll
                                 treeData={departmentsAll}
+                                filterTreeNode={(input: any, option: any) => (option?.title ?? '').includes(input)}
                                 disabled={mode != "add" ? true : false}
                             />
                         </Form.Item>
@@ -311,6 +312,7 @@ const Departments = () => {
                         <Form.Item
                             label="หัวข้อ"
                             name="permission_ir_topics"
+                            style={{ paddingTop: 20 }}
                         >
 
                             <Select {...selectProps} style={{ width: '85%' }} />
