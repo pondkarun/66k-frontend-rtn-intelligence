@@ -1,5 +1,5 @@
 import { Badge, Button, Col, Collapse, Layout, Menu, Modal, Row } from 'antd';
-import { useSelector , useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Router from "next/router";
@@ -9,7 +9,7 @@ import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
 import { setObjToppic, setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
 import { setBackground } from '@/redux/actions/configActions';
-import type {  MenuProps } from 'antd';
+import type { MenuProps } from 'antd';
 const { Sider } = Layout;
 
 
@@ -243,7 +243,7 @@ const SidebarLayoutComponents = () => {
         if (country && toppic) {
             dispatch(setBackground("#fff"));
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [country, toppic])
 
     const Flag = styled("img")`
@@ -322,7 +322,7 @@ const SidebarLayoutComponents = () => {
                             : null
                         }
                     </section>
-                    <div style={{
+                    {!collapsed ? <div style={{
                         overflow: 'auto',
                         maxHeight: '78vh',
                     }}>
@@ -383,7 +383,8 @@ const SidebarLayoutComponents = () => {
                                 </>
                             ) : null}
                         </>
-                    </div>
+                    </div> : null}
+
                 </div>
             </Sidebar >
         </>
