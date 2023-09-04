@@ -82,7 +82,6 @@ const LabelIconUpload = ({ label, form, name }: IconUploadType) => {
         </Badge>
       </Icon>
       <Icon onClick={() => onClick('image')}>
-        {' '}
         <Badge count={countImage}>
           <BsImage />
         </Badge>
