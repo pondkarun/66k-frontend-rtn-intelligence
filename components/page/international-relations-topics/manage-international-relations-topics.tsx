@@ -23,6 +23,7 @@ import { addInternationalDataRelationsTopicsService } from '@/services/internati
 import { TMapReason } from '@/interface/international_relations_topics.interface'
 import LabelIconUpload from './country/LabelIconUpload'
 import { ActionTprops } from './country'
+import FormUploadInput from './country/FormUploadInput'
 
 type SpecificFieldType = {
   groups: string
@@ -230,13 +231,7 @@ const ManageInternationalRelationsTopics = (
                   <Col span={12} key={item + index}>
                     <Form.Item
                       name={['specific_field', e.groups, item, 'value']}
-                      label={
-                        <LabelIconUpload
-                          label={item}
-                          form={form}
-                          name={['specific_field', e.groups, item]}
-                        />
-                      }
+                      label={<FormUploadInput label={item} />}
                     >
                       <Input />
                     </Form.Item>

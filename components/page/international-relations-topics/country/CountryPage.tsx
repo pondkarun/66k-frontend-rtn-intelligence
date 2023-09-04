@@ -394,17 +394,17 @@ const InternationalRelationsTopics = (
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
     }
-    try {
-      await editInternationalDatasService(modalRequst, internationalId)
-    } catch (error) {
-      message.error('เกิดข้อผิดพลาดบางอย่าง')
-      return
-    } finally {
-      message.success('แก้ไขข้อมูลสำเร็จ')
-      formInternational.resetFields()
-      setIsModalOpen(!isModalOpen)
-      randerQueryApi()
-    }
+    // try {
+    //   await editInternationalDatasService(modalRequst, internationalId)
+    // } catch (error) {
+    //   message.error('เกิดข้อผิดพลาดบางอย่าง')
+    //   return
+    // } finally {
+    //   message.success('แก้ไขข้อมูลสำเร็จ')
+    //   formInternational.resetFields()
+    //   setIsModalOpen(!isModalOpen)
+    //   randerQueryApi()
+    // }
   }
 
   return (
