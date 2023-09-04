@@ -96,27 +96,6 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             ) : (
               <Upload listType={'text'} />
             )}
-            {/* <Modal
-              open={previewOpen}
-              title={previewTitle}
-              footer={null}
-              onCancel={() => setPreviewOpen(false)}
-            >
-              {fileType === 'pdf' ||
-              fileType === 'xlsx' ||
-              fileType === 'docx' ? (
-                <iframe
-                  style={{ width: '100%', height: '100%', minHeight: '400px' }}
-                  src={previewImage}
-                />
-              ) : (
-                <img
-                  alt='example'
-                  style={{ width: '100%' }}
-                  src={previewImage}
-                />
-              )}
-            </Modal> */}
           </Col>
         </Row>
       </Modal>
