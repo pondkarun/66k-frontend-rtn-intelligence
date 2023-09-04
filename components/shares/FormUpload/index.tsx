@@ -129,7 +129,15 @@ const FormUpload = ({
 
     setFileType(file.type?.split('/')[1])
     setPreviewImage(file.url || (file.preview as string))
-    setPreviewOpen(true)
+    if (type === "file" && file.url) {
+      const a = document.createElement('a')
+      a.href = file.url
+      a.target = '_blank'
+      a.click()
+    } else {
+      setPreviewOpen(true)
+    }
+
     setPreviewTitle(
       file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1),
     )
@@ -165,9 +173,8 @@ const FormUpload = ({
 
   return (
     <div>
-      <label>{`อัพโหลดไฟล์เอกสาร ${
-        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-      }`}</label>
+      <label>{`อัพโหลดไฟล์เอกสาร ${type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
+        }`}</label>
       {!disabled && (
         <Form.Item name={name}>
           <Dragger {...propsDragger}>
