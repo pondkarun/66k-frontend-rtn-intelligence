@@ -128,12 +128,16 @@ const InternationalRelationsTopics = (
 
   const handleRecordManage = useCallback(
     async (_record: TfieldInternationdata, _mode: EmodeOption) => {
-      const [responseDatas, responseFiles] = await Promise.all([
-        getByInternationalDatasService(_record.id),
-        getInternalFilePublicService(_record.country_id, _record.ir_topic_id),
-      ])
-
-      // const responseDatas = await getByInternationalDatasService(_record.id)
+      let responseFiles: any
+      try {
+        responseFiles = await getInternalFilePublicService(
+          _record.country_id,
+          _record.ir_topic_id,
+        )
+      } catch (error) {
+        /* empty */
+      }
+      const responseDatas = await getByInternationalDatasService(_record.id)
 
       if (_mode === EmodeOption.EDIT) {
         setToppicId(responseDatas.data.ir_topic_id)
@@ -143,24 +147,26 @@ const InternationalRelationsTopics = (
       const mapDocs: TdocumentsOption = []
       const mapImage: TdocumentsOption = []
 
-      for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
-        const fileDocument = responseDatas.data.file_documents[z]
-        const docs = responseFiles.data.find((_url) => {
-          const splitSlach = _url.split('/')
-          const pathName = splitSlach[splitSlach.length - 1]
-          return pathName === fileDocument.name
-        })
-        mapDocs.push({ ...fileDocument, url: docs as string })
-      }
+      if (typeof responseFiles !== 'undefined') {
+        for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
+          const fileDocument = responseDatas.data.file_documents[z]
+          const docs = responseFiles.data.find((_url: string) => {
+            const splitSlach = _url.split('/')
+            const pathName = splitSlach[splitSlach.length - 1]
+            return pathName === fileDocument.name
+          })
+          mapDocs.push({ ...fileDocument, url: docs as string })
+        }
 
-      for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
-        const fileImage = responseDatas.data.image_documents[z]
-        const img = responseFiles.data.find((_url) => {
-          const splitSlach = _url.split('/')
-          const pathName = splitSlach[splitSlach.length - 1]
-          return pathName === fileImage.name
-        })
-        mapImage.push({ ...fileImage, url: img as string })
+        for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
+          const fileImage = responseDatas.data.image_documents[z]
+          const img = responseFiles.data.find((_url: string) => {
+            const splitSlach = _url.split('/')
+            const pathName = splitSlach[splitSlach.length - 1]
+            return pathName === fileImage.name
+          })
+          mapImage.push({ ...fileImage, url: img as string })
+        }
       }
 
       const model_main: { [k: string]: unknown } = {}
@@ -394,17 +400,17 @@ const InternationalRelationsTopics = (
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
     }
-    // try {
-    //   await editInternationalDatasService(modalRequst, internationalId)
-    // } catch (error) {
-    //   message.error('เกิดข้อผิดพลาดบางอย่าง')
-    //   return
-    // } finally {
-    //   message.success('แก้ไขข้อมูลสำเร็จ')
-    //   formInternational.resetFields()
-    //   setIsModalOpen(!isModalOpen)
-    //   randerQueryApi()
-    // }
+    try {
+      await editInternationalDatasService(modalRequst, internationalId)
+    } catch (error) {
+      message.error('เกิดข้อผิดพลาดบางอย่าง')
+      return
+    } finally {
+      message.success('แก้ไขข้อมูลสำเร็จ')
+      formInternational.resetFields()
+      setIsModalOpen(!isModalOpen)
+      randerQueryApi()
+    }
   }
 
   return (
