@@ -1,25 +1,26 @@
-import { Badge, Button, Col, Modal, Row, Upload } from 'antd'
+import { Badge } from 'antd'
 import React, { Fragment, useState } from 'react'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
 import styled from 'styled-components'
-import { InboxOutlined } from '@ant-design/icons'
+import MatterImgupload from './MatterImgupload'
+import MatterDocsUpload from './MatterDocsUpload'
 
 interface FormUploadInputProps {
   label?: string
+  keys: string
+  mainKey: string
+  id?: string
 }
 
 const FormUploadInput = (props: FormUploadInputProps) => {
-  const { label } = props
-
-  const { Dragger } = Upload
+  const { label, mainKey, keys, id } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [type, setType] = useState<'image' | 'file' | null>(null)
-  // const [inputFileDocs, setInputFileDocs] =
 
   return (
-    <Fragment>
+    <Fragment key={keys}>
       <ContainerBox>
         <span>{label}</span>
         <Icon
@@ -43,83 +44,25 @@ const FormUploadInput = (props: FormUploadInputProps) => {
           </Badge>
         </Icon>
       </ContainerBox>
-
-      <Modal
-        width={700}
-        title={
-          type == 'file' ? (
-            <>
-              <HiOutlineDocumentText /> แนบไฟล์เอกสาร
-            </>
-          ) : (
-            <>
-              <BsImage /> แนบไฟล์ภาพ
-            </>
-          )
-        }
-        open={isModalOpen}
-        // onOk={handleOk}
-        onCancel={() => setIsModalOpen(!isModalOpen)}
-        footer={<></>}
-      >
-        <Title>{label}</Title>
-        <label>{`อัพโหลดไฟล์เอกสาร ${
-          type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-        }`}</label>
-
-        <Dragger>
-          <p className='ant-upload-drag-icon'>
-            <InboxOutlined />
-          </p>
-          <p className='ant-upload-text'>
-            คลิกหรือลากไฟล์ไปยังพื้นที่นี้ เพื่ออัปโหลด
-          </p>
-          <p className='ant-upload-hint'>
-            สนับสนุนสำหรับการอัปโหลดครั้งเดียวหรือจำนวนมาก
-          </p>
-        </Dragger>
-        <Row style={{ padding: 10 }}>
-          <>
-            <Col span={12}>
-              <h3>อัพโหลดไฟล์</h3>
-            </Col>
-            <Col span={12} style={{ textAlign: 'end' }}>
-              <Upload>
-                <Button>Click to Upload</Button>
-              </Upload>
-            </Col>
-          </>
-
-          <Col span={24}>
-            {type == 'image' ? (
-              <Upload listType={'picture-card'} />
-            ) : (
-              <Upload listType={'text'} />
-            )}
-            {/* <Modal
-              open={previewOpen}
-              title={previewTitle}
-              footer={null}
-              onCancel={() => setPreviewOpen(false)}
-            >
-              {fileType === 'pdf' ||
-              fileType === 'xlsx' ||
-              fileType === 'docx' ? (
-                <iframe
-                  style={{ width: '100%', height: '100%', minHeight: '400px' }}
-                  src={previewImage}
-                />
-              ) : (
-                <img
-                  alt='example'
-                  style={{ width: '100%' }}
-                  src={previewImage}
-                />
-              )}
-            </Modal> */}
-          </Col>
-        </Row>
-      </Modal>
+      {type === 'file' ? (
+        <MatterDocsUpload
+          id={id}
+          fileId={keys}
+          mainKey={mainKey}
+          open={isModalOpen}
+          onCancel={setIsModalOpen}
+          text={label}
+        />
+      ) : (
+        <MatterImgupload
+          id={id}
+          fileId={keys}
+          mainKey={mainKey}
+          open={isModalOpen}
+          onCancel={setIsModalOpen}
+          text={label}
+        />
+      )}
     </Fragment>
   )
 }
@@ -142,10 +85,4 @@ const Icon = styled.span`
   svg {
     color: #00408e;
   }
-`
-const Title = styled.h1`
-  color: #00408e;
-  font-size: 36px;
-  font-weight: revert;
-  margin-bottom: 0em;
 `
