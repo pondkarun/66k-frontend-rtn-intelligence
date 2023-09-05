@@ -10,7 +10,7 @@ import {
   Space,
   message,
 } from 'antd'
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { useRouter } from 'next/router'
@@ -138,6 +138,7 @@ const ManageInternationalRelationsTopics = (
       form.resetFields()
       setFinalSubmit(!finalSubmit)
       message.success('เพิ่มข้อมูลสำเร็จ')
+      setActiontype('')
     }
   }
 
@@ -159,7 +160,6 @@ const ManageInternationalRelationsTopics = (
 
       <SubTitle style={{ paddingTop: 20 }}>ข้อมูลทั่วไป</SubTitle>
       <Line />
-
       <Form form={form} layout='vertical' onFinish={onFinish}>
         <Row gutter={[16, 0]}>
           <Col span={12}>
@@ -199,7 +199,6 @@ const ManageInternationalRelationsTopics = (
             </Form.Item>
           </Col>
         </Row>
-
         <Row gutter={[16, 0]}>
           <Col span={12}>
             <FormUpload
@@ -209,7 +208,6 @@ const ManageInternationalRelationsTopics = (
               acceptFile='.pdf,.xlsx,.doc,.ptt'
             />
           </Col>
-
           <Col span={12}>
             <FormUpload
               form={form}
@@ -219,9 +217,8 @@ const ManageInternationalRelationsTopics = (
             />
           </Col>
         </Row>
-
-        {toppic_obj?.guide_line_specific_field?.map((e: SpecificFieldType) => (
-          <>
+        {toppic_obj?.guide_line_specific_field?.map((e: SpecificFieldType, index: number) => (
+          <Fragment key={e.groups + index}>
             <SubTitle>{e.groups}</SubTitle>
             <Line />
 
@@ -231,7 +228,14 @@ const ManageInternationalRelationsTopics = (
                   <Col span={12} key={item + index}>
                     <Form.Item
                       name={['specific_field', e.groups, item, 'value']}
-                      label={<FormUploadInput label={item} />}
+                      label={
+                        <FormUploadInput
+                          label={item}
+                          keys={item + index}
+                          id={item}
+                          mainKey={e.groups}
+                        />
+                      }
                     >
                       <Input />
                     </Form.Item>
@@ -239,7 +243,7 @@ const ManageInternationalRelationsTopics = (
                 )
               })}
             </Row>
-          </>
+          </Fragment>
         ))}
         <Space>
           <Button type='primary' onClick={() => form.submit()}>

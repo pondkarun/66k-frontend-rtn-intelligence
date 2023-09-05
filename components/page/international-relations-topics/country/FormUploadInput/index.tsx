@@ -8,16 +8,19 @@ import MatterDocsUpload from './MatterDocsUpload'
 
 interface FormUploadInputProps {
   label?: string
+  keys: string
+  mainKey: string
+  id?: string
 }
 
 const FormUploadInput = (props: FormUploadInputProps) => {
-  const { label } = props
+  const { label, mainKey, keys, id } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [type, setType] = useState<'image' | 'file' | null>(null)
 
   return (
-    <Fragment>
+    <Fragment key={keys}>
       <ContainerBox>
         <span>{label}</span>
         <Icon
@@ -43,12 +46,18 @@ const FormUploadInput = (props: FormUploadInputProps) => {
       </ContainerBox>
       {type === 'file' ? (
         <MatterDocsUpload
+          id={id}
+          fileId={keys}
+          mainKey={mainKey}
           open={isModalOpen}
           onCancel={setIsModalOpen}
           text={label}
         />
       ) : (
         <MatterImgupload
+          id={id}
+          fileId={keys}
+          mainKey={mainKey}
           open={isModalOpen}
           onCancel={setIsModalOpen}
           text={label}
