@@ -1,25 +1,44 @@
-import { Badge, Button, Col, Modal, Row, Upload } from 'antd'
-import React, { Fragment, useState } from 'react'
+import { Badge, FormInstance, Modal } from 'antd'
+import React, { Fragment, useEffect, useState } from 'react'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
 import styled from 'styled-components'
-import { InboxOutlined } from '@ant-design/icons'
+import MatterImgupload from './MatterImgupload'
+import MatterDocsUpload from './MatterDocsUpload'
+import FormUpload from '@/components/shares/FormUpload'
 
 interface FormUploadInputProps {
   label?: string
+  keys: string
+  id?: string
+  form: any
+  name: any
 }
 
 const FormUploadInput = (props: FormUploadInputProps) => {
-  const { label } = props
-
-  const { Dragger } = Upload
+  const { label, keys, form, name } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [type, setType] = useState<'image' | 'file' | null>(null)
-  // const [inputFileDocs, setInputFileDocs] =
+  const [countImage, setCountImage] = useState(0);
+  const [countFile, setCountFile] = useState(0);
+
+  useEffect(() => {
+    setCount()
+  }, [])
+
+  useEffect(() => {
+    setCount()
+  }, [isModalOpen])
+
+  const setCount = () => {
+    const formData = form.getFieldValue(name);
+    setCountImage(formData?.image?.length)  
+    setCountFile(formData?.file?.length)  
+  }
 
   return (
-    <Fragment>
+    <Fragment key={keys}>
       <ContainerBox>
         <span>{label}</span>
         <Icon
@@ -28,7 +47,7 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             setType('file')
           }}
         >
-          <Badge>
+          <Badge count={countFile}>
             <HiOutlineDocumentText />
           </Badge>
         </Icon>
@@ -38,67 +57,24 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             setType('image')
           }}
         >
-          <Badge>
+          <Badge count={countImage}>
             <BsImage />
           </Badge>
         </Icon>
       </ContainerBox>
 
-      <Modal
-        width={700}
-        title={
-          type == 'file' ? (
-            <>
-              <HiOutlineDocumentText /> แนบไฟล์เอกสาร
-            </>
-          ) : (
-            <>
-              <BsImage /> แนบไฟล์ภาพ
-            </>
-          )
-        }
-        open={isModalOpen}
-        // onOk={handleOk}
-        onCancel={() => setIsModalOpen(!isModalOpen)}
-        footer={<></>}
-      >
-        <Title>{label}</Title>
-        <label>{`อัพโหลดไฟล์เอกสาร ${
-          type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-        }`}</label>
+      {type ?
+        <Modal open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={<></>}>
+          <FormUpload
+            form={form}
+            type={type}
+            name={[...name, type]}
+            acceptFile={type == "file" ? '.pdf,.xlsx,.doc,.ptt' : ".jpg,.png,.svg,.webp"}
+          />
 
-        <Dragger>
-          <p className='ant-upload-drag-icon'>
-            <InboxOutlined />
-          </p>
-          <p className='ant-upload-text'>
-            คลิกหรือลากไฟล์ไปยังพื้นที่นี้ เพื่ออัปโหลด
-          </p>
-          <p className='ant-upload-hint'>
-            สนับสนุนสำหรับการอัปโหลดครั้งเดียวหรือจำนวนมาก
-          </p>
-        </Dragger>
-        <Row style={{ padding: 10 }}>
-          <>
-            <Col span={12}>
-              <h3>อัพโหลดไฟล์</h3>
-            </Col>
-            <Col span={12} style={{ textAlign: 'end' }}>
-              <Upload>
-                <Button>Click to Upload</Button>
-              </Upload>
-            </Col>
-          </>
+        </Modal>
 
-          <Col span={24}>
-            {type == 'image' ? (
-              <Upload listType={'picture-card'} />
-            ) : (
-              <Upload listType={'text'} />
-            )}
-          </Col>
-        </Row>
-      </Modal>
+        : null}
     </Fragment>
   )
 }
@@ -121,10 +97,4 @@ const Icon = styled.span`
   svg {
     color: #00408e;
   }
-`
-const Title = styled.h1`
-  color: #00408e;
-  font-size: 36px;
-  font-weight: revert;
-  margin-bottom: 0em;
 `
