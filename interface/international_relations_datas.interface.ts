@@ -29,8 +29,8 @@ export type Tforminternational = {
   event_date_end: string
   event_date_start: string
   specific_field: TMapReason
-  file_documents: TdocumentsOption
-  image_documents: TdocumentsOption
+  file_documents: TdocumentsOption | undefined
+  image_documents: TdocumentsOption | undefined
   ir_topic_id: string
   country_id: string
   ir_topic_breadcrumb: null
