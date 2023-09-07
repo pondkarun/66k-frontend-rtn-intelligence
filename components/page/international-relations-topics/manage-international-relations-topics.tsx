@@ -150,10 +150,9 @@ const ManageInternationalRelationsTopics = (
       <SubTitle>
         {mode != 'add' &&
           `พบข้อมูล :
-          ${
-            toppic_obj.guide_line_specific_field
-              ? toppic_obj.guide_line_specific_field[0].value.length
-              : 0
+          ${toppic_obj.guide_line_specific_field
+            ? toppic_obj.guide_line_specific_field[0].value.length
+            : 0
           }{' '}
           รายการ`}
       </SubTitle>
@@ -234,6 +233,8 @@ const ManageInternationalRelationsTopics = (
                           keys={item + index}
                           id={item}
                           mainKey={e.groups}
+                          form={form}
+                          name={['specific_field', e.groups, item, 'upload']}
                         />
                       }
                     >
