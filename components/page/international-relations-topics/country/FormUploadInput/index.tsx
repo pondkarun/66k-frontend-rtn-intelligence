@@ -1,5 +1,5 @@
 import { Badge, FormInstance, Modal } from 'antd'
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
 import styled from 'styled-components'
@@ -10,17 +10,32 @@ import FormUpload from '@/components/shares/FormUpload'
 interface FormUploadInputProps {
   label?: string
   keys: string
-  mainKey: string
   id?: string
   form: any
   name: any
 }
 
 const FormUploadInput = (props: FormUploadInputProps) => {
-  const { label, mainKey, keys, id, form, name } = props
+  const { label, keys, form, name } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [type, setType] = useState<'image' | 'file' | null>(null)
+  const [countImage, setCountImage] = useState(0);
+  const [countFile, setCountFile] = useState(0);
+
+  useEffect(() => {
+    setCount()
+  }, [])
+
+  useEffect(() => {
+    setCount()
+  }, [isModalOpen])
+
+  const setCount = () => {
+    const formData = form.getFieldValue(name);
+    setCountImage(formData?.image?.length)  
+    setCountFile(formData?.file?.length)  
+  }
 
   return (
     <Fragment key={keys}>
@@ -32,7 +47,7 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             setType('file')
           }}
         >
-          <Badge>
+          <Badge count={countFile}>
             <HiOutlineDocumentText />
           </Badge>
         </Icon>
@@ -42,16 +57,14 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             setType('image')
           }}
         >
-          <Badge>
+          <Badge count={countImage}>
             <BsImage />
           </Badge>
         </Icon>
       </ContainerBox>
 
       {type ?
-        <Modal open={isModalOpen} onOk={() => {
-          console.log(' form.getFieldValue(name) :>> ', form.getFieldValue());
-        }} onCancel={() => setIsModalOpen(false)}>
+        <Modal open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={<></>}>
           <FormUpload
             form={form}
             type={type}

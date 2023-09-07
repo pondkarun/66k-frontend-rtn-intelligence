@@ -232,7 +232,6 @@ const ManageInternationalRelationsTopics = (
                           label={item}
                           keys={item + index}
                           id={item}
-                          mainKey={e.groups}
                           form={form}
                           name={['specific_field', e.groups, item, 'upload']}
                         />

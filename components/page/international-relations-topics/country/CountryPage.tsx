@@ -51,6 +51,7 @@ import { getInternalFilePublicService } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import { ActionTprops } from '../country'
 import type { ColumnsType } from 'antd/es/table'
+import FormUploadInput from './FormUploadInput'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -457,8 +458,8 @@ const InternationalRelationsTopics = (
                 <PlusCircleOutlined /> เพิ่ม
               </BtnMain>
             )}
-            <BtnMain onClick={() => {}}>Export</BtnMain>
-            <BtnMain bgColor='#15bf3a' onClick={() => {}}>
+            <BtnMain onClick={() => { }}>Export</BtnMain>
+            <BtnMain bgColor='#15bf3a' onClick={() => { }}>
               Excel
             </BtnMain>
           </Form.Item>
@@ -594,17 +595,12 @@ const InternationalRelationsTopics = (
                           ]}
                           label={
                             <>
-                              <span>{item.name}</span>
-                              <Icon onClick={() => {}}>
-                                <Badge>
-                                  <HiOutlineDocumentText />
-                                </Badge>
-                              </Icon>
-                              <Icon onClick={() => {}}>
-                                <Badge>
-                                  <BsImage />
-                                </Badge>
-                              </Icon>
+                              <FormUploadInput
+                                label={item.name}
+                                keys={item.name + index}
+                                form={form}
+                                name={['specific_field', specific.topic_reason_name, item.name, 'upload']}
+                              />
                             </>
                           }
                         >
@@ -646,7 +642,7 @@ const Line = styled.div`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const BtnMain = styled(Button)<{ bgColor?: string }>`
+const BtnMain = styled(Button) <{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
