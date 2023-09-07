@@ -51,6 +51,18 @@ import { getInternalFilePublicService } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import { ActionTprops } from '../country'
 import type { ColumnsType } from 'antd/es/table'
+import type { TableRowSelection } from 'antd/es/table/interface'
+import {
+  Document,
+  HeadingLevel,
+  ImageRun,
+  Packer,
+  Paragraph,
+  Table as DocxTable,
+  TableCell,
+  TableRow,
+  VerticalAlign,
+} from 'docx'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -89,6 +101,7 @@ const InternationalRelationsTopics = (
   )
   const [mode, setMode] = useState<EmodeOption>()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isopenExport, setIsOpenExport] = useState(false)
 
   const [toppicId, setToppicId] = useState('')
   const [internationalId, setInternationalId] = useState('')
@@ -96,6 +109,8 @@ const InternationalRelationsTopics = (
     docs: TdocumentsOption
     img: TdocumentsOption
   }>()
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
@@ -413,6 +428,20 @@ const InternationalRelationsTopics = (
     }
   }
 
+  const onSelectChange = useCallback((newSelectedRowKeys: React.Key[]) => {
+    console.log('selectedRowKeys changed: ', newSelectedRowKeys)
+    setSelectedRowKeys(newSelectedRowKeys)
+  }, [])
+
+  const rowSelection: TableRowSelection<
+    TallFieldInternationalRelationsdatas['data']
+  > = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  }
+  
+  // const table = new Table()
+
   return (
     <>
       <Title>ค้นหาข้อมูล</Title>
@@ -457,7 +486,7 @@ const InternationalRelationsTopics = (
                 <PlusCircleOutlined /> เพิ่ม
               </BtnMain>
             )}
-            <BtnMain onClick={() => {}}>Export</BtnMain>
+            <BtnMain onClick={() => setIsOpenExport(true)}>Export</BtnMain>
             <BtnMain bgColor='#15bf3a' onClick={() => {}}>
               Excel
             </BtnMain>
@@ -470,6 +499,7 @@ const InternationalRelationsTopics = (
         columns={columns}
         dataSource={dataSource}
         scroll={{ x: '100%', y: '100%' }}
+        rowSelection={rowSelection}
       />
 
       <Modal
@@ -619,6 +649,34 @@ const InternationalRelationsTopics = (
           })}
         </Form>
       </Modal>
+
+      <Modal
+        open={isopenExport}
+        width={800}
+        onCancel={() => setIsOpenExport(false)}
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>{'ข้อมูลพื้นฐานประเทศ'}</span>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                columnGap: 1,
+                alignItems: 'center',
+              }}
+            >
+              <span>Download</span>
+              <BtnMain bgColor='#9a2020'>
+                <span>PDF</span>
+              </BtnMain>
+              <BtnMain>
+                <span>Word</span>
+              </BtnMain>
+            </div>
+          </div>
+        }
+        closeIcon={false}
+      />
     </>
   )
 }
