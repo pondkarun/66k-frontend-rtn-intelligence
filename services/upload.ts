@@ -22,7 +22,8 @@ type TremoveInternalUploadPublicProps = TpickOnlyInternalProps & {
 }
 
 /** change to Host form env */
-const HOSTMAINUPLOADAPI = 'http://127.0.0.1:9000'
+// const HOSTMAINUPLOADAPI = 'http://127.0.0.1:9000'
+const HOSTMAINUPLOADAPI = process.env.NEXT_PUBLIC_UPLOAD as string
 
 export const internalUploadPublicService = async ({
   country_id,
