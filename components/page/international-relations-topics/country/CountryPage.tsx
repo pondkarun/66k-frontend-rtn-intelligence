@@ -53,11 +53,13 @@ import { createFormPDF } from '@/libs/form-pdf'
 import { ActionTprops } from '../country'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
-import { PDFDocument, rgb } from 'pdf-lib'
+import { PDFDocument, PageSizes, rgb } from 'pdf-lib'
+import type { PDFImage } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
 // import PDFDocument from 'pdfkit'
 import { jsPDF } from 'jspdf'
 import fs from 'fs'
+import downloadjs from 'downloadjs'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -104,7 +106,8 @@ const InternationalRelationsTopics = (
     docs: TdocumentsOption
     img: TdocumentsOption
   }>()
-  const [sss, setsss] = useState('')
+  const [blobUrlPDF, setBlobUrlPDF] = useState('')
+  const [bytesOnload, setBytesOnload] = useState<Uint8Array>()
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
@@ -438,78 +441,23 @@ const InternationalRelationsTopics = (
       for (let i = 0; i < selectedRowKeys.length; i++) {
         const id = selectedRowKeys[i] as string
         const responseDatas = (await getByInternationalDatasService(id)).data
-        const coverPhoto = {
-          url: responseDatas.image_documents[0].url,
-          name: responseDatas.image_documents[0].name,
-        }
+        // const coverPhoto = {
+        //   url: responseDatas.image_documents[0].url,
+        //   name: responseDatas.image_documents[0].name,
+        // }
 
         const bytes = await createFormPDF({
           coverPhoto: {
             url: responseDatas.image_documents[0].url,
             name: responseDatas.image_documents[0].name,
           },
-          titleName: responseDatas.event_name,
-        })
-        // config start
-        const nametype = coverPhoto.name.split('.')[1]
-
-        const fetchBuffer = await fetch(coverPhoto.url).then((res) =>
-          res.arrayBuffer(),
-        )
-        const pdfDoc = await PDFDocument.create()
-
-        const imageRender =
-          nametype === 'png'
-            ? await pdfDoc.embedPng(fetchBuffer)
-            : await pdfDoc.embedJpg(fetchBuffer)
-
-        const timesRomanFont = await fetch('/fonts/DBHeaventRounded.ttf').then(
-          (res) => res.arrayBuffer(),
-        )
-        const page = pdfDoc.addPage()
-
-        pdfDoc.registerFontkit(fontkit)
-
-        const customFont = await pdfDoc.embedFont(timesRomanFont)
-        page.setFont(customFont)
-        // config end
-
-        const fontsizeTitle = 22
-        const fontTitle = customFont.widthOfTextAtSize(
-          responseDatas.event_name,
-          fontsizeTitle,
-        )
-
-        const scalePhoto = imageRender.scale(0.3)
-
-        page.drawImage(imageRender, {
-          x: page.getWidth() / 2 - scalePhoto.width / 2,
-          y: page.getHeight() / 2 - scalePhoto.height / 2 + 240,
-          width: scalePhoto.width,
-          height: scalePhoto.height,
+          responseDatas,
         })
 
-        const textX = (page.getWidth() - fontTitle) / 2
-        const textY = (page.getHeight() - fontsizeTitle) / 2 + 60
-
-        page.drawText(responseDatas.event_name, {
-          x: textX,
-          y: textY,
-          size: fontsizeTitle,
-        })
-
-        const separatorY = textY - 30
-        console.log('separatorY', separatorY)
-        page.drawLine({
-          start: { x: 50, y: separatorY },
-          end: { x: 550, y: separatorY },
-          thickness: 1,
-        })
-
-        const pdfBytes = await pdfDoc.save()
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+        const blob = new Blob([bytes], { type: 'application/pdf' })
         const pdfUrl = URL.createObjectURL(blob)
-        setsss(pdfUrl)
+        setBlobUrlPDF(pdfUrl)
+        setBytesOnload(bytes)
       }
     }
   }, [selectedRowKeys])
@@ -739,7 +687,14 @@ const InternationalRelationsTopics = (
               }}
             >
               <span>Download</span>
-              <BtnMain bgColor='#9a2020'>
+              <BtnMain
+                bgColor='#9a2020'
+                onClick={() => {
+                  if (bytesOnload) {
+                    downloadjs(bytesOnload, 'file-s.pdf')
+                  }
+                }}
+              >
                 <span>PDF</span>
               </BtnMain>
               <BtnMain>
@@ -750,7 +705,15 @@ const InternationalRelationsTopics = (
         }
         closeIcon={false}
       >
-        <iframe id='pdf-viewer' src={sss} width={700} height={440}></iframe>
+        {blobUrlPDF !== '' && (
+          <iframe
+            id='pdf-viewer'
+            src={blobUrlPDF}
+            width={700}
+            height={440}
+          ></iframe>
+        )}
+
         {/* <canvas id='pdf-canvas'></canvas> */}
       </Modal>
     </>
