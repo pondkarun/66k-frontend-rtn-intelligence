@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import {
-  Badge,
   Button,
   Col,
   DatePicker,
@@ -22,9 +21,8 @@ import {
 } from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
-import { BsImage } from 'react-icons/bs'
-import { HiOutlineDocumentText } from 'react-icons/hi'
 import dayjs from 'dayjs'
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
 import { setBackground } from '@/redux/actions/configActions'
 import {
   setDefaultSearch,
@@ -49,9 +47,14 @@ import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
 import { getInternalFilePublicService } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
+import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
 import { ActionTprops } from '../country'
-import type { ColumnsType } from 'antd/es/table'
 import FormUploadInput from './FormUploadInput'
+import type { ColumnsType } from 'antd/es/table'
+import type { TableRowSelection } from 'antd/es/table/interface'
+import * as XLSX from 'xlsx'
+import sheelConfig from './xlsx/sheelConfig'
+import download from 'downloadjs'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -90,6 +93,7 @@ const InternationalRelationsTopics = (
   )
   const [mode, setMode] = useState<EmodeOption>()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isopenExport, setIsOpenExport] = useState(false)
 
   const [toppicId, setToppicId] = useState('')
   const [internationalId, setInternationalId] = useState('')
@@ -97,6 +101,8 @@ const InternationalRelationsTopics = (
     docs: TdocumentsOption
     img: TdocumentsOption
   }>()
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
@@ -149,25 +155,27 @@ const InternationalRelationsTopics = (
       const mapImage: TdocumentsOption = []
 
       if (typeof responseFiles !== 'undefined') {
-        for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
-          const fileDocument = responseDatas.data.file_documents[z]
-          const docs = responseFiles.data.find((_url: string) => {
-            const splitSlach = _url.split('/')
-            const pathName = splitSlach[splitSlach.length - 1]
-            return pathName === fileDocument.name
-          })
-          mapDocs.push({ ...fileDocument, url: docs as string })
-        }
+        if (responseDatas.data.file_documents)
+          for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
+            const fileDocument = responseDatas.data.file_documents[z]
+            const docs = responseFiles.data.find((_url: string) => {
+              const splitSlach = _url.split('/')
+              const pathName = splitSlach[splitSlach.length - 1]
+              return pathName === fileDocument.name
+            })
+            mapDocs.push({ ...fileDocument, url: docs as string })
+          }
 
-        for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
-          const fileImage = responseDatas.data.image_documents[z]
-          const img = responseFiles.data.find((_url: string) => {
-            const splitSlach = _url.split('/')
-            const pathName = splitSlach[splitSlach.length - 1]
-            return pathName === fileImage.name
-          })
-          mapImage.push({ ...fileImage, url: img as string })
-        }
+        if (responseDatas.data.image_documents)
+          for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
+            const fileImage = responseDatas.data.image_documents[z]
+            const img = responseFiles.data.find((_url: string) => {
+              const splitSlach = _url.split('/')
+              const pathName = splitSlach[splitSlach.length - 1]
+              return pathName === fileImage.name
+            })
+            mapImage.push({ ...fileImage, url: img as string })
+          }
       }
 
       const model_main: { [k: string]: unknown } = {}
@@ -268,26 +276,28 @@ const InternationalRelationsTopics = (
       key: 'file-record',
       title: 'ไฟล์แนบ',
       render: (_value, record) => {
-        return (
-          <FileTableContentField>
-            {record.file_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <DocumentIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.image_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <ImageBackgroundIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.file_documents.length === 0 &&
-              record.image_documents.length === 0 && <></>}
-          </FileTableContentField>
-        )
+        if (record.file_documents && record.image_documents) {
+          return (
+            <FileTableContentField>
+              {record.file_documents.length > 0 && (
+                <Tooltip>
+                  <EventContentField>
+                    <DocumentIcon />
+                  </EventContentField>
+                </Tooltip>
+              )}
+              {record.image_documents.length > 0 && (
+                <Tooltip>
+                  <EventContentField>
+                    <ImageBackgroundIcon />
+                  </EventContentField>
+                </Tooltip>
+              )}
+              {record.file_documents.length === 0 &&
+                record.image_documents.length === 0 && <></>}
+            </FileTableContentField>
+          )
+        }
       },
     },
     {
@@ -361,25 +371,27 @@ const InternationalRelationsTopics = (
         sub_reason_name: subReason,
       })
     }
-    if (itemsForm.file_documents.length > 0) {
-      for (let x = 0; x < itemsForm.file_documents.length; x++) {
-        const file_document = itemsForm.file_documents[x]
-        createValuesReasonFile.push({
-          url: file_document.url,
-          name: file_document.name,
-        })
+    if (typeof itemsForm.file_documents !== 'undefined')
+      if (itemsForm.file_documents.length > 0) {
+        for (let x = 0; x < itemsForm.file_documents.length; x++) {
+          const file_document = itemsForm.file_documents[x]
+          createValuesReasonFile.push({
+            url: file_document.url,
+            name: file_document.name,
+          })
+        }
       }
-    }
 
-    if (itemsForm.image_documents.length > 0) {
-      for (let z = 0; z < itemsForm.image_documents.length; z++) {
-        const image_document = itemsForm.image_documents[z]
-        createValuesReasonImage.push({
-          url: image_document.url,
-          name: image_document.name,
-        })
+    if (typeof itemsForm.image_documents !== 'undefined')
+      if (itemsForm.image_documents.length > 0) {
+        for (let z = 0; z < itemsForm.image_documents.length; z++) {
+          const image_document = itemsForm.image_documents[z]
+          createValuesReasonImage.push({
+            url: image_document.url,
+            name: image_document.name,
+          })
+        }
       }
-    }
 
     const event_date_start = itemsForm.event_date[0].toISOString()
     const event_date_end = itemsForm.event_date[1].toISOString()
@@ -412,6 +424,134 @@ const InternationalRelationsTopics = (
       setIsModalOpen(!isModalOpen)
       randerQueryApi()
     }
+  }
+
+  const rowSelection: TableRowSelection<
+    TallFieldInternationalRelationsdatas['data']
+  > = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: React.Key[]) =>
+      setSelectedRowKeys(newSelectedRowKeys),
+  }
+
+  const RenderPDF = useCallback(() => {
+    const arr: TfieldInternationdata[] = []
+    if (selectedRowKeys.length > 0) {
+      for (let i = 0; i < selectedRowKeys.length; i++) {
+        const id = selectedRowKeys[i] as string
+        const findSelect = dataSource?.find((e) => e.id === id) as any
+        if (typeof findSelect !== 'undefined') {
+          arr.push(findSelect)
+        }
+      }
+    }
+    return <ReactPDFDoc items={arr} />
+  }, [dataSource, selectedRowKeys])
+
+  const PDFonload = () => (
+    <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
+      {({ loading }) => (
+        <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
+      )}
+    </PDFDownloadLink>
+  )
+
+  const handleExportxlxs = () => {
+    const arr: TfieldInternationdata[] = []
+    if (selectedRowKeys.length > 0) {
+      for (let i = 0; i < selectedRowKeys.length; i++) {
+        const id = selectedRowKeys[i] as string
+        const findSelect = dataSource?.find((e) => e.id === id) as any
+        if (typeof findSelect !== 'undefined') {
+          arr.push(findSelect)
+        }
+      }
+    }
+    const toppicName = [
+      ['', 'หัวข้อทั่วไป'],
+      [
+        'ลำดับ',
+        'ชื่อกิจกรรม',
+        'สถานที่จัดกิจกรรม',
+        'หัวหน้าคณะฝ่ายไทย',
+        'หัวหน้าคณะฝ่ายต่างประเทศ',
+        'วันที่เริ่มต้น',
+        'วันที่สิ้นสุด',
+      ],
+    ]
+    const getData = arr.map((item, num) => [
+      num + 1,
+      item.event_name,
+      item.event_venue,
+      item.leader_name_thai,
+      item.leader_name_foreign,
+      item.event_date_start,
+      item.event_date_end,
+    ])
+
+    const addToppicSpecific: string[] = []
+    for (let z = 0; z < arr.length; z++) {
+      const item = arr[z]
+      for (let s = 0; s < getData.length; s++) {
+        const lengthofnull = getData[s]
+        for (let index = 0; index < lengthofnull.length - 2; index++) {
+          addToppicSpecific.push(``)
+        }
+        for (let t = 0; t < item.specific_field.length; t++) {
+          const keyname = item.specific_field[t]
+          if (keyname) {
+            addToppicSpecific.push(keyname.topic_reason_name)
+            keyname.sub_reason_name
+          }
+        }
+      }
+    }
+
+    const formatData = [[...toppicName[0], ...addToppicSpecific], ...getData]
+    console.log('formatData', formatData)
+
+    const workbook = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet([])
+    XLSX.utils.sheet_add_aoa(ws, formatData, { origin: 'A1' })
+
+    const columnWidths = [
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 40 },
+      { wch: 40 },
+      { wch: 10 },
+      { wch: 20 },
+      { wch: 20 },
+    ]
+    const merges = [{ s: { r: 0, c: 1 }, e: { r: 0, c: 6 } }]
+    const cellRef = `B1`
+
+    ws[cellRef] = {
+      ...ws[cellRef],
+      s: {
+        horizontal: 'center',
+        vertical: 'center',
+        wrapText: true,
+      },
+    }
+    ws['!merges'] = merges
+    ws['!cols'] = columnWidths
+
+    XLSX.utils.book_append_sheet(workbook, ws, 'Sheet1')
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
+    // const blob = new Blob([buffer], {
+    //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // })
+    // console.log('blob', blob)
+    // const url = URL.createObjectURL(blob)
+    download(buffer, `Excel-file`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    // const a = document.createElement('a')
+    // a.href = url
+    // a.target = '_blank'
+    // a.click()
   }
 
   return (
@@ -458,8 +598,12 @@ const InternationalRelationsTopics = (
                 <PlusCircleOutlined /> เพิ่ม
               </BtnMain>
             )}
-            <BtnMain onClick={() => { }}>Export</BtnMain>
-            <BtnMain bgColor='#15bf3a' onClick={() => { }}>
+            <BtnMain onClick={() => setIsOpenExport(true)}>Export</BtnMain>
+            <BtnMain
+              disabled={selectedRowKeys.length === 0}
+              bgColor='#15bf3a'
+              onClick={handleExportxlxs}
+            >
               Excel
             </BtnMain>
           </Form.Item>
@@ -471,6 +615,7 @@ const InternationalRelationsTopics = (
         columns={columns}
         dataSource={dataSource}
         scroll={{ x: '100%', y: '100%' }}
+        rowSelection={rowSelection}
       />
 
       <Modal
@@ -599,7 +744,12 @@ const InternationalRelationsTopics = (
                                 label={item.name}
                                 keys={item.name + index}
                                 form={form}
-                                name={['specific_field', specific.topic_reason_name, item.name, 'upload']}
+                                name={[
+                                  'specific_field',
+                                  specific.topic_reason_name,
+                                  item.name,
+                                  'upload',
+                                ]}
                               />
                             </>
                           }
@@ -614,6 +764,45 @@ const InternationalRelationsTopics = (
             )
           })}
         </Form>
+      </Modal>
+
+      {/* modal report */}
+      <Modal
+        open={isopenExport}
+        width={800}
+        onCancel={() => setIsOpenExport(false)}
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>{'ข้อมูลพื้นฐานประเทศ'}</span>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                columnGap: 1,
+                alignItems: 'center',
+              }}
+            >
+              <span>Download</span>
+              <BtnMain
+                bgColor='#9a2020'
+                disabled={selectedRowKeys.length === 0}
+                onClick={PDFonload}
+              >
+                <PDFonload />
+              </BtnMain>
+              <BtnMain>
+                <span>Word</span>
+              </BtnMain>
+            </div>
+          </div>
+        }
+        closeIcon={false}
+      >
+        {selectedRowKeys.length > 0 ? (
+          <PDFViewer style={{ width: '100%' }} height={600}>
+            <RenderPDF />
+          </PDFViewer>
+        ) : null}
       </Modal>
     </>
   )
@@ -642,7 +831,7 @@ const Line = styled.div`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const BtnMain = styled(Button) <{ bgColor?: string }>`
+const BtnMain = styled(Button)<{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
