@@ -24,6 +24,7 @@ export type FormUploadType = {
   randerList?: TdocumentsOption
   ticpidId?: string
   disabled?: boolean
+  dir?: string
 }
 
 const FormUpload = ({
@@ -34,6 +35,7 @@ const FormUpload = ({
   randerList,
   ticpidId,
   disabled,
+  dir,
 }: FormUploadType) => {
   const [file, setFileData] = useState<any>([])
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -43,7 +45,7 @@ const FormUpload = ({
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
-});
+  });
 
   const router = useRouter()
   const params = router.query
@@ -60,16 +62,20 @@ const FormUpload = ({
     accept: acceptFile,
     onChange: async (info) => {
       // console.log('info :>> ', info);
-      const fileUploaded = await internalUploadPublicService({
-        formData: info.fileList,
-        country_id: params.country as string,
-        ticpid_id: params.toppic
-          ? (params.toppic as string)
-          : (ticpidId as string),
-      })
+      try {
+        const fileUploaded = await internalUploadPublicService({
+          formData: info.fileList,
+          country_id: params.country as string,
+          ticpid_id: params.toppic ? (params.toppic as string) : (ticpidId as string),
+          dir: dir ?? undefined
+        })
 
-      if (fileUploaded === 'OK') {
-        info.file.status = 'done'
+        if (fileUploaded === 'OK') {
+          info.file.status = 'done'
+          setFile([...file, ...info.fileList])
+        }
+      } catch (error) {
+        info.file.status = 'error'
         setFile([...file, ...info.fileList])
       }
     },
@@ -85,17 +91,20 @@ const FormUpload = ({
     accept: acceptFile,
     onChange: async (info) => {
       // console.log('propsButton :>> ', info)
-      const fileUploaded = await internalUploadPublicService({
-        formData: info.fileList,
-        country_id: params.country as string,
-        ticpid_id: params.toppic
-          ? (params.toppic as string)
-          : (ticpidId as string),
-          
-      })
+      try {
+        const fileUploaded = await internalUploadPublicService({
+          formData: info.fileList,
+          country_id: params.country as string,
+          ticpid_id: params.toppic ? (params.toppic as string) : (ticpidId as string),
+          dir: dir ?? undefined
+        })
 
-      if (fileUploaded === 'OK') {
-        info.file.status = 'done'
+        if (fileUploaded === 'OK') {
+          info.file.status = 'done'
+          setFile([...file, ...info.fileList])
+        }
+      } catch (error) {
+        info.file.status = 'error'
         setFile([...file, ...info.fileList])
       }
     },
@@ -117,7 +126,8 @@ const FormUpload = ({
             ? (params.toppic as string)
             : (ticpidId as string),
           file_name: info.file.name,
-        })
+          dir: dir ?? undefined
+        }).then(res => { }).catch(error => { })
         setFile(info.fileList)
       } catch (error) {
         setFile([])
@@ -155,16 +165,15 @@ const FormUpload = ({
 
   const checkWindowSize = () => {
     setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
+      width: window.innerWidth,
+      height: window.innerHeight,
     });
-}
+  }
 
   useEffect(() => {
     setFileData([])
     const fileForm = form.getFieldValue(name)
     if (fileForm) {
-      console.log('fileForm :>> ', fileForm);
       setFile(fileForm)
     }
   }, [name])

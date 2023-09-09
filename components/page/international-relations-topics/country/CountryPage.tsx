@@ -179,6 +179,7 @@ const InternationalRelationsTopics = (
         responseFiles = await getInternalFilePublicService(
           _record.country_id,
           _record.ir_topic_id,
+          _record.id
         )
       } catch (error) {
         /* empty */

@@ -5,7 +5,6 @@ import {
   DatePicker,
   Form,
   Input,
-  Modal,
   Row,
   Space,
   message,
@@ -21,7 +20,7 @@ import {
 } from '@/interface/international_relations_datas.interface'
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
-import LabelIconUpload from './country/LabelIconUpload'
+import { v4 as uuidv4 } from 'uuid';
 import { ActionTprops } from './country'
 import FormUploadInput from './country/FormUploadInput'
 import { isArray, isPlainObject } from 'lodash'
@@ -62,18 +61,23 @@ const ManageInternationalRelationsTopics = (
 ) => {
   const { mode, setActiontype } = props
   const router = useRouter()
+  const [idAdd, setIdAdd] = useState(uuidv4())
 
   const [finalSubmit, setFinalSubmit] = useState(false)
 
   const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu)
   const [form] = Form.useForm<Tforminternational>()
 
+  const onFinishFailed = () => {
+    message.warning("กรอกข้อมูลให้ครบถ้วน")
+  }
+
   const onFinish = async () => {
     const data: any = form.getFieldValue(undefined)
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
-
+    const id = idAdd;
 
     if (isPlainObject(data.specific_field)) {
       for (const [key1, values] of Object.entries(
@@ -144,8 +148,9 @@ const ManageInternationalRelationsTopics = (
 
     const modalRequst: Omit<
       Tforminternational,
-      'event_date' | 'field_id' | 'id'
+      'event_date' | 'field_id'
     > = {
+      id,
       event_date_start,
       event_date_end,
       country_id: router.query.country as string,
@@ -192,7 +197,7 @@ const ManageInternationalRelationsTopics = (
 
       <SubTitle style={{ paddingTop: 20 }}>ข้อมูลทั่วไป</SubTitle>
       <Line />
-      <Form form={form} layout='vertical' onFinish={onFinish}>
+      <Form form={form} layout='vertical' onFinish={onFinish} onFinishFailed={onFinishFailed}>
         <Row gutter={[16, 0]}>
           <Col xs={24} md={12} span={12}>
             <Form.Item
@@ -238,6 +243,7 @@ const ManageInternationalRelationsTopics = (
               type='file'
               name='file_documents'
               acceptFile='.pdf,.xlsx,.doc,.ptt'
+              dir={idAdd}
             />
           </Col>
           <Col xs={24} md={12} span={12}>
@@ -246,6 +252,7 @@ const ManageInternationalRelationsTopics = (
               type='image'
               name='image_documents'
               acceptFile='.jpg,.png,.svg,.webp'
+              dir={idAdd}
             />
           </Col>
         </Row>
@@ -267,6 +274,7 @@ const ManageInternationalRelationsTopics = (
                           id={item}
                           form={form}
                           name={['specific_field', e.groups, item, 'upload']}
+                          dir={idAdd}
                         />
                       }
                     >

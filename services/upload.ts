@@ -8,7 +8,7 @@ export enum ETinternalUploadPublic {
 type TinternalUploadPublicProps = {
   country_id: string
   ticpid_id: string
-  dir?: ETinternalUploadPublic
+  dir?: ETinternalUploadPublic | string
   formData: any
 }
 
@@ -55,7 +55,7 @@ export const removeInternalUploadPublicService = async (
 export const getInternalFilePublicService = async (
   country_id: string,
   ticpid_id: string,
-  dir?: ETinternalUploadPublic,
+  dir?: ETinternalUploadPublic | string,
 ) => {
   const response = await axios.get<{ data: string[] }>(
     `${HOSTMAINUPLOADAPI}/internal/public/${country_id}/${ticpid_id}?dir=${dir || ''}`,
