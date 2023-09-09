@@ -87,6 +87,7 @@ const FormUpload = ({
         ticpid_id: params.toppic
           ? (params.toppic as string)
           : (ticpidId as string),
+          
       })
 
       if (fileUploaded === 'OK') {

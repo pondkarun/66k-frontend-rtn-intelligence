@@ -138,7 +138,7 @@ const InternationalRelationsTopics = (
       } catch (error) {
         /* empty */
       }
-      const responseDatas = await getByInternationalDatasService(_record.id)
+      const responseDatas: any = await getByInternationalDatasService(_record.id)
 
       if (_mode === EmodeOption.EDIT) {
         setToppicId(responseDatas.data.ir_topic_id)
@@ -177,7 +177,7 @@ const InternationalRelationsTopics = (
         const modal_reason: { [k: string]: unknown } = {}
 
         for (let index = 0; index < specific.sub_reason_name.length; index++) {
-          const sub_reason = specific.sub_reason_name[index]
+          const sub_reason = specific.sub_reason_name[index];
           modal_reason[sub_reason.name] = {
             value: sub_reason.value,
           }
@@ -267,7 +267,7 @@ const InternationalRelationsTopics = (
     {
       key: 'file-record',
       title: 'ไฟล์แนบ',
-      render: (_value, record) => {
+      render: (_value, record: any) => {
         return (
           <FileTableContentField>
             {record.file_documents.length > 0 && (
@@ -336,7 +336,7 @@ const InternationalRelationsTopics = (
   }
 
   const onFinishInternational = async () => {
-    const itemsForm = formInternational.getFieldsValue()
+    const itemsForm: any = formInternational.getFieldsValue()
 
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
