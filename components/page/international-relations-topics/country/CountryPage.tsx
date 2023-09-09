@@ -235,6 +235,7 @@ const InternationalRelationsTopics = (
       render: (_value, record) => {
         return <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
       },
+      width: 200
     },
     {
       key: 'event_date',
@@ -259,18 +260,22 @@ const InternationalRelationsTopics = (
 
         return `${start_date} - ${start_end}`
       },
+      width: 200,
+      align: "center"
     },
     {
       key: 'event_name',
       title: 'ชื่อกิจกรรม',
       dataIndex: 'event_name',
       render: (value) => value,
+      width: 300,
     },
     {
       key: 'event_venue',
       title: 'สถานที่จัดกิจจกรรม',
       dataIndex: 'event_venue',
-      render: (value) => value,
+      render: (value) => value ?? "-",
+      width: 200,
     },
     {
       key: 'file-record',
@@ -297,10 +302,14 @@ const InternationalRelationsTopics = (
           </FileTableContentField>
         )
       },
+      width: 100,
+      align: "center"
     },
     {
       key: 'maneage',
       title: 'จัดการ',
+      width: 100,
+      align: "center",
       render: (_value, record) => {
         return (
           <FileTableContentField>
@@ -557,7 +566,7 @@ const InternationalRelationsTopics = (
       <Title>ค้นหาข้อมูล</Title>
       <ContentCount>พบข้อมูล: {dataSource?.length ?? 0} รายการ</ContentCount>
       <Row style={{ paddingTop: 10 }}>
-        <Col span={6}>
+        <Col xs={24} xl={6} span={6}>
           <Form
             form={form}
             layout='vertical'
@@ -578,7 +587,7 @@ const InternationalRelationsTopics = (
             </Form.Item>
           </Form>
         </Col>
-        <Col span={8}>
+        <Col xs={24} xl={12} span={8}>
           <Form.Item>
             <BtnMain
               onClick={() => {
@@ -607,14 +616,23 @@ const InternationalRelationsTopics = (
           </Form.Item>
         </Col>
       </Row>
-      <Table
-        style={{ borderRadius: ' 16px 16px 0 0' }}
-        rowKey={'id'}
-        columns={columns}
-        dataSource={dataSource}
-        scroll={{ x: '100%', y: '100%' }}
-        rowSelection={rowSelection}
-      />
+
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        {/* <Tablestyld
+          style={{ borderRadius: ' 16px 16px 0 0'}}
+          rowKey={'id'}
+          columns={columns}
+          dataSource={dataSource}
+        /> */}
+        <Table
+          style={{ borderRadius: ' 16px 16px 0 0' }}
+          rowKey={'id'}
+          columns={columns}
+          dataSource={dataSource}
+          scroll={{ x: '100%', y: '100%' }}
+          rowSelection={rowSelection}
+        />
+      </div>
 
       <Modal
         title={`${mode == 'edit' ? 'แก้ไข' : 'ดู'}หัวข้อความสัมพันธ์`}
@@ -859,3 +877,9 @@ const Icon = styled.span`
     color: #00408e;
   }
 `
+const Tablestyld = styled(Table)`
+  .ant-table-thead tr th {
+    background: #00408E;
+    color: #fff;
+  }
+`;

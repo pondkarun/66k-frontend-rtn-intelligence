@@ -250,7 +250,7 @@ const IdentityUsers = () => {
                 <Title>ผู้ใช้งาน</Title>
 
                 <Row style={{ paddingTop: 10 }}>
-                    <Col span={6}>
+                    <Col xs={24} md={6} span={6}>
                         <Form form={formSearch} name="search_identity_users" layout="vertical" autoComplete="off" onFinish={onFinishSearch}>
                             <Form.Item name="search" >
                                 <Input placeholder='ค้นหา' onKeyPress={event => {
@@ -261,7 +261,7 @@ const IdentityUsers = () => {
                             </Form.Item>
                         </Form>
                     </Col>
-                    <Col span={6}>
+                    <Col xs={24} md={12} span={6}>
                         <Form.Item>
                             <ButtonSearch onClick={() => formSearch.submit()}>ค้นหา</ButtonSearch>
                             <ButtonSearch onClick={() => setIsModalOpen(true)}><PlusCircleOutlined /> เพิ่ม</ButtonSearch>
