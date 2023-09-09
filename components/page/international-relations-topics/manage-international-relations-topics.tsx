@@ -192,7 +192,7 @@ const ManageInternationalRelationsTopics = (
       <Line />
       <Form form={form} layout='vertical' onFinish={onFinish}>
         <Row gutter={[16, 0]}>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item
               name='event_name'
               label='ชื่อกิจกรรม'
@@ -201,17 +201,17 @@ const ManageInternationalRelationsTopics = (
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item name='event_venue' label='สถานที่จัดกิจกรรม'>
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item name='leader_name_thai' label='หัวหน้าคณะฝ่ายไทย'>
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item
               name='leader_name_foreign'
               label='หัวหน้าคณะฝ่ายต่างประเทศ'
@@ -219,7 +219,7 @@ const ManageInternationalRelationsTopics = (
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item
               name='event_date'
               label='ห้วงเวลาเริ่มต้น - สิ้นสุด'
@@ -230,7 +230,7 @@ const ManageInternationalRelationsTopics = (
           </Col>
         </Row>
         <Row gutter={[16, 0]}>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <FormUpload
               form={form}
               type='file'
@@ -238,7 +238,7 @@ const ManageInternationalRelationsTopics = (
               acceptFile='.pdf,.xlsx,.doc,.ptt'
             />
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <FormUpload
               form={form}
               type='image'
@@ -255,7 +255,7 @@ const ManageInternationalRelationsTopics = (
             <Row gutter={[16, 0]}>
               {e.value.map((item: string, index: number) => {
                 return (
-                  <Col span={12} key={item + index}>
+                  <Col xs={24} md={12} span={12} key={item + index}>
                     <Form.Item
                       name={['specific_field', e.groups, item, 'value']}
                       label={

@@ -40,6 +40,10 @@ const FormUpload = ({
   const [previewImage, setPreviewImage] = useState('')
   const [previewTitle, setPreviewTitle] = useState('')
   const [fileType, setFileType] = useState<string | undefined>()
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+});
 
   const router = useRouter()
   const params = router.query
@@ -148,6 +152,13 @@ const FormUpload = ({
     )
   }
 
+  const checkWindowSize = () => {
+    setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+    });
+}
+
   useEffect(() => {
     setFileData([])
     const fileForm = form.getFieldValue(name)
@@ -169,6 +180,10 @@ const FormUpload = ({
       setFile(randerList)
     }
   }, [randerList])
+
+  useEffect(() => {
+    checkWindowSize();
+  }, [])
 
 
   return (
@@ -193,10 +208,10 @@ const FormUpload = ({
       <Row style={{ padding: 10 }}>
         {!disabled && (
           <>
-            <Col span={12}>
+            <Col xs={10} span={12}>
               <h3>อัพโหลดไฟล์</h3>
             </Col>
-            <Col span={12} style={{ textAlign: 'end' }}>
+            <Col xs={14} span={12} style={{ textAlign: 'end' }}>
               <Form.Item name={name}>
                 <Upload disabled={disabled} {...propsButton}>
                   <Button disabled={disabled} icon={<UploadOutlined />}>
@@ -237,5 +252,6 @@ const FormUpload = ({
     </div>
   )
 }
+
 
 export default FormUpload
