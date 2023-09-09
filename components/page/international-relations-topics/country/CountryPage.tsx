@@ -46,7 +46,7 @@ import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
-import { getInternalFilePublicService } from '@/services/upload'
+import { HOSTMAINUPLOADAPI, getInternalFilePublicService } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
 import { ActionTprops } from '../country'
@@ -56,6 +56,7 @@ import type { TableRowSelection } from 'antd/es/table/interface'
 import * as XLSX from 'xlsx'
 import sheelConfig from './xlsx/sheelConfig'
 import download from 'downloadjs'
+import { isArray, isPlainObject } from 'lodash'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -181,76 +182,98 @@ const InternationalRelationsTopics = (
           _record.ir_topic_id,
           _record.id
         )
+
+        console.log('responseFiles :>> ', responseFiles);
+
+        const responseDatas: any = await getByInternationalDatasService(_record.id)
+
+
+        if (_mode === EmodeOption.EDIT) {
+          setToppicId(responseDatas.data.ir_topic_id)
+          setInternationalId(responseDatas.data.id)
+        }
+
+        /* Get Img specific */
+        if (isArray(responseDatas.data.specific_field)) {
+          responseDatas.data.specific_field.forEach((e: any) => {
+            // let path_image = ``, path_file = ``;
+            e.sub_reason_name?.forEach((x: any) => {
+              if (isPlainObject(x.upload)) {
+                x.upload?.image?.forEach((y: any) => y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/image/${y.name}`);
+                x.upload?.file?.forEach((y: any) => y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/file/${y.name}`);
+              }
+            });
+          });
+        }
+
+        const mapDocs: TdocumentsOption = []
+        const mapImage: TdocumentsOption = []
+
+        if (typeof responseFiles !== 'undefined') {
+          if (responseDatas.data.file_documents)
+            for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
+              const fileDocument = responseDatas.data.file_documents[z]
+              const docs = responseFiles.data.find((_url: string) => {
+                console.log('responseDatas.data.file_documents :>> ', responseDatas.data.file_documents);
+                console.log('_url :>> ', _url);
+                const splitSlach = _url.split('/')
+                const pathName = splitSlach[splitSlach.length - 1]
+                return pathName === fileDocument.name
+              })
+              console.log('docs :>> ', docs);
+              mapDocs.push({ ...fileDocument, url: docs as string })
+            }
+
+          if (responseDatas.data.image_documents)
+            for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
+              const fileImage = responseDatas.data.image_documents[z]
+              const img = responseFiles.data.find((_url: string) => {
+                const splitSlach = _url.split('/')
+                const pathName = splitSlach[splitSlach.length - 1]
+                return pathName === fileImage.name
+              })
+              mapImage.push({ ...fileImage, url: img as string })
+            }
+        }
+
+        const model_main: { [k: string]: unknown } = {}
+
+        for (let i = 0; i < responseDatas.data.specific_field.length; i++) {
+          const specific = responseDatas.data.specific_field[i]
+          const modal_reason: { [k: string]: unknown } = {}
+
+          for (let index = 0; index < specific.sub_reason_name.length; index++) {
+            const sub_reason = specific.sub_reason_name[index];
+
+            modal_reason[sub_reason.name] = {
+              value: sub_reason.value,
+              upload: sub_reason.upload,
+            }
+          }
+          model_main[specific.topic_reason_name] = modal_reason
+        }
+        setIsModalOpen(true)
+        setMode(_mode)
+        setSpecifics(responseDatas.data.specific_field)
+        setRenderFiles({
+          docs: mapDocs,
+          img: mapImage,
+        })
+        console.log('mapImage :>> ', mapImage);
+        formInternational.setFieldsValue({
+          ...responseDatas.data,
+          toppic_name: _record.ir_topic.name,
+          event_date: [
+            dayjs(responseDatas.data.event_date_start),
+            dayjs(responseDatas.data.event_date_end),
+          ],
+          specific_field: model_main,
+          file_documents: mapDocs,
+          image_documents: mapImage,
+        } as any)
       } catch (error) {
         /* empty */
       }
-      const responseDatas: any = await getByInternationalDatasService(_record.id)
-
-      if (_mode === EmodeOption.EDIT) {
-        setToppicId(responseDatas.data.ir_topic_id)
-        setInternationalId(responseDatas.data.id)
-      }
-
-      const mapDocs: TdocumentsOption = []
-      const mapImage: TdocumentsOption = []
-
-      if (typeof responseFiles !== 'undefined') {
-        if (responseDatas.data.file_documents)
-          for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
-            const fileDocument = responseDatas.data.file_documents[z]
-            const docs = responseFiles.data.find((_url: string) => {
-              const splitSlach = _url.split('/')
-              const pathName = splitSlach[splitSlach.length - 1]
-              return pathName === fileDocument.name
-            })
-            mapDocs.push({ ...fileDocument, url: docs as string })
-          }
-
-        if (responseDatas.data.image_documents)
-          for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
-            const fileImage = responseDatas.data.image_documents[z]
-            const img = responseFiles.data.find((_url: string) => {
-              const splitSlach = _url.split('/')
-              const pathName = splitSlach[splitSlach.length - 1]
-              return pathName === fileImage.name
-            })
-            mapImage.push({ ...fileImage, url: img as string })
-          }
-      }
-
-      const model_main: { [k: string]: unknown } = {}
-
-      for (let i = 0; i < responseDatas.data.specific_field.length; i++) {
-        const specific = responseDatas.data.specific_field[i]
-        const modal_reason: { [k: string]: unknown } = {}
-
-        for (let index = 0; index < specific.sub_reason_name.length; index++) {
-          const sub_reason = specific.sub_reason_name[index];
-          modal_reason[sub_reason.name] = {
-            value: sub_reason.value,
-          }
-        }
-        model_main[specific.topic_reason_name] = modal_reason
-      }
-      setIsModalOpen(true)
-      setMode(_mode)
-      setSpecifics(responseDatas.data.specific_field)
-      setRenderFiles({
-        docs: mapDocs,
-        img: mapImage,
-      })
-
-      formInternational.setFieldsValue({
-        ...responseDatas.data,
-        toppic_name: _record.ir_topic.name,
-        event_date: [
-          dayjs(responseDatas.data.event_date_start),
-          dayjs(responseDatas.data.event_date_end),
-        ],
-        specific_field: model_main,
-        file_documents: mapDocs,
-        image_documents: mapImage,
-      } as any)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -394,8 +417,7 @@ const InternationalRelationsTopics = (
   }
 
   const onFinishInternational = async () => {
-    const itemsForm: any = formInternational.getFieldsValue()
-
+    const itemsForm: any = formInternational.getFieldValue(undefined)
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
@@ -408,9 +430,31 @@ const InternationalRelationsTopics = (
 
       for (let index = 0; index < fields.length; index++) {
         const element = fields[index] as any
+        let upload: any = undefined;
+        if (element[1].upload) {
+          const _u = element[1].upload;
+          upload = {};
+          if (isArray(_u.image)) {
+            upload.image = _u.image.map((e: any) => {
+              return {
+                url: '',
+                name: e.name,
+              }
+            })
+          }
+          if (isArray(_u.file)) {
+            upload.file = _u.file.map((e: any) => {
+              return {
+                url: '',
+                name: e.name,
+              }
+            })
+          }
+        }
         subReason.push({
           name: element[0],
           value: element[1].value,
+          upload
         })
       }
 
@@ -556,7 +600,7 @@ const InternationalRelationsTopics = (
     }
 
     const formatData = [[...toppicName[0], ...addToppicSpecific], ...getData]
-    console.log('formatData', formatData)
+    // console.log('formatData', formatData)
 
     const workbook = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet([])
@@ -761,6 +805,7 @@ const InternationalRelationsTopics = (
                     : undefined
                 }
                 ticpidId={toppicId}
+                dir={internationalId}
               />
             </Col>
             <Col span={12}>
@@ -776,6 +821,7 @@ const InternationalRelationsTopics = (
                     : undefined
                 }
                 ticpidId={toppicId}
+                dir={internationalId}
               />
             </Col>
           </Row>
@@ -801,13 +847,14 @@ const InternationalRelationsTopics = (
                               <FormUploadInput
                                 label={item.name}
                                 keys={item.name + index}
-                                form={form}
+                                form={formInternational}
                                 name={[
                                   'specific_field',
                                   specific.topic_reason_name,
                                   item.name,
                                   'upload',
                                 ]}
+                                dir={internationalId}
                               />
                             </>
                           }
