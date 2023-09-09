@@ -10,7 +10,7 @@ import {
   Space,
   message,
 } from 'antd'
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { useRouter } from 'next/router'
@@ -24,6 +24,7 @@ import { TMapReason } from '@/interface/international_relations_topics.interface
 import LabelIconUpload from './country/LabelIconUpload'
 import { ActionTprops } from './country'
 import FormUploadInput from './country/FormUploadInput'
+import { isArray } from 'lodash'
 
 type SpecificFieldType = {
   groups: string
@@ -68,7 +69,8 @@ const ManageInternationalRelationsTopics = (
   const [form] = Form.useForm<Tforminternational>()
 
   const onFinish = async () => {
-    const data = form.getFieldsValue()
+    const data: any = form.getFieldValue(undefined)
+    console.log('data :>> ', data);
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
@@ -80,10 +82,33 @@ const ManageInternationalRelationsTopics = (
       const fields = Object.entries(values as unknown as never)
 
       for (let index = 0; index < fields.length; index++) {
-        const element = fields[index] as any
+        const element = fields[index] as any;
+        let upload: any = undefined;
+
+        if (element[1].upload) {
+          const _u = element[1].upload;
+          upload = {};
+          if (isArray(_u.image)) {
+            upload.image = _u.image.map((e: any) => {
+              return {
+                url: '',
+                name: e.name,
+              }
+            })
+          }
+          if (isArray(_u.file)) {
+            upload.file = _u.file.map((e: any) => {
+              return {
+                url: '',
+                name: e.name,
+              }
+            })
+          }
+        }
         subReason.push({
           name: element[0],
           value: element[1].value,
+          upload,
         })
       }
 
@@ -93,20 +118,24 @@ const ManageInternationalRelationsTopics = (
       })
     }
 
-    for (let x = 0; x < data.file_documents.length; x++) {
-      const file_document = data.file_documents[x]
-      createValuesReasonFile.push({
-        url: '',
-        name: file_document.name,
-      })
-    }
-    for (let z = 0; z < data.image_documents.length; z++) {
-      const image_document = data.image_documents[z]
-      createValuesReasonImage.push({
-        url: '',
-        name: image_document.name,
-      })
-    }
+    if (isArray(data.file_documents))
+      for (let x = 0; x < data.file_documents.length; x++) {
+        const file_document = data.file_documents[x]
+
+        createValuesReasonFile.push({
+          url: '',
+          name: file_document.name,
+        })
+      }
+
+    if (isArray(data.image_documents))
+      for (let z = 0; z < data.image_documents.length; z++) {
+        const image_document = data.image_documents[z]
+        createValuesReasonImage.push({
+          url: '',
+          name: image_document.name,
+        })
+      }
 
     const event_date_start = data.event_date[0].toISOString()
     const event_date_end = data.event_date[1].toISOString()
@@ -129,6 +158,8 @@ const ManageInternationalRelationsTopics = (
       ir_topic_breadcrumb: null,
     }
 
+    // console.log('modalRequst :>> ', modalRequst);
+
     try {
       await addInternationalDataRelationsTopicsService(modalRequst)
     } catch (error) {
@@ -138,6 +169,7 @@ const ManageInternationalRelationsTopics = (
       form.resetFields()
       setFinalSubmit(!finalSubmit)
       message.success('เพิ่มข้อมูลสำเร็จ')
+      setActiontype('')
     }
   }
 
@@ -149,17 +181,15 @@ const ManageInternationalRelationsTopics = (
       <SubTitle>
         {mode != 'add' &&
           `พบข้อมูล :
-          ${
-            toppic_obj.guide_line_specific_field
-              ? toppic_obj.guide_line_specific_field[0].value.length
-              : 0
+          ${toppic_obj.guide_line_specific_field
+            ? toppic_obj.guide_line_specific_field[0].value.length
+            : 0
           }{' '}
           รายการ`}
       </SubTitle>
 
       <SubTitle style={{ paddingTop: 20 }}>ข้อมูลทั่วไป</SubTitle>
       <Line />
-
       <Form form={form} layout='vertical' onFinish={onFinish}>
         <Row gutter={[16, 0]}>
           <Col span={12}>
@@ -199,7 +229,6 @@ const ManageInternationalRelationsTopics = (
             </Form.Item>
           </Col>
         </Row>
-
         <Row gutter={[16, 0]}>
           <Col span={12}>
             <FormUpload
@@ -209,7 +238,6 @@ const ManageInternationalRelationsTopics = (
               acceptFile='.pdf,.xlsx,.doc,.ptt'
             />
           </Col>
-
           <Col span={12}>
             <FormUpload
               form={form}
@@ -219,9 +247,8 @@ const ManageInternationalRelationsTopics = (
             />
           </Col>
         </Row>
-
-        {toppic_obj?.guide_line_specific_field?.map((e: SpecificFieldType) => (
-          <>
+        {toppic_obj?.guide_line_specific_field?.map((e: SpecificFieldType, index: number) => (
+          <Fragment key={e.groups + index}>
             <SubTitle>{e.groups}</SubTitle>
             <Line />
 
@@ -231,7 +258,15 @@ const ManageInternationalRelationsTopics = (
                   <Col span={12} key={item + index}>
                     <Form.Item
                       name={['specific_field', e.groups, item, 'value']}
-                      label={<FormUploadInput label={item} />}
+                      label={
+                        <FormUploadInput
+                          label={item}
+                          keys={item + index}
+                          id={item}
+                          form={form}
+                          name={['specific_field', e.groups, item, 'upload']}
+                        />
+                      }
                     >
                       <Input />
                     </Form.Item>
@@ -239,7 +274,7 @@ const ManageInternationalRelationsTopics = (
                 )
               })}
             </Row>
-          </>
+          </Fragment>
         ))}
         <Space>
           <Button type='primary' onClick={() => form.submit()}>

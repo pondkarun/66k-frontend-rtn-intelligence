@@ -1,6 +1,6 @@
 import { Badge, Button, Col, Collapse, Layout, Menu, Modal, Row } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from "styled-components";
 import Router from "next/router";
 import { AppstoreOutlined, DownOutlined, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
@@ -371,7 +371,7 @@ const SidebarLayoutComponents = () => {
                             <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
 
                             <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
-                            {country ? <ToppicMenu list={topics} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
+                            {country ? <ToppicMenu list={topics as any} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
 
                             {itemsMenu.length > 0 ? (
                                 <>
@@ -475,39 +475,70 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 
 //#region -> ToppicMenu
 
-const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes[], index?: string }) => {
+const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes['data'][], index?: string }) => {
     const dispatch = useDispatch();
     const { toppic, country } = useSelector(({ toppic_menu }) => toppic_menu);
+    const [activeKey, setActiveKey] = useState('')
 
     const onChange = (value: any) => {
-        // console.log('value :>> ', value);
+        console.log('value :>> ', value);
     }
     const onClick = (id: string) => {
         // console.log('id :>> ', id);
         dispatch(setSelectToppic(id))
         Router.push(`/international-relations-topics/${country}/${id}`);
     }
-    return (
-        <>
-            <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
-                {list.map((e: any, i) => {
-                    const is_last_node = e.children.filter((w: any) => w.last_node == true);
-                    return (
-                        (is_last_node.length == 0) ?
-                            <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
-                            </PanelToppic>
-                            :
-                            <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                {is_last_node.map((_e: any, _i: number) => (
-                                    <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
-                                ))}
-                            </PanelToppic>
-                    )
-                })}
-            </CollapseToppic>
-        </>
-    )
+
+    useEffect(() => {
+        if (toppic) {
+            list.forEach((e) => {
+                // console.log('main', e)
+                if (e.children.length > 0) {
+                    const child1 = e.children.find((f: any) => f.id === toppic) as any
+                    // console.log('child1', child1)
+                    // if (child1?.children.length > 0) {
+                    //     const child2 = child1.children.find((f: any) => f.id === toppic) as any
+                    //     console.log('child2', child2)
+                    //     if (child2?.parent_id) {
+                    //         setActiveKey(child2.parent_id)
+                    //     }
+                    // }
+                    if (child1?.parent_id) {
+                        setActiveKey(child1.parent_id)
+                    }
+                }
+            })
+        } else setActiveKey('')
+        
+    }, [toppic])
+
+
+    const WrapperCollapse = useCallback(() => {
+        return( 
+            <>
+                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange} defaultActiveKey={[`${activeKey}`]}>
+                    {list.map((e: any, i) => {
+                        // console.log('first e :>>> ', e)
+                        const is_last_node = e.children.filter((w: any) => w.last_node == true);
+                        return (
+                            (is_last_node.length == 0) ?
+                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                    <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
+                                </PanelToppic>
+                                :
+                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                    {is_last_node.map((_e: any, _i: number) => (
+                                        <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
+                                    ))}
+                                </PanelToppic>
+                        )
+                    })}
+                </CollapseToppic>
+            </>
+        )
+    }, [activeKey])
+
+    return <WrapperCollapse />
 }
 //#endregion
 

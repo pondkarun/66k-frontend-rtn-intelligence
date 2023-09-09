@@ -280,6 +280,7 @@ const InternationalRelationsTopics = () => {
                                 allowClear
                                 treeDefaultExpandAll
                                 treeData={topics}
+                                filterTreeNode={(input: any, option: any) => (option?.title ?? '').includes(input)}
                                 disabled={mode != "add" ? true : false}
                             />
                         </Form.Item>

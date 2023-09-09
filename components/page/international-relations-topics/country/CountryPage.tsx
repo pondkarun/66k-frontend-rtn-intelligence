@@ -1,6 +1,5 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import {
-  Badge,
   Button,
   Col,
   DatePicker,
@@ -52,17 +51,9 @@ import { getInternalFilePublicService } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
 import { ActionTprops } from '../country'
+import FormUploadInput from './FormUploadInput'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
-import {
-  Page,
-  Text,
-  View,
-  Document,
-  StyleSheet,
-  Font,
-  Image,
-} from '@react-pdf/renderer'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -163,25 +154,27 @@ const InternationalRelationsTopics = (
       const mapImage: TdocumentsOption = []
 
       if (typeof responseFiles !== 'undefined') {
-        for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
-          const fileDocument = responseDatas.data.file_documents[z]
-          const docs = responseFiles.data.find((_url: string) => {
-            const splitSlach = _url.split('/')
-            const pathName = splitSlach[splitSlach.length - 1]
-            return pathName === fileDocument.name
-          })
-          mapDocs.push({ ...fileDocument, url: docs as string })
-        }
+        if (responseDatas.data.file_documents)
+          for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
+            const fileDocument = responseDatas.data.file_documents[z]
+            const docs = responseFiles.data.find((_url: string) => {
+              const splitSlach = _url.split('/')
+              const pathName = splitSlach[splitSlach.length - 1]
+              return pathName === fileDocument.name
+            })
+            mapDocs.push({ ...fileDocument, url: docs as string })
+          }
 
-        for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
-          const fileImage = responseDatas.data.image_documents[z]
-          const img = responseFiles.data.find((_url: string) => {
-            const splitSlach = _url.split('/')
-            const pathName = splitSlach[splitSlach.length - 1]
-            return pathName === fileImage.name
-          })
-          mapImage.push({ ...fileImage, url: img as string })
-        }
+        if (responseDatas.data.image_documents)
+          for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
+            const fileImage = responseDatas.data.image_documents[z]
+            const img = responseFiles.data.find((_url: string) => {
+              const splitSlach = _url.split('/')
+              const pathName = splitSlach[splitSlach.length - 1]
+              return pathName === fileImage.name
+            })
+            mapImage.push({ ...fileImage, url: img as string })
+          }
       }
 
       const model_main: { [k: string]: unknown } = {}
@@ -282,26 +275,28 @@ const InternationalRelationsTopics = (
       key: 'file-record',
       title: 'ไฟล์แนบ',
       render: (_value, record) => {
-        return (
-          <FileTableContentField>
-            {record.file_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <DocumentIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.image_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <ImageBackgroundIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.file_documents.length === 0 &&
-              record.image_documents.length === 0 && <></>}
-          </FileTableContentField>
-        )
+        if (record.file_documents && record.image_documents) {
+          return (
+            <FileTableContentField>
+              {record.file_documents.length > 0 && (
+                <Tooltip>
+                  <EventContentField>
+                    <DocumentIcon />
+                  </EventContentField>
+                </Tooltip>
+              )}
+              {record.image_documents.length > 0 && (
+                <Tooltip>
+                  <EventContentField>
+                    <ImageBackgroundIcon />
+                  </EventContentField>
+                </Tooltip>
+              )}
+              {record.file_documents.length === 0 &&
+                record.image_documents.length === 0 && <></>}
+            </FileTableContentField>
+          )
+        }
       },
     },
     {
@@ -375,25 +370,27 @@ const InternationalRelationsTopics = (
         sub_reason_name: subReason,
       })
     }
-    if (itemsForm.file_documents.length > 0) {
-      for (let x = 0; x < itemsForm.file_documents.length; x++) {
-        const file_document = itemsForm.file_documents[x]
-        createValuesReasonFile.push({
-          url: file_document.url,
-          name: file_document.name,
-        })
+    if (typeof itemsForm.file_documents !== 'undefined')
+      if (itemsForm.file_documents.length > 0) {
+        for (let x = 0; x < itemsForm.file_documents.length; x++) {
+          const file_document = itemsForm.file_documents[x]
+          createValuesReasonFile.push({
+            url: file_document.url,
+            name: file_document.name,
+          })
+        }
       }
-    }
 
-    if (itemsForm.image_documents.length > 0) {
-      for (let z = 0; z < itemsForm.image_documents.length; z++) {
-        const image_document = itemsForm.image_documents[z]
-        createValuesReasonImage.push({
-          url: image_document.url,
-          name: image_document.name,
-        })
+    if (typeof itemsForm.image_documents !== 'undefined')
+      if (itemsForm.image_documents.length > 0) {
+        for (let z = 0; z < itemsForm.image_documents.length; z++) {
+          const image_document = itemsForm.image_documents[z]
+          createValuesReasonImage.push({
+            url: image_document.url,
+            name: image_document.name,
+          })
+        }
       }
-    }
 
     const event_date_start = itemsForm.event_date[0].toISOString()
     const event_date_end = itemsForm.event_date[1].toISOString()
@@ -640,17 +637,17 @@ const InternationalRelationsTopics = (
                           ]}
                           label={
                             <>
-                              <span>{item.name}</span>
-                              <Icon onClick={() => {}}>
-                                <Badge>
-                                  <HiOutlineDocumentText />
-                                </Badge>
-                              </Icon>
-                              <Icon onClick={() => {}}>
-                                <Badge>
-                                  <BsImage />
-                                </Badge>
-                              </Icon>
+                              <FormUploadInput
+                                label={item.name}
+                                keys={item.name + index}
+                                form={form}
+                                name={[
+                                  'specific_field',
+                                  specific.topic_reason_name,
+                                  item.name,
+                                  'upload',
+                                ]}
+                              />
                             </>
                           }
                         >

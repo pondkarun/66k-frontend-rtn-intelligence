@@ -337,6 +337,7 @@ const IdentityUsers = () => {
                                 allowClear
                                 treeDefaultExpandAll
                                 treeData={departments}
+                                filterTreeNode={(input: any, option: any) => (option?.title ?? '').includes(input)}
                                 disabled={mode == "view" ? true : false}
                             />
                         </Form.Item>

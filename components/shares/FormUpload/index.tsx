@@ -19,7 +19,7 @@ const { Dragger } = Upload
 export type FormUploadType = {
   form: FormInstance<Tforminternational>
   type: 'file' | 'image'
-  name: string
+  name: any
   acceptFile?: string
   randerList?: TdocumentsOption
   ticpidId?: string
@@ -35,7 +35,7 @@ const FormUpload = ({
   ticpidId,
   disabled,
 }: FormUploadType) => {
-  const [file, setFile] = useState<any>([])
+  const [file, setFileData] = useState<any>([])
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewImage, setPreviewImage] = useState('')
   const [previewTitle, setPreviewTitle] = useState('')
@@ -43,6 +43,11 @@ const FormUpload = ({
 
   const router = useRouter()
   const params = router.query
+
+  const setFile = (value: any) => {
+    setFileData(value)
+    form.setFieldValue(name, value)
+  }
 
   const propsDragger: UploadProps = {
     name,
@@ -129,23 +134,32 @@ const FormUpload = ({
 
     setFileType(file.type?.split('/')[1])
     setPreviewImage(file.url || (file.preview as string))
-    setPreviewOpen(true)
+    if (type === "file" && file.url) {
+      const a = document.createElement('a')
+      a.href = file.url
+      a.target = '_blank'
+      a.click()
+    } else {
+      setPreviewOpen(true)
+    }
+
     setPreviewTitle(
       file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1),
     )
   }
 
   useEffect(() => {
-    console.log('name : useEffect', name)
-    form.setFieldsValue({
-      [name]: file,
-    })
-  }, [file, name])
+    setFileData([])
+    const fileForm = form.getFieldValue(name)
+    if (fileForm) {
+      console.log('fileForm :>> ', fileForm);
+      setFile(fileForm)
+    }
+  }, [name])
 
   useEffect(() => {
     const fileForm = form.getFieldValue(name)
     if (fileForm) {
-      // console.log('fileForm :>> ', fileForm)
       setFile(fileForm)
     }
   }, [])
@@ -156,18 +170,11 @@ const FormUpload = ({
     }
   }, [randerList])
 
-  const uploadButton = (
-    <>
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </>
-  )
 
   return (
     <div>
-      <label>{`อัพโหลดไฟล์เอกสาร ${
-        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-      }`}</label>
+      <label>{`อัพโหลดไฟล์เอกสาร ${type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
+        }`}</label>
       {!disabled && (
         <Form.Item name={name}>
           <Dragger {...propsDragger}>
