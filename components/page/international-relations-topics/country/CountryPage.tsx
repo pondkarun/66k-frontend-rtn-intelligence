@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import {
   Badge,
   Button,
@@ -25,6 +25,7 @@ import { useRouter } from 'next/router'
 import { BsImage } from 'react-icons/bs'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import dayjs from 'dayjs'
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
 import { setBackground } from '@/redux/actions/configActions'
 import {
   setDefaultSearch,
@@ -49,17 +50,19 @@ import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
 import { getInternalFilePublicService } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
-import { createFormPDF } from '@/libs/form-pdf'
+import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
 import { ActionTprops } from '../country'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
-import { PDFDocument, PageSizes, rgb } from 'pdf-lib'
-import type { PDFImage } from 'pdf-lib'
-import fontkit from '@pdf-lib/fontkit'
-// import PDFDocument from 'pdfkit'
-import { jsPDF } from 'jspdf'
-import fs from 'fs'
-import downloadjs from 'downloadjs'
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  Font,
+  Image,
+} from '@react-pdf/renderer'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -106,8 +109,6 @@ const InternationalRelationsTopics = (
     docs: TdocumentsOption
     img: TdocumentsOption
   }>()
-  const [blobUrlPDF, setBlobUrlPDF] = useState('')
-  const [bytesOnload, setBytesOnload] = useState<Uint8Array>()
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
@@ -435,32 +436,27 @@ const InternationalRelationsTopics = (
       setSelectedRowKeys(newSelectedRowKeys),
   }
 
-  const handleExport = useCallback(async () => {
-    setIsOpenExport(true)
+  const RenderPDF = useCallback(() => {
+    const arr: TfieldInternationdata[] = []
     if (selectedRowKeys.length > 0) {
       for (let i = 0; i < selectedRowKeys.length; i++) {
         const id = selectedRowKeys[i] as string
-        const responseDatas = (await getByInternationalDatasService(id)).data
-        // const coverPhoto = {
-        //   url: responseDatas.image_documents[0].url,
-        //   name: responseDatas.image_documents[0].name,
-        // }
-
-        const bytes = await createFormPDF({
-          coverPhoto: {
-            url: responseDatas.image_documents[0].url,
-            name: responseDatas.image_documents[0].name,
-          },
-          responseDatas,
-        })
-
-        const blob = new Blob([bytes], { type: 'application/pdf' })
-        const pdfUrl = URL.createObjectURL(blob)
-        setBlobUrlPDF(pdfUrl)
-        setBytesOnload(bytes)
+        const findSelect = dataSource?.find((e) => e.id === id) as any
+        if (typeof findSelect !== 'undefined') {
+          arr.push(findSelect)
+        }
       }
     }
-  }, [selectedRowKeys])
+    return <ReactPDFDoc items={arr} />
+  }, [dataSource, selectedRowKeys])
+
+  const PDFonload = () => (
+    <PDFDownloadLink document={<RenderPDF />} fileName='somename.pdf'>
+      {({ loading }) => (
+        <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
+      )}
+    </PDFDownloadLink>
+  )
 
   return (
     <>
@@ -506,7 +502,7 @@ const InternationalRelationsTopics = (
                 <PlusCircleOutlined /> เพิ่ม
               </BtnMain>
             )}
-            <BtnMain onClick={handleExport}>Export</BtnMain>
+            <BtnMain onClick={() => setIsOpenExport(true)}>Export</BtnMain>
             <BtnMain bgColor='#15bf3a' onClick={() => {}}>
               Excel
             </BtnMain>
@@ -689,13 +685,10 @@ const InternationalRelationsTopics = (
               <span>Download</span>
               <BtnMain
                 bgColor='#9a2020'
-                onClick={() => {
-                  if (bytesOnload) {
-                    downloadjs(bytesOnload, 'file-s.pdf')
-                  }
-                }}
+                disabled={selectedRowKeys.length === 0}
+                onClick={PDFonload}
               >
-                <span>PDF</span>
+                <PDFonload />
               </BtnMain>
               <BtnMain>
                 <span>Word</span>
@@ -705,16 +698,11 @@ const InternationalRelationsTopics = (
         }
         closeIcon={false}
       >
-        {blobUrlPDF !== '' && (
-          <iframe
-            id='pdf-viewer'
-            src={blobUrlPDF}
-            width={700}
-            height={440}
-          ></iframe>
-        )}
-
-        {/* <canvas id='pdf-canvas'></canvas> */}
+        {selectedRowKeys.length > 0 ? (
+          <PDFViewer style={{ width: '100%' }} height={600}>
+            <RenderPDF />
+          </PDFViewer>
+        ) : null}
       </Modal>
     </>
   )
