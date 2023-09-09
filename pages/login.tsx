@@ -224,8 +224,8 @@ const LoginPage = () => {
           onFinish={onFinish}
           autoComplete='off'
           initialValues={{
-            // username: 'superadmin',
-            // password: 'RTN_P@ssw0rd',
+            username: 'superadmin',
+            password: 'RTN_P@ssw0rd',
           }}
         >
           <Form.Item
