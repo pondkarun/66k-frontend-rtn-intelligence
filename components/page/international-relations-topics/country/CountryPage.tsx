@@ -52,7 +52,8 @@ import { ActionTprops } from '../country'
 import FormUploadInput from './FormUploadInput'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
-import { Document , Packer, Paragraph, TextRun} from 'docx'
+import * as XLSX from 'xlsx'
+import sheelConfig from './xlsx/sheelConfig'
 import download from 'downloadjs'
 
 enum EmodeOption {
@@ -448,40 +449,109 @@ const InternationalRelationsTopics = (
   }, [dataSource, selectedRowKeys])
 
   const PDFonload = () => (
-    <PDFDownloadLink document={<RenderPDF />} fileName='pdf-report.pdf'>
+    <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
       {({ loading }) => (
         <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
       )}
     </PDFDownloadLink>
   )
 
-  const docxGenerate = () => {
-    const doc = new Document({
-      sections: [
-        {
-          properties: {},
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun('Hello World'),
-                new TextRun({
-                  text: 'Foo Bar',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: '\tGithub is the best',
-                  bold: true,
-                }),
-              ],
-            }),
-          ],
-        },
+  const handleExportxlxs = () => {
+    const arr: TfieldInternationdata[] = []
+    if (selectedRowKeys.length > 0) {
+      for (let i = 0; i < selectedRowKeys.length; i++) {
+        const id = selectedRowKeys[i] as string
+        const findSelect = dataSource?.find((e) => e.id === id) as any
+        if (typeof findSelect !== 'undefined') {
+          arr.push(findSelect)
+        }
+      }
+    }
+    const toppicName = [
+      ['', 'หัวข้อทั่วไป'],
+      [
+        'ลำดับ',
+        'ชื่อกิจกรรม',
+        'สถานที่จัดกิจกรรม',
+        'หัวหน้าคณะฝ่ายไทย',
+        'หัวหน้าคณะฝ่ายต่างประเทศ',
+        'วันที่เริ่มต้น',
+        'วันที่สิ้นสุด',
       ],
-    })
-    Packer.toBlob(doc).then((blob) => {
-      console.log('blob', blob)
-      download(blob, 'example.docx')
-    })
+    ]
+    const getData = arr.map((item, num) => [
+      num + 1,
+      item.event_name,
+      item.event_venue,
+      item.leader_name_thai,
+      item.leader_name_foreign,
+      item.event_date_start,
+      item.event_date_end,
+    ])
+
+    const addToppicSpecific: string[] = []
+    for (let z = 0; z < arr.length; z++) {
+      const item = arr[z]
+      for (let s = 0; s < getData.length; s++) {
+        const lengthofnull = getData[s]
+        for (let index = 0; index < lengthofnull.length - 2; index++) {
+          addToppicSpecific.push(``)
+        }
+        for (let t = 0; t < item.specific_field.length; t++) {
+          const keyname = item.specific_field[t]
+          if (keyname) {
+            addToppicSpecific.push(keyname.topic_reason_name)
+            keyname.sub_reason_name
+          }
+        }
+      }
+    }
+
+    const formatData = [[...toppicName[0], ...addToppicSpecific], ...getData]
+    console.log('formatData', formatData)
+
+    const workbook = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet([])
+    XLSX.utils.sheet_add_aoa(ws, formatData, { origin: 'A1' })
+
+    const columnWidths = [
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 40 },
+      { wch: 40 },
+      { wch: 10 },
+      { wch: 20 },
+      { wch: 20 },
+    ]
+    const merges = [{ s: { r: 0, c: 1 }, e: { r: 0, c: 6 } }]
+    const cellRef = `B1`
+
+    ws[cellRef] = {
+      ...ws[cellRef],
+      s: {
+        horizontal: 'center',
+        vertical: 'center',
+        wrapText: true,
+      },
+    }
+    ws['!merges'] = merges
+    ws['!cols'] = columnWidths
+
+    XLSX.utils.book_append_sheet(workbook, ws, 'Sheet1')
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
+    // const blob = new Blob([buffer], {
+    //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // })
+    // console.log('blob', blob)
+    // const url = URL.createObjectURL(blob)
+    download(buffer, `Excel-file`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    // const a = document.createElement('a')
+    // a.href = url
+    // a.target = '_blank'
+    // a.click()
   }
 
   return (
@@ -529,7 +599,11 @@ const InternationalRelationsTopics = (
               </BtnMain>
             )}
             <BtnMain onClick={() => setIsOpenExport(true)}>Export</BtnMain>
-            <BtnMain bgColor='#15bf3a' onClick={() => {}}>
+            <BtnMain
+              disabled={selectedRowKeys.length === 0}
+              bgColor='#15bf3a'
+              onClick={handleExportxlxs}
+            >
               Excel
             </BtnMain>
           </Form.Item>
@@ -716,7 +790,7 @@ const InternationalRelationsTopics = (
               >
                 <PDFonload />
               </BtnMain>
-              <BtnMain onClick={docxGenerate}>
+              <BtnMain>
                 <span>Word</span>
               </BtnMain>
             </div>

@@ -72,17 +72,22 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
             <Text style={styles.textToppic}>{item.leader_name_thai}</Text>
             <Text style={styles.textToppic}>{item.leader_name_foreign}</Text>
           </View>
-          {item.image_documents.length > 0 ? (
-            item.image_documents[0].url !== '' ? (
-              <View
-                style={{
-                  display: 'flex',
-                  alignSelf: 'center',
-                  padding: '20px 20px',
-                }}
-              >
-                <Image src={item.image_documents[0].url} style={styles.image} />
-              </View>
+          {typeof item.image_documents !== 'undefined' ? (
+            item.image_documents.length > 0 ? (
+              item.image_documents[0].url !== '' ? (
+                <View
+                  style={{
+                    display: 'flex',
+                    alignSelf: 'center',
+                    padding: '20px 20px',
+                  }}
+                >
+                  <Image
+                    src={item.image_documents[0].url}
+                    style={styles.image}
+                  />
+                </View>
+              ) : null
             ) : null
           ) : null}
           <View style={styles.separator} />
