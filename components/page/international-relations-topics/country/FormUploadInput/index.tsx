@@ -1,10 +1,8 @@
-import { Badge, FormInstance, Modal } from 'antd'
+import { Badge, Modal } from 'antd'
 import React, { Fragment, useEffect, useState } from 'react'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
 import styled from 'styled-components'
-import MatterImgupload from './MatterImgupload'
-import MatterDocsUpload from './MatterDocsUpload'
 import FormUpload from '@/components/shares/FormUpload'
 
 interface FormUploadInputProps {
