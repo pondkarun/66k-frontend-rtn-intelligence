@@ -21,8 +21,6 @@ import {
 } from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
-import { BsImage } from 'react-icons/bs'
-import { HiOutlineDocumentText } from 'react-icons/hi'
 import dayjs from 'dayjs'
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
 import { setBackground } from '@/redux/actions/configActions'
@@ -54,6 +52,8 @@ import { ActionTprops } from '../country'
 import FormUploadInput from './FormUploadInput'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
+import { Document , Packer, Paragraph, TextRun} from 'docx'
+import download from 'downloadjs'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -448,12 +448,41 @@ const InternationalRelationsTopics = (
   }, [dataSource, selectedRowKeys])
 
   const PDFonload = () => (
-    <PDFDownloadLink document={<RenderPDF />} fileName='somename.pdf'>
+    <PDFDownloadLink document={<RenderPDF />} fileName='pdf-report.pdf'>
       {({ loading }) => (
         <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
       )}
     </PDFDownloadLink>
   )
+
+  const docxGenerate = () => {
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun('Hello World'),
+                new TextRun({
+                  text: 'Foo Bar',
+                  bold: true,
+                }),
+                new TextRun({
+                  text: '\tGithub is the best',
+                  bold: true,
+                }),
+              ],
+            }),
+          ],
+        },
+      ],
+    })
+    Packer.toBlob(doc).then((blob) => {
+      console.log('blob', blob)
+      download(blob, 'example.docx')
+    })
+  }
 
   return (
     <>
@@ -687,7 +716,7 @@ const InternationalRelationsTopics = (
               >
                 <PDFonload />
               </BtnMain>
-              <BtnMain>
+              <BtnMain onClick={docxGenerate}>
                 <span>Word</span>
               </BtnMain>
             </div>
