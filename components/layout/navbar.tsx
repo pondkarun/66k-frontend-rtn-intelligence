@@ -59,7 +59,15 @@ const FlagName = styled("div")`
         max-width: 150px; /* กำหนดความยาวสูงสุดของข้อความที่จะแสดง */
     }
 
-    @media only screen and (max-width: 768px) {
+    @media only screen and (max-width: 850px) {
+        span {
+            display: block;
+            font-size: 24px;
+            transition: all;
+        }
+    }
+
+    @media only screen and (max-width: 440px) {
         span {
             display: none;
         }
