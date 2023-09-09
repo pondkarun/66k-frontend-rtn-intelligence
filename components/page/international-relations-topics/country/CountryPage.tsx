@@ -31,6 +31,7 @@ import {
 import {
   editInternationalDatasService,
   getAllCountryInternationalDataRelationsTopicsServices,
+  getAllCountryTopicInternationalDataRelationsTopicsServices,
   getByInternationalDatasService,
   removeByInternationalDatasService,
 } from '@/services/internationalRelationsDatas'
@@ -75,7 +76,6 @@ const InternationalRelationsTopics = (
   const { setActiontype } = props
   const dispatch = useDispatch()
   const router = useRouter()
-
   const path = router.query as { country?: string; toppic?: string }
 
   const menuSelector = useSelector<KeyTypestateRedux>(
@@ -94,6 +94,7 @@ const InternationalRelationsTopics = (
   const [mode, setMode] = useState<EmodeOption>()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isopenExport, setIsOpenExport] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const [toppicId, setToppicId] = useState('')
   const [internationalId, setInternationalId] = useState('')
@@ -107,15 +108,42 @@ const InternationalRelationsTopics = (
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
 
-  const randerQueryApi = async () => {
-    if (menuSelector.country) {
-      const data = await getAllCountryInternationalDataRelationsTopicsServices({
-        country_id: menuSelector.country,
-        search: search,
-      })
-      const datatype =
-        data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
-      setDataSource(datatype)
+  const randerQueryApi = async (_search?: string) => {
+    try {
+      if (path.country && path.toppic) {
+        setIsLoading(true)
+        const data = await getAllCountryTopicInternationalDataRelationsTopicsServices({
+          country_id: path.country,
+          topic_id: path.toppic,
+          search: _search,
+        })
+        const datatype =
+          data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
+        setDataSource(datatype)
+        setIsLoading(false)
+      }
+    } catch (error) {
+      message.error("มีบางอย่างผิดพลาด")
+      setIsLoading(false)
+    }
+  }
+
+  const randerQueryCountryApi = async (_search?: string) => {
+    try {
+      if (path.country) {
+        setIsLoading(true)
+        const data = await getAllCountryInternationalDataRelationsTopicsServices({
+          country_id: path.country,
+          search: _search,
+        })
+        const datatype =
+          data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
+        setDataSource(datatype)
+        setIsLoading(false)
+      }
+    } catch (error) {
+      message.error("มีบางอย่างผิดพลาด")
+      setIsLoading(false)
     }
   }
 
@@ -124,14 +152,25 @@ const InternationalRelationsTopics = (
       dispatch(setSelectCountry(path.country as string))
       dispatch(setBackground('#fff'))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path.country])
 
   useEffect(() => {
-    randerQueryApi()
+    onSearchData("")
+  }, [path.country, path.toppic])
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, menuSelector.country])
+  useEffect(() => {
+    onSearchData("")
+  }, [])
+
+  const onSearchData = (search?: string) => {
+
+    if (path.country && path.toppic) {
+      randerQueryApi(search)
+    } else if (path.country) {
+      randerQueryCountryApi(search)
+    }
+
+  }
 
   const handleRecordManage = useCallback(
     async (_record: TfieldInternationdata, _mode: EmodeOption) => {
@@ -350,6 +389,7 @@ const InternationalRelationsTopics = (
     const data = form.getFieldsValue()
     dispatch(setDefaultSearch(''))
     setSearch(data.search ? `?search=${data.search}` : '')
+    onSearchData(data.search)
   }
 
   const onFinishInternational = async () => {
@@ -631,6 +671,7 @@ const InternationalRelationsTopics = (
           dataSource={dataSource}
           scroll={{ x: '100%', y: '100%' }}
           rowSelection={rowSelection}
+          loading={isLoading}
         />
       </div>
 
