@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { MdContentPaste, MdOutlineSearch } from 'react-icons/md'
 import { HiPlus } from 'react-icons/hi'
 import { useSelector, useDispatch } from 'react-redux'
+import { FiLogOut } from "react-icons/fi";
+import { logout } from "@/redux/actions/authActions";
 import {
   setObjToppic,
   setSelectToppic,
@@ -29,6 +31,20 @@ const LayoutButton = styled.div`
   position: relative;
   left: 12px;
   top: 6px;
+`
+
+const Logout = styled("div")`
+    color: #000;
+    left: 30px;
+    position: relative;
+    cursor: pointer;
+    text {
+        padding-right: 10px;
+    }
+    svg {
+        position: relative !important;
+        top: 5px !important;
+    }
 `
 
 const BreadcrumbButton = styled.button<{
@@ -112,6 +128,12 @@ const BreadcrumbLayoutComponents = () => {
             <BreadcrumbNav.Item>การไปเยือน</BreadcrumbNav.Item>
           </>
         )} */}
+{/*         <BreadcrumbNav.Item>
+          <Logout onClick={logout}>
+            <span style={{ paddingRight: 5 }}>ออกจากระบบ</span>
+            <FiLogOut />
+          </Logout>
+        </BreadcrumbNav.Item> */}
       </BreadcrumbNav>
       {/* <BreadcrumbManage>
         <LayoutButton>

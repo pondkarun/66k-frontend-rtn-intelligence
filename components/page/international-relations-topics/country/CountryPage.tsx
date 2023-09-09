@@ -419,7 +419,7 @@ const InternationalRelationsTopics = (
       <Title>ค้นหาข้อมูล</Title>
       <ContentCount>พบข้อมูล: {dataSource?.length ?? 0} รายการ</ContentCount>
       <Row style={{ paddingTop: 10 }}>
-        <Col span={6}>
+        <Col xs={24} xl={6} span={6}>
           <Form
             form={form}
             layout='vertical'
@@ -440,7 +440,7 @@ const InternationalRelationsTopics = (
             </Form.Item>
           </Form>
         </Col>
-        <Col span={8}>
+        <Col xs={24} xl={12} span={8}>
           <Form.Item>
             <BtnMain
               onClick={() => {
@@ -458,20 +458,22 @@ const InternationalRelationsTopics = (
                 <PlusCircleOutlined /> เพิ่ม
               </BtnMain>
             )}
-            <BtnMain onClick={() => { }}>Export</BtnMain>
-            <BtnMain bgColor='#15bf3a' onClick={() => { }}>
+            <BtnMain onClick={() => {}}>Export</BtnMain>
+            <BtnMain bgColor='#15bf3a' onClick={() => {}}>
               Excel
             </BtnMain>
           </Form.Item>
         </Col>
       </Row>
-      <Table
-        style={{ borderRadius: ' 16px 16px 0 0' }}
-        rowKey={'id'}
-        columns={columns}
-        dataSource={dataSource}
-        scroll={{ x: '100%', y: '100%' }}
-      />
+
+      <div style={{ width: '100%', overflowX: 'auto'}}>
+        <Tablestyld
+          style={{ borderRadius: ' 16px 16px 0 0'}}
+          rowKey={'id'}
+          columns={columns}
+          dataSource={dataSource}
+        />
+      </div>
 
       <Modal
         title={`${mode == 'edit' ? 'แก้ไข' : 'ดู'}หัวข้อความสัมพันธ์`}
@@ -599,7 +601,12 @@ const InternationalRelationsTopics = (
                                 label={item.name}
                                 keys={item.name + index}
                                 form={form}
-                                name={['specific_field', specific.topic_reason_name, item.name, 'upload']}
+                                name={[
+                                  'specific_field',
+                                  specific.topic_reason_name,
+                                  item.name,
+                                  'upload',
+                                ]}
                               />
                             </>
                           }
@@ -672,3 +679,9 @@ const Icon = styled.span`
     color: #00408e;
   }
 `
+const Tablestyld = styled(Table)`
+  .ant-table-thead tr th {
+    background: #00408E;
+    color: #fff;
+  }
+`;

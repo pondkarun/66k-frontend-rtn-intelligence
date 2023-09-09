@@ -1,4 +1,4 @@
-import { Layout } from "antd";
+import { Layout, Row } from "antd";
 import styled from "styled-components";
 import { FiLogOut } from "react-icons/fi";
 import { useSelector, useDispatch } from 'react-redux';
@@ -19,7 +19,7 @@ const Navbar = styled(Layout.Header)`
     background-size: cover;
 `
 
-const NavRow = styled("div")`
+const NavRow = styled(Row)`
     height: 100%;
     display: flex;
     justify-content: space-between;
@@ -50,14 +50,23 @@ const FlagName = styled("div")`
     top: -65px;
     color: #fff;
     left: 80px;
-    font-size: 40px;
+    font-size: 35px;
+    width: fit-content;
     .ellipsis-text {
         white-space: nowrap; /* ไม่ให้ข้อความขึ้นบรรทัดใหม่ */
         overflow: hidden; /* ซ่อนข้อความที่เกินขอบเขต */
         text-overflow: ellipsis; /* แสดง "..." เมื่อข้อความเกิน */
         max-width: 150px; /* กำหนดความยาวสูงสุดของข้อความที่จะแสดง */
     }
+
+    @media only screen and (max-width: 768px) {
+        span {
+            display: none;
+        }
+    }
+    
 `
+
 //#endregion
 
 const NavbarcrumbLayoutComponents = () => {
@@ -65,9 +74,7 @@ const NavbarcrumbLayoutComponents = () => {
     const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
     const [dataCountry, setDataCountry] = useState<any>(null)
     const [dataToppic, setDataToppic] = useState<international_relations_topicsAttributes['data'] | undefined>(undefined)
-
     const dispatch = useDispatch();
-
     useEffect(() => {
         if (country) {
             const data_country = countries.find((w: any) => w.id == country);
