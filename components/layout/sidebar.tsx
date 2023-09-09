@@ -492,7 +492,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     useEffect(() => {
         if (toppic) {
             list.forEach((e) => {
-                console.log('main', e)
+                // console.log('main', e)
                 if (e.children.length > 0) {
                     const child1 = e.children.find((f: any) => f.id === toppic) as any
                     // console.log('child1', child1)
