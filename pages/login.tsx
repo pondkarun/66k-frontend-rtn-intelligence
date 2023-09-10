@@ -110,6 +110,12 @@ const FormLogin = styled(Form)`
   ${(props) => props.theme.breakpoints.sm.down} {
     padding: 40px 0px 0 0px;
   }
+
+  
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    transition: background-color 0s 600000s, color 0s 600000s;
+  }
 `
 
 const ButtonLogin = styled(Button)`
