@@ -24,7 +24,7 @@ import { TMapReason } from '@/interface/international_relations_topics.interface
 import LabelIconUpload from './country/LabelIconUpload'
 import { ActionTprops } from './country'
 import FormUploadInput from './country/FormUploadInput'
-import { isArray } from 'lodash'
+import { isArray, isPlainObject } from 'lodash'
 
 type SpecificFieldType = {
   groups: string
@@ -70,52 +70,54 @@ const ManageInternationalRelationsTopics = (
 
   const onFinish = async () => {
     const data: any = form.getFieldValue(undefined)
-    console.log('data :>> ', data);
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
 
-    for (const [key1, values] of Object.entries(
-      data.specific_field as unknown as never,
-    )) {
-      const subReason = []
-      const fields = Object.entries(values as unknown as never)
 
-      for (let index = 0; index < fields.length; index++) {
-        const element = fields[index] as any;
-        let upload: any = undefined;
+    if (isPlainObject(data.specific_field)) {
+      for (const [key1, values] of Object.entries(
+        data.specific_field as unknown as never,
+      )) {
+        const subReason = []
+        const fields = Object.entries(values as unknown as never)
 
-        if (element[1].upload) {
-          const _u = element[1].upload;
-          upload = {};
-          if (isArray(_u.image)) {
-            upload.image = _u.image.map((e: any) => {
-              return {
-                url: '',
-                name: e.name,
-              }
-            })
+        for (let index = 0; index < fields.length; index++) {
+          const element = fields[index] as any;
+          let upload: any = undefined;
+
+          if (element[1].upload) {
+            const _u = element[1].upload;
+            upload = {};
+            if (isArray(_u.image)) {
+              upload.image = _u.image.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
+            if (isArray(_u.file)) {
+              upload.file = _u.file.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
           }
-          if (isArray(_u.file)) {
-            upload.file = _u.file.map((e: any) => {
-              return {
-                url: '',
-                name: e.name,
-              }
-            })
-          }
+          subReason.push({
+            name: element[0],
+            value: element[1].value,
+            upload,
+          })
         }
-        subReason.push({
-          name: element[0],
-          value: element[1].value,
-          upload,
+
+        createReason.push({
+          topic_reason_name: key1,
+          sub_reason_name: subReason,
         })
       }
-
-      createReason.push({
-        topic_reason_name: key1,
-        sub_reason_name: subReason,
-      })
     }
 
     if (isArray(data.file_documents))
