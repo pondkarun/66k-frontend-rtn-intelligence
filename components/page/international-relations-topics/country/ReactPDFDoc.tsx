@@ -103,7 +103,6 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                 <Text style={{ fontWeight: 'semibold', paddingBottom: 10 }}>{`${
                   index + 1
                 }.${specific.topic_reason_name}`}</Text>
-
                 {specific.sub_reason_name.map((subreason, index) => (
                   <Fragment key={index}>
                     <View
@@ -119,7 +118,7 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                         >
                           <Text>{`${subreason.name} :`}</Text>
                         </View>
-                        <View style={{ flex: '1 0 260px' }}>
+                        <View style={{ flex: '1 0 260px', paddingBottom: 10 }}>
                           <Text>{subreason.value}</Text>
                         </View>
                       </Fragment>
