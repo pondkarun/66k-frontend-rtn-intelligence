@@ -31,6 +31,7 @@ import {
 import {
   editInternationalDatasService,
   getAllCountryInternationalDataRelationsTopicsServices,
+  getAllCountryTopicInternationalDataRelationsTopicsServices,
   getByInternationalDatasService,
   removeByInternationalDatasService,
 } from '@/services/internationalRelationsDatas'
@@ -45,7 +46,7 @@ import ImageBackgroundIcon from '@/components/svg/ImageBackgroundIcon'
 import { KeyTypestateRedux } from '@/redux/reducers/rootReducer'
 import { MenuT } from '@/redux/reducers/toppicMenuReducer'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
-import { getInternalFilePublicService } from '@/services/upload'
+import { HOSTMAINUPLOADAPI, getInternalFilePublicService } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
 import { ActionTprops } from '../country'
@@ -55,6 +56,7 @@ import type { TableRowSelection } from 'antd/es/table/interface'
 import * as XLSX from 'xlsx'
 import sheelConfig from './xlsx/sheelConfig'
 import download from 'downloadjs'
+import { isArray, isPlainObject } from 'lodash'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -75,7 +77,6 @@ const InternationalRelationsTopics = (
   const { setActiontype } = props
   const dispatch = useDispatch()
   const router = useRouter()
-
   const path = router.query as { country?: string; toppic?: string }
 
   const menuSelector = useSelector<KeyTypestateRedux>(
@@ -94,6 +95,7 @@ const InternationalRelationsTopics = (
   const [mode, setMode] = useState<EmodeOption>()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isopenExport, setIsOpenExport] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const [toppicId, setToppicId] = useState('')
   const [internationalId, setInternationalId] = useState('')
@@ -107,15 +109,42 @@ const InternationalRelationsTopics = (
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
 
-  const randerQueryApi = async () => {
-    if (menuSelector.country) {
-      const data = await getAllCountryInternationalDataRelationsTopicsServices({
-        country_id: menuSelector.country,
-        search: search,
-      })
-      const datatype =
-        data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
-      setDataSource(datatype)
+  const randerQueryApi = async (_search?: string) => {
+    try {
+      if (path.country && path.toppic) {
+        setIsLoading(true)
+        const data = await getAllCountryTopicInternationalDataRelationsTopicsServices({
+          country_id: path.country,
+          topic_id: path.toppic,
+          search: _search,
+        })
+        const datatype =
+          data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
+        setDataSource(datatype)
+        setIsLoading(false)
+      }
+    } catch (error) {
+      message.error("มีบางอย่างผิดพลาด")
+      setIsLoading(false)
+    }
+  }
+
+  const randerQueryCountryApi = async (_search?: string) => {
+    try {
+      if (path.country) {
+        setIsLoading(true)
+        const data = await getAllCountryInternationalDataRelationsTopicsServices({
+          country_id: path.country,
+          search: _search,
+        })
+        const datatype =
+          data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
+        setDataSource(datatype)
+        setIsLoading(false)
+      }
+    } catch (error) {
+      message.error("มีบางอย่างผิดพลาด")
+      setIsLoading(false)
     }
   }
 
@@ -124,14 +153,25 @@ const InternationalRelationsTopics = (
       dispatch(setSelectCountry(path.country as string))
       dispatch(setBackground('#fff'))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path.country])
 
   useEffect(() => {
-    randerQueryApi()
+    onSearchData("")
+  }, [path.country, path.toppic])
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, menuSelector.country])
+  useEffect(() => {
+    onSearchData("")
+  }, [])
+
+  const onSearchData = (search?: string) => {
+
+    if (path.country && path.toppic) {
+      randerQueryApi(search)
+    } else if (path.country) {
+      randerQueryCountryApi(search)
+    }
+
+  }
 
   const handleRecordManage = useCallback(
     async (_record: TfieldInternationdata, _mode: EmodeOption) => {
@@ -140,77 +180,100 @@ const InternationalRelationsTopics = (
         responseFiles = await getInternalFilePublicService(
           _record.country_id,
           _record.ir_topic_id,
+          _record.id
         )
+
+        console.log('responseFiles :>> ', responseFiles);
+
+        const responseDatas: any = await getByInternationalDatasService(_record.id)
+
+
+        if (_mode === EmodeOption.EDIT) {
+          setToppicId(responseDatas.data.ir_topic_id)
+          setInternationalId(responseDatas.data.id)
+        }
+
+        /* Get Img specific */
+        if (isArray(responseDatas.data.specific_field)) {
+          responseDatas.data.specific_field.forEach((e: any) => {
+            // let path_image = ``, path_file = ``;
+            e.sub_reason_name?.forEach((x: any) => {
+              if (isPlainObject(x.upload)) {
+                x.upload?.image?.forEach((y: any) => y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/image/${y.name}`);
+                x.upload?.file?.forEach((y: any) => y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/file/${y.name}`);
+              }
+            });
+          });
+        }
+
+        const mapDocs: TdocumentsOption = []
+        const mapImage: TdocumentsOption = []
+
+        if (typeof responseFiles !== 'undefined') {
+          if (responseDatas.data.file_documents)
+            for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
+              const fileDocument = responseDatas.data.file_documents[z]
+              const docs = responseFiles.data.find((_url: string) => {
+                console.log('responseDatas.data.file_documents :>> ', responseDatas.data.file_documents);
+                console.log('_url :>> ', _url);
+                const splitSlach = _url.split('/')
+                const pathName = splitSlach[splitSlach.length - 1]
+                return pathName === fileDocument.name
+              })
+              console.log('docs :>> ', docs);
+              mapDocs.push({ ...fileDocument, url: docs as string })
+            }
+
+          if (responseDatas.data.image_documents)
+            for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
+              const fileImage = responseDatas.data.image_documents[z]
+              const img = responseFiles.data.find((_url: string) => {
+                const splitSlach = _url.split('/')
+                const pathName = splitSlach[splitSlach.length - 1]
+                return pathName === fileImage.name
+              })
+              mapImage.push({ ...fileImage, url: img as string })
+            }
+        }
+
+        const model_main: { [k: string]: unknown } = {}
+
+        for (let i = 0; i < responseDatas.data.specific_field.length; i++) {
+          const specific = responseDatas.data.specific_field[i]
+          const modal_reason: { [k: string]: unknown } = {}
+
+          for (let index = 0; index < specific.sub_reason_name.length; index++) {
+            const sub_reason = specific.sub_reason_name[index];
+
+            modal_reason[sub_reason.name] = {
+              value: sub_reason.value,
+              upload: sub_reason.upload,
+            }
+          }
+          model_main[specific.topic_reason_name] = modal_reason
+        }
+        setIsModalOpen(true)
+        setMode(_mode)
+        setSpecifics(responseDatas.data.specific_field)
+        setRenderFiles({
+          docs: mapDocs,
+          img: mapImage,
+        })
+        console.log('mapImage :>> ', mapImage);
+        formInternational.setFieldsValue({
+          ...responseDatas.data,
+          toppic_name: _record.ir_topic.name,
+          event_date: [
+            dayjs(responseDatas.data.event_date_start),
+            dayjs(responseDatas.data.event_date_end),
+          ],
+          specific_field: model_main,
+          file_documents: mapDocs,
+          image_documents: mapImage,
+        } as any)
       } catch (error) {
         /* empty */
       }
-      const responseDatas = await getByInternationalDatasService(_record.id)
-
-      if (_mode === EmodeOption.EDIT) {
-        setToppicId(responseDatas.data.ir_topic_id)
-        setInternationalId(responseDatas.data.id)
-      }
-
-      const mapDocs: TdocumentsOption = []
-      const mapImage: TdocumentsOption = []
-
-      if (typeof responseFiles !== 'undefined') {
-        if (responseDatas.data.file_documents)
-          for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
-            const fileDocument = responseDatas.data.file_documents[z]
-            const docs = responseFiles.data.find((_url: string) => {
-              const splitSlach = _url.split('/')
-              const pathName = splitSlach[splitSlach.length - 1]
-              return pathName === fileDocument.name
-            })
-            mapDocs.push({ ...fileDocument, url: docs as string })
-          }
-
-        if (responseDatas.data.image_documents)
-          for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
-            const fileImage = responseDatas.data.image_documents[z]
-            const img = responseFiles.data.find((_url: string) => {
-              const splitSlach = _url.split('/')
-              const pathName = splitSlach[splitSlach.length - 1]
-              return pathName === fileImage.name
-            })
-            mapImage.push({ ...fileImage, url: img as string })
-          }
-      }
-
-      const model_main: { [k: string]: unknown } = {}
-
-      for (let i = 0; i < responseDatas.data.specific_field.length; i++) {
-        const specific = responseDatas.data.specific_field[i]
-        const modal_reason: { [k: string]: unknown } = {}
-
-        for (let index = 0; index < specific.sub_reason_name.length; index++) {
-          const sub_reason = specific.sub_reason_name[index]
-          modal_reason[sub_reason.name] = {
-            value: sub_reason.value,
-          }
-        }
-        model_main[specific.topic_reason_name] = modal_reason
-      }
-      setIsModalOpen(true)
-      setMode(_mode)
-      setSpecifics(responseDatas.data.specific_field)
-      setRenderFiles({
-        docs: mapDocs,
-        img: mapImage,
-      })
-
-      formInternational.setFieldsValue({
-        ...responseDatas.data,
-        toppic_name: _record.ir_topic.name,
-        event_date: [
-          dayjs(responseDatas.data.event_date_start),
-          dayjs(responseDatas.data.event_date_end),
-        ],
-        specific_field: model_main,
-        file_documents: mapDocs,
-        image_documents: mapImage,
-      } as any)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -235,6 +298,7 @@ const InternationalRelationsTopics = (
       render: (_value, record) => {
         return <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
       },
+      width: 200
     },
     {
       key: 'event_date',
@@ -259,50 +323,56 @@ const InternationalRelationsTopics = (
 
         return `${start_date} - ${start_end}`
       },
+      width: 200,
+      align: "center"
     },
     {
       key: 'event_name',
       title: 'ชื่อกิจกรรม',
       dataIndex: 'event_name',
       render: (value) => value,
+      width: 300,
     },
     {
       key: 'event_venue',
       title: 'สถานที่จัดกิจจกรรม',
       dataIndex: 'event_venue',
-      render: (value) => value,
+      render: (value) => value ?? "-",
+      width: 200,
     },
     {
       key: 'file-record',
       title: 'ไฟล์แนบ',
-      render: (_value, record) => {
-        if (record.file_documents && record.image_documents) {
-          return (
-            <FileTableContentField>
-              {record.file_documents.length > 0 && (
-                <Tooltip>
-                  <EventContentField>
-                    <DocumentIcon />
-                  </EventContentField>
-                </Tooltip>
-              )}
-              {record.image_documents.length > 0 && (
-                <Tooltip>
-                  <EventContentField>
-                    <ImageBackgroundIcon />
-                  </EventContentField>
-                </Tooltip>
-              )}
-              {record.file_documents.length === 0 &&
-                record.image_documents.length === 0 && <></>}
-            </FileTableContentField>
-          )
-        }
+      render: (_value, record: any) => {
+        return (
+          <FileTableContentField>
+            {record.file_documents.length > 0 && (
+              <Tooltip>
+                <EventContentField>
+                  <DocumentIcon />
+                </EventContentField>
+              </Tooltip>
+            )}
+            {record.image_documents.length > 0 && (
+              <Tooltip>
+                <EventContentField>
+                  <ImageBackgroundIcon />
+                </EventContentField>
+              </Tooltip>
+            )}
+            {record.file_documents.length === 0 &&
+              record.image_documents.length === 0 && <></>}
+          </FileTableContentField>
+        )
       },
+      width: 100,
+      align: "center"
     },
     {
       key: 'maneage',
       title: 'จัดการ',
+      width: 100,
+      align: "center",
       render: (_value, record) => {
         return (
           <FileTableContentField>
@@ -343,11 +413,11 @@ const InternationalRelationsTopics = (
     const data = form.getFieldsValue()
     dispatch(setDefaultSearch(''))
     setSearch(data.search ? `?search=${data.search}` : '')
+    onSearchData(data.search)
   }
 
   const onFinishInternational = async () => {
-    const itemsForm = formInternational.getFieldsValue()
-
+    const itemsForm: any = formInternational.getFieldValue(undefined)
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
@@ -360,9 +430,31 @@ const InternationalRelationsTopics = (
 
       for (let index = 0; index < fields.length; index++) {
         const element = fields[index] as any
+        let upload: any = undefined;
+        if (element[1].upload) {
+          const _u = element[1].upload;
+          upload = {};
+          if (isArray(_u.image)) {
+            upload.image = _u.image.map((e: any) => {
+              return {
+                url: '',
+                name: e.name,
+              }
+            })
+          }
+          if (isArray(_u.file)) {
+            upload.file = _u.file.map((e: any) => {
+              return {
+                url: '',
+                name: e.name,
+              }
+            })
+          }
+        }
         subReason.push({
           name: element[0],
           value: element[1].value,
+          upload
         })
       }
 
@@ -450,7 +542,7 @@ const InternationalRelationsTopics = (
 
   const PDFonload = () => (
     <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
-      {({ loading }) => (
+      {({ loading }: any) => (
         <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
       )}
     </PDFDownloadLink>
@@ -508,7 +600,7 @@ const InternationalRelationsTopics = (
     }
 
     const formatData = [[...toppicName[0], ...addToppicSpecific], ...getData]
-    console.log('formatData', formatData)
+    // console.log('formatData', formatData)
 
     const workbook = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet([])
@@ -559,7 +651,7 @@ const InternationalRelationsTopics = (
       <Title>ค้นหาข้อมูล</Title>
       <ContentCount>พบข้อมูล: {dataSource?.length ?? 0} รายการ</ContentCount>
       <Row style={{ paddingTop: 10 }}>
-        <Col span={6}>
+        <Col xs={24} xl={6} span={6}>
           <Form
             form={form}
             layout='vertical'
@@ -580,7 +672,7 @@ const InternationalRelationsTopics = (
             </Form.Item>
           </Form>
         </Col>
-        <Col span={8}>
+        <Col xs={24} xl={12} span={8}>
           <Form.Item>
             <BtnMain
               onClick={() => {
@@ -609,14 +701,24 @@ const InternationalRelationsTopics = (
           </Form.Item>
         </Col>
       </Row>
-      <Table
-        style={{ borderRadius: ' 16px 16px 0 0' }}
-        rowKey={'id'}
-        columns={columns}
-        dataSource={dataSource}
-        scroll={{ x: '100%', y: '100%' }}
-        rowSelection={rowSelection}
-      />
+
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        {/* <Tablestyld
+          style={{ borderRadius: ' 16px 16px 0 0'}}
+          rowKey={'id'}
+          columns={columns}
+          dataSource={dataSource}
+        /> */}
+        <Table
+          style={{ borderRadius: ' 16px 16px 0 0' }}
+          rowKey={'id'}
+          columns={columns}
+          dataSource={dataSource}
+          scroll={{ x: '100%', y: '100%' }}
+          rowSelection={rowSelection}
+          loading={isLoading}
+        />
+      </div>
 
       <Modal
         title={`${mode == 'edit' ? 'แก้ไข' : 'ดู'}หัวข้อความสัมพันธ์`}
@@ -703,6 +805,7 @@ const InternationalRelationsTopics = (
                     : undefined
                 }
                 ticpidId={toppicId}
+                dir={internationalId}
               />
             </Col>
             <Col span={12}>
@@ -718,6 +821,7 @@ const InternationalRelationsTopics = (
                     : undefined
                 }
                 ticpidId={toppicId}
+                dir={internationalId}
               />
             </Col>
           </Row>
@@ -743,13 +847,14 @@ const InternationalRelationsTopics = (
                               <FormUploadInput
                                 label={item.name}
                                 keys={item.name + index}
-                                form={form}
+                                form={formInternational}
                                 name={[
                                   'specific_field',
                                   specific.topic_reason_name,
                                   item.name,
                                   'upload',
                                 ]}
+                                dir={internationalId}
                               />
                             </>
                           }
@@ -831,7 +936,7 @@ const Line = styled.div`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const BtnMain = styled(Button)<{ bgColor?: string }>`
+const BtnMain = styled(Button) <{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
@@ -861,3 +966,9 @@ const Icon = styled.span`
     color: #00408e;
   }
 `
+const Tablestyld = styled(Table)`
+  .ant-table-thead tr th {
+    background: #00408E;
+    color: #fff;
+  }
+`;

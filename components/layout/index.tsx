@@ -41,11 +41,11 @@ const LayoutComponents = ({ children }: Props) => {
                 <Spin size="large" />
             </LoadingDiv> : null}
 
-            <Sidebar />
-            <Layout style={{ background: "#EAEAEA" }}>
+            <Sidebar/>
+            <Layout style={{ background: "#EAEAEA", width: '100%', overflowX: 'auto' }}>
                 <Navbar />
                 <BreadcrumbLayoutComponents />
-                <Content style={{ margin: '0 16px' }}>
+                <Content style={{ margin: '0 16px'}}>
                     <div style={{ padding: 24, minHeight: 360, background: background, maxHeight: "87dvh", overflowY: "auto" }}>
                         {children}
                     </div>
