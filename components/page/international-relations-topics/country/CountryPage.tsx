@@ -695,17 +695,17 @@ const InternationalRelationsTopics = (
 
     XLSX.utils.book_append_sheet(workbook, ws, 'Sheet1')
     const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    })
+    // const blob = new Blob([buffer], {
+    //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // })
     // console.log('blob', blob)
-    const url = URL.createObjectURL(blob)
-    // download(buffer, `Excel-file`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    // const url = URL.createObjectURL(blob)
+    download(buffer, `Excel-file`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-    const a = document.createElement('a')
-    a.href = url
-    a.target = '_blank'
-    a.click()
+    // const a = document.createElement('a')
+    // a.href = url
+    // a.target = '_blank'
+    // a.click()
   }
 
   return (
