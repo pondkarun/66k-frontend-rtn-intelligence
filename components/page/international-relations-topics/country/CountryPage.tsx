@@ -584,7 +584,7 @@ const InternationalRelationsTopics = (
         'วันที่สิ้นสุด',
       ],
     ]
-    const getData = arr.map((item, num) => [
+    let getData = arr.map((item, num) => [
       num + 1,
       item.event_name,
       item.event_venue,
@@ -600,7 +600,7 @@ const InternationalRelationsTopics = (
       e: { r: number; c: number }
     }[] = []
     const addToppicSpecifices: string[] = []
-    const addValuesSpecifices: string[] = []
+    // console.log('arr', arr)
 
     addMergeCell.push({ s: { r: 0, c: 1 }, e: { r: 0, c: 6 } })
 
@@ -625,7 +625,14 @@ const InternationalRelationsTopics = (
             if (checkDupicateToppic === -1) {
               addToppicSpecifices.push(keyname.topic_reason_name)
             }
-            for (let n = 0; n < itemsCount; n++) {
+            let m = 1
+            while (m < keyname.sub_reason_name.length) {
+              addToppicSpecifices.push(``)
+              m++
+              endCell++
+            }
+            const addValuesSpecifices: string[] = []
+            for (let n = 0; n < keyname.sub_reason_name.length; n++) {
               const sub_reason = keyname.sub_reason_name[n]
               const checkDupicate = addNameSpecifices.findIndex(
                 (x) => x === sub_reason.name,
@@ -637,17 +644,8 @@ const InternationalRelationsTopics = (
               if (checkDupicateValue === -1) {
                 addValuesSpecifices.push(sub_reason.value)
               }
-
-              // getData.forEach((lef, index) => {
-              //   console.log('lef', lef)
-              // })
             }
-            let m = 1
-            while (m < keyname.sub_reason_name.length) {
-              addToppicSpecifices.push(``)
-              m++
-              endCell++
-            }
+            getData = getData.map((data) => [...data, ...addValuesSpecifices])
           }
           const modalMergeCell = {
             s: { r: 0, c: startCell },
@@ -658,54 +656,65 @@ const InternationalRelationsTopics = (
       }
     }
 
-    const formatData = [
-      [...toppicName[0], ...addToppicSpecifices],
-      [...toppicName[1], ...addNameSpecifices],
-      ...getData,
-    ]
-    // console.log('formatData', formatData)
+    const headerColumn = [...toppicName[0], ...addToppicSpecifices]
+    const dataColumn1 = [...toppicName[1], ...addNameSpecifices]
+    const minusNumber = headerColumn.length - dataColumn1.length
 
-    const workbook = XLSX.utils.book_new()
-    const ws = XLSX.utils.aoa_to_sheet([])
-    XLSX.utils.sheet_add_aoa(ws, formatData, { origin: 'A1' })
-
-    const columnWidths = [
-      { wch: 10 },
-      { wch: 15 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 40 },
-      { wch: 40 },
-      { wch: 10 },
-      { wch: 20 },
-      { wch: 20 },
-    ]
-    const cellRef = `B1`
-
-    ws[cellRef] = {
-      ...ws[cellRef],
-      s: {
-        horizontal: 'center',
-        vertical: 'center',
-        wrapText: true,
-      },
+    let count = 0
+    /* pop remove values = ''*/
+    while (count < minusNumber) {
+      headerColumn.pop()
+      count++
     }
-    ws['!merges'] = addMergeCell
-    ws['!cols'] = columnWidths
 
-    XLSX.utils.book_append_sheet(workbook, ws, 'Sheet1')
-    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
-    // const blob = new Blob([buffer], {
-    //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    // })
-    // console.log('blob', blob)
-    // const url = URL.createObjectURL(blob)
-    download(buffer, `Excel-file`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    const formatData = [headerColumn, dataColumn1, ...getData]
+    console.log('formatData', formatData)
 
-    // const a = document.createElement('a')
-    // a.href = url
-    // a.target = '_blank'
-    // a.click()
+    // const workbook = XLSX.utils.book_new()
+    // const ws = XLSX.utils.aoa_to_sheet([])
+    // XLSX.utils.sheet_add_aoa(ws, formatData, { origin: 'A1' })
+
+    // const columnWidths = [
+    //   { wch: 10 },
+    //   { wch: 15 },
+    //   { wch: 20 },
+    //   { wch: 20 },
+    //   { wch: 40 },
+    //   { wch: 40 },
+    //   { wch: 10 },
+    //   { wch: 20 },
+    //   { wch: 20 },
+    // ]
+    // const cellRef = `B1`
+
+    // ws[cellRef] = {
+    //   ...ws[cellRef],
+    //   s: {
+    //     horizontal: 'center',
+    //     vertical: 'center',
+    //     wrapText: true,
+    //   },
+    // }
+    // ws['!merges'] = addMergeCell
+    // ws['!cols'] = columnWidths
+
+    // XLSX.utils.book_append_sheet(workbook, ws, 'Sheet1')
+    // const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
+    // // const blob = new Blob([buffer], {
+    // //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // // })
+    // // console.log('blob', blob)
+    // // const url = URL.createObjectURL(blob)
+    // download(
+    //   buffer,
+    //   `Excel-file`,
+    //   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // )
+
+    // // const a = document.createElement('a')
+    // // a.href = url
+    // // a.target = '_blank'
+    // // a.click()
   }
 
   return (
