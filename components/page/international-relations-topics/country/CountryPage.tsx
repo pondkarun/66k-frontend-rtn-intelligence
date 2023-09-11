@@ -301,15 +301,8 @@ const InternationalRelationsTopics = (
     }
   }
 
+
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> = (path.country && path.toppic) ? [
-    {
-      key: 'ir_topic',
-      title: 'หัวข้อ',
-      render: (_value, record) => {
-        return <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
-      },
-      width: 200,
-    },
     {
       key: 'event_date',
       title: 'ห้วงเวลา',
@@ -418,6 +411,14 @@ const InternationalRelationsTopics = (
       },
     },
   ] : [
+    {
+      key: 'ir_topic',
+      title: 'หัวข้อ',
+      render: (_value, record) => {
+        return <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
+      },
+      width: 200,
+    },
     {
       key: 'event_date',
       title: 'ห้วงเวลา',
