@@ -319,16 +319,6 @@ const InternationalRelationsTopics = (
     path.country && path.toppic
       ? [
           {
-            key: 'ir_topic',
-            title: 'หัวข้อ',
-            render: (_value, record) => {
-              return (
-                <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
-              )
-            },
-            width: 200,
-          },
-          {
             key: 'event_date',
             title: 'ห้วงเวลา',
             render: (_value, record) => {
@@ -439,6 +429,16 @@ const InternationalRelationsTopics = (
           },
         ]
       : [
+          {
+            key: 'ir_topic',
+            title: 'หัวข้อ',
+            render: (_value, record) => {
+              return (
+                <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
+              )
+            },
+            width: 200,
+          },
           {
             key: 'event_date',
             title: 'ห้วงเวลา',
