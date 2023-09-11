@@ -129,7 +129,7 @@ const ManageInternationalRelationsTopics = (
         const file_document = data.file_documents[x]
 
         createValuesReasonFile.push({
-          url: '',
+          url: `${process.env.NEXT_PUBLIC_UPLOAD}/pubilc/${router.query.country}/${router.query.toppic}/${id}/${file_document.name}`,
           name: file_document.name,
         })
       }
@@ -138,7 +138,7 @@ const ManageInternationalRelationsTopics = (
       for (let z = 0; z < data.image_documents.length; z++) {
         const image_document = data.image_documents[z]
         createValuesReasonImage.push({
-          url: '',
+          url: `${process.env.NEXT_PUBLIC_UPLOAD}/pubilc/${router.query.country}/${router.query.toppic}/${id}/${image_document.name}`,
           name: image_document.name,
         })
       }

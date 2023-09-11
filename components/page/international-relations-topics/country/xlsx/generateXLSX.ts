@@ -5,7 +5,7 @@ import { TfieldInternationdata } from '@/interface/international_relations_datas
 
 type SheelConfigT = TfieldInternationdata[]
 
-export default (arr: SheelConfigT) => {
+export default (data: SheelConfigT) => {
   const toppicName = [
     ['', 'หัวข้อทั่วไป'],
     [
@@ -18,7 +18,7 @@ export default (arr: SheelConfigT) => {
       'วันที่สิ้นสุด',
     ],
   ]
-  let getData = arr.map((item, num) => [
+  let getData = data.map((item, num) => [
     num + 1,
     item.event_name,
     item.event_venue,
@@ -34,13 +34,13 @@ export default (arr: SheelConfigT) => {
     e: { r: number; c: number }
   }[] = []
   const addToppicSpecifices: string[] = []
-  // console.log('arr', arr)
 
   addMergeCell.push({ s: { r: 0, c: 1 }, e: { r: 0, c: 6 } })
 
-  const itemsCount = arr.length
+  const itemsCount = data.length
+  let amount = 0
   for (let z = 0; z < itemsCount; z++) {
-    const item = arr[z]
+    const item = data[z]
     for (let s = 0; s < getData.length; s++) {
       const lengthofnull = getData[s].length - toppicName[0].length
       let index = 0
@@ -65,27 +65,36 @@ export default (arr: SheelConfigT) => {
             m++
             endCell++
           }
-          const addValuesSpecifices: string[] = []
+
+          const _addValuesSpecifices: string[] = []
           for (let n = 0; n < keyname.sub_reason_name.length; n++) {
             const sub_reason = keyname.sub_reason_name[n]
             const checkDupicate = addNameSpecifices.findIndex(
               (x) => x === sub_reason.name,
             )
-            const checkDupicateValue = addValuesSpecifices.findIndex(
-              (x) => x === sub_reason.value,
-            )
-            if (checkDupicate === -1) addNameSpecifices.push(sub_reason.name)
-            if (checkDupicateValue === -1) {
-              addValuesSpecifices.push(sub_reason.value)
+            if (checkDupicate === -1) {
+              addNameSpecifices.push(sub_reason.name)
             }
+            _addValuesSpecifices.push(sub_reason.value)
           }
-          getData = getData.map((data) => [...data, ...addValuesSpecifices])
+          const modalMergeCell = {
+            s: { r: 0, c: startCell },
+            e: { r: 0, c: endCell },
+          }
+          if (itemsCount > 1) {
+            if (amount !== itemsCount) {
+              getData = getData.map((data) => [
+                ...data,
+                ..._addValuesSpecifices,
+              ])
+              addMergeCell.push(modalMergeCell)
+              amount++
+            }
+          } else {
+            getData = getData.map((data) => [...data, ..._addValuesSpecifices])
+            addMergeCell.push(modalMergeCell)
+          }
         }
-        const modalMergeCell = {
-          s: { r: 0, c: startCell },
-          e: { r: 0, c: endCell },
-        }
-        addMergeCell.push(modalMergeCell)
       }
     }
   }
@@ -95,12 +104,11 @@ export default (arr: SheelConfigT) => {
   const minusNumber = headerColumn.length - dataColumn1.length
 
   let count = 0
-  /* pop remove values = ''*/
+  /* pop remove values = '' */
   while (count < minusNumber) {
     headerColumn.pop()
     count++
   }
-
   const formatData = [headerColumn, dataColumn1, ...getData]
 
   const workbook = XLSX.utils.book_new()
@@ -112,8 +120,8 @@ export default (arr: SheelConfigT) => {
     { wch: 15 },
     { wch: 20 },
     { wch: 20 },
-    { wch: 40 },
-    { wch: 40 },
+    { wch: 20 },
+    { wch: 20 },
     { wch: 10 },
     { wch: 20 },
     { wch: 20 },
@@ -135,17 +143,7 @@ export default (arr: SheelConfigT) => {
   const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
   download(
     buffer,
-    `Excel-file`,
+    `excel-file`,
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   )
-  // const blob = new Blob([buffer], {
-  //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  // })
-  // console.log('blob', blob)
-  // const url = URL.createObjectURL(blob)
-
-  // const a = document.createElement('a')
-  // a.href = url
-  // a.target = '_blank'
-  // a.click()
 }
