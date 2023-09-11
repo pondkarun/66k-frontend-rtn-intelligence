@@ -31,6 +31,20 @@ const LayoutButton = styled.div`
   top: 6px;
 `
 
+const Logout = styled("div")`
+    color: #000;
+    left: 30px;
+    position: relative;
+    cursor: pointer;
+    text {
+        padding-right: 10px;
+    }
+    svg {
+        position: relative !important;
+        top: 5px !important;
+    }
+`
+
 const BreadcrumbButton = styled.button<{
   color?: string
   background?: string

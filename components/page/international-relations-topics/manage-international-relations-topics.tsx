@@ -5,7 +5,6 @@ import {
   DatePicker,
   Form,
   Input,
-  Modal,
   Row,
   Space,
   message,
@@ -21,9 +20,10 @@ import {
 } from '@/interface/international_relations_datas.interface'
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
-import LabelIconUpload from './country/LabelIconUpload'
+import { v4 as uuidv4 } from 'uuid';
 import { ActionTprops } from './country'
 import FormUploadInput from './country/FormUploadInput'
+import { isArray, isPlainObject } from 'lodash'
 
 type SpecificFieldType = {
   groups: string
@@ -61,60 +61,96 @@ const ManageInternationalRelationsTopics = (
 ) => {
   const { mode, setActiontype } = props
   const router = useRouter()
+  const [idAdd, setIdAdd] = useState(uuidv4())
 
   const [finalSubmit, setFinalSubmit] = useState(false)
 
   const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu)
   const [form] = Form.useForm<Tforminternational>()
 
+  const onFinishFailed = () => {
+    message.warning("กรอกข้อมูลให้ครบถ้วน")
+  }
+
   const onFinish = async () => {
-    const data = form.getFieldsValue()
+    const data: any = form.getFieldValue(undefined)
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
+    const id = idAdd;
 
-    for (const [key1, values] of Object.entries(
-      data.specific_field as unknown as never,
-    )) {
-      const subReason = []
-      const fields = Object.entries(values as unknown as never)
+    if (isPlainObject(data.specific_field)) {
+      for (const [key1, values] of Object.entries(
+        data.specific_field as unknown as never,
+      )) {
+        const subReason = []
+        const fields = Object.entries(values as unknown as never)
 
-      for (let index = 0; index < fields.length; index++) {
-        const element = fields[index] as any
-        subReason.push({
-          name: element[0],
-          value: element[1].value,
+        for (let index = 0; index < fields.length; index++) {
+          const element = fields[index] as any;
+          let upload: any = undefined;
+
+          if (element[1].upload) {
+            const _u = element[1].upload;
+            upload = {};
+            if (isArray(_u.image)) {
+              upload.image = _u.image.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
+            if (isArray(_u.file)) {
+              upload.file = _u.file.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
+          }
+          subReason.push({
+            name: element[0],
+            value: element[1].value,
+            upload,
+          })
+        }
+
+        createReason.push({
+          topic_reason_name: key1,
+          sub_reason_name: subReason,
+        })
+      }
+    }
+
+    if (isArray(data.file_documents))
+      for (let x = 0; x < data.file_documents.length; x++) {
+        const file_document = data.file_documents[x]
+
+        createValuesReasonFile.push({
+          url: '',
+          name: file_document.name,
         })
       }
 
-      createReason.push({
-        topic_reason_name: key1,
-        sub_reason_name: subReason,
-      })
-    }
-
-    for (let x = 0; x < data.file_documents.length; x++) {
-      const file_document = data.file_documents[x]
-      createValuesReasonFile.push({
-        url: '',
-        name: file_document.name,
-      })
-    }
-    for (let z = 0; z < data.image_documents.length; z++) {
-      const image_document = data.image_documents[z]
-      createValuesReasonImage.push({
-        url: '',
-        name: image_document.name,
-      })
-    }
+    if (isArray(data.image_documents))
+      for (let z = 0; z < data.image_documents.length; z++) {
+        const image_document = data.image_documents[z]
+        createValuesReasonImage.push({
+          url: '',
+          name: image_document.name,
+        })
+      }
 
     const event_date_start = data.event_date[0].toISOString()
     const event_date_end = data.event_date[1].toISOString()
 
     const modalRequst: Omit<
       Tforminternational,
-      'event_date' | 'field_id' | 'id'
+      'event_date' | 'field_id'
     > = {
+      id,
       event_date_start,
       event_date_end,
       country_id: router.query.country as string,
@@ -128,6 +164,8 @@ const ManageInternationalRelationsTopics = (
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
     }
+
+    // console.log('modalRequst :>> ', modalRequst);
 
     try {
       await addInternationalDataRelationsTopicsService(modalRequst)
@@ -159,9 +197,9 @@ const ManageInternationalRelationsTopics = (
 
       <SubTitle style={{ paddingTop: 20 }}>ข้อมูลทั่วไป</SubTitle>
       <Line />
-      <Form form={form} layout='vertical' onFinish={onFinish}>
+      <Form form={form} layout='vertical' onFinish={onFinish} onFinishFailed={onFinishFailed}>
         <Row gutter={[16, 0]}>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item
               name='event_name'
               label='ชื่อกิจกรรม'
@@ -170,17 +208,17 @@ const ManageInternationalRelationsTopics = (
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item name='event_venue' label='สถานที่จัดกิจกรรม'>
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item name='leader_name_thai' label='หัวหน้าคณะฝ่ายไทย'>
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item
               name='leader_name_foreign'
               label='หัวหน้าคณะฝ่ายต่างประเทศ'
@@ -188,7 +226,7 @@ const ManageInternationalRelationsTopics = (
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <Form.Item
               name='event_date'
               label='ห้วงเวลาเริ่มต้น - สิ้นสุด'
@@ -199,20 +237,22 @@ const ManageInternationalRelationsTopics = (
           </Col>
         </Row>
         <Row gutter={[16, 0]}>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <FormUpload
               form={form}
               type='file'
               name='file_documents'
               acceptFile='.pdf,.xlsx,.doc,.ptt'
+              dir={idAdd}
             />
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} span={12}>
             <FormUpload
               form={form}
               type='image'
               name='image_documents'
               acceptFile='.jpg,.png,.svg,.webp'
+              dir={idAdd}
             />
           </Col>
         </Row>
@@ -224,7 +264,7 @@ const ManageInternationalRelationsTopics = (
             <Row gutter={[16, 0]}>
               {e.value.map((item: string, index: number) => {
                 return (
-                  <Col span={12} key={item + index}>
+                  <Col xs={24} md={12} span={12} key={item + index}>
                     <Form.Item
                       name={['specific_field', e.groups, item, 'value']}
                       label={
@@ -234,6 +274,7 @@ const ManageInternationalRelationsTopics = (
                           id={item}
                           form={form}
                           name={['specific_field', e.groups, item, 'upload']}
+                          dir={idAdd}
                         />
                       }
                     >

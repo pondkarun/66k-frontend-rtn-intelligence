@@ -28,6 +28,8 @@ const Sidebar = styled(Sider)`
         background-position: left;
         background-repeat: no-repeat;
         background-size: cover;
+        position: inherit;
+        z-index: 1;
     }
 `
 const Logo = styled("div")`
@@ -38,6 +40,7 @@ const Logo = styled("div")`
     background-repeat: no-repeat;
     background-size: cover;
     margin-bottom: 20px;
+    z-index: 2;
 `
 const NameUser = styled("div")`
     position: absolute;
@@ -234,9 +237,15 @@ const SidebarLayoutComponents = () => {
     const { profile, topics, menus }: useSelectorAuth = useSelector(({ auth }) => auth);
     const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
     const [collapsed, setCollapsed] = useState(false);
+    const [windowSize, setWindowSize] = useState({
+        width: typeof window !== 'undefined' ? window.innerWidth : 0,
+        height: typeof window !== 'undefined' ? window.innerHeight : 0,
+    });
 
     useEffect(() => {
         dispatch(setBackground("#111730"));
+        checkWindowSize();
+        windowSize.width <= 740 ? setCollapsed(true) : setCollapsed(false);
     }, [])
 
     useEffect(() => {
@@ -262,6 +271,13 @@ const SidebarLayoutComponents = () => {
         if (toppic) {
             Router.push(`/international-relations-topics/${id}/${toppic}`);
         }
+    }
+
+    const checkWindowSize = () => {
+        setWindowSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
     }
 
     /** menu */
@@ -492,7 +508,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     useEffect(() => {
         if (toppic) {
             list.forEach((e) => {
-                console.log('main', e)
+                // console.log('main', e)
                 if (e.children.length > 0) {
                     const child1 = e.children.find((f: any) => f.id === toppic) as any
                     // console.log('child1', child1)

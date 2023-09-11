@@ -1,11 +1,10 @@
-import { Badge, FormInstance, Modal } from 'antd'
+import { Badge, Modal } from 'antd'
 import React, { Fragment, useEffect, useState } from 'react'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { BsImage } from 'react-icons/bs'
 import styled from 'styled-components'
-import MatterImgupload from './MatterImgupload'
-import MatterDocsUpload from './MatterDocsUpload'
 import FormUpload from '@/components/shares/FormUpload'
+import { isArray } from 'lodash'
 
 interface FormUploadInputProps {
   label?: string
@@ -13,17 +12,26 @@ interface FormUploadInputProps {
   id?: string
   form: any
   name: any
+  dir?: string
 }
 
 const FormUploadInput = (props: FormUploadInputProps) => {
-  const { label, keys, form, name } = props
+  const { label, keys, form, name, dir } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [type, setType] = useState<'image' | 'file' | null>(null)
   const [countImage, setCountImage] = useState(0);
   const [countFile, setCountFile] = useState(0);
+  const [dirPath, setDirPath] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    if (dir && isArray(name)) {
+      let _dir = ""
+      name.forEach((i: string) => {
+        _dir += `${i}/`
+      });
+      setDirPath(_dir)
+    }
     setCount()
   }, [])
 
@@ -33,8 +41,8 @@ const FormUploadInput = (props: FormUploadInputProps) => {
 
   const setCount = () => {
     const formData = form.getFieldValue(name);
-    setCountImage(formData?.image?.length)  
-    setCountFile(formData?.file?.length)  
+    setCountImage(formData?.image?.length)
+    setCountFile(formData?.file?.length)
   }
 
   return (
@@ -70,6 +78,7 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             type={type}
             name={[...name, type]}
             acceptFile={type == "file" ? '.pdf,.xlsx,.doc,.ptt' : ".jpg,.png,.svg,.webp"}
+            dir={dirPath ? `${dirPath}${type}` : undefined}
           />
 
         </Modal>

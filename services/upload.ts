@@ -8,7 +8,7 @@ export enum ETinternalUploadPublic {
 type TinternalUploadPublicProps = {
   country_id: string
   ticpid_id: string
-  dir?: ETinternalUploadPublic
+  dir?: ETinternalUploadPublic | string
   formData: any
 }
 
@@ -23,7 +23,7 @@ type TremoveInternalUploadPublicProps = TpickOnlyInternalProps & {
 
 /** change to Host form env */
 // const HOSTMAINUPLOADAPI = 'http://127.0.0.1:4012'
-const HOSTMAINUPLOADAPI = process.env.NEXT_PUBLIC_UPLOAD
+export const HOSTMAINUPLOADAPI = process.env.NEXT_PUBLIC_UPLOAD
 
 export const internalUploadPublicService = async ({
   country_id,
@@ -55,7 +55,7 @@ export const removeInternalUploadPublicService = async (
 export const getInternalFilePublicService = async (
   country_id: string,
   ticpid_id: string,
-  dir?: ETinternalUploadPublic,
+  dir?: ETinternalUploadPublic | string,
 ) => {
   const response = await axios.get<{ data: string[] }>(
     `${HOSTMAINUPLOADAPI}/internal/public/${country_id}/${ticpid_id}?dir=${dir || ''}`,
