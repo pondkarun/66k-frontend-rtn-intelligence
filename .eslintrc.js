@@ -29,6 +29,7 @@ module.exports = {
     '@next/next/no-img-element': 'off',
     'react/react-in-jsx-scope': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': 'warn'
+    '@typescript-eslint/no-unused-vars': 'warn',
+    'no-extra-semi': 'off'
   },
 }

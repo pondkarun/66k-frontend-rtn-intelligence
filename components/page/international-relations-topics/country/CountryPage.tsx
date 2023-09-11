@@ -58,6 +58,20 @@ import FormUploadInput from './FormUploadInput'
 import generateXLSX from './xlsx/generateXLSX'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
+import download from 'downloadjs'
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  AlignmentType,
+  ImageRun,
+  FrameAnchorType,
+  HorizontalPositionAlign,
+  VerticalPositionAlign,
+} from 'docx'
+import type { ISpacingProperties } from 'docx'
+import generateDOCX from './docx/generateDOCX'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -301,233 +315,240 @@ const InternationalRelationsTopics = (
     }
   }
 
-  const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> = (path.country && path.toppic) ? [
-    {
-      key: 'ir_topic',
-      title: 'หัวข้อ',
-      render: (_value, record) => {
-        return <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
-      },
-      width: 200,
-    },
-    {
-      key: 'event_date',
-      title: 'ห้วงเวลา',
-      render: (_value, record) => {
-        const start_date = new Date(record.event_date_start).toLocaleDateString(
-          'th-TH',
+  const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> =
+    path.country && path.toppic
+      ? [
           {
-            year: '2-digit',
-            month: 'short',
-            day: 'numeric',
+            key: 'ir_topic',
+            title: 'หัวข้อ',
+            render: (_value, record) => {
+              return (
+                <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
+              )
+            },
+            width: 200,
           },
-        )
-        const start_end = new Date(record.event_date_end).toLocaleDateString(
-          'th-TH',
           {
-            year: '2-digit',
-            month: 'short',
-            day: 'numeric',
-          },
-        )
+            key: 'event_date',
+            title: 'ห้วงเวลา',
+            render: (_value, record) => {
+              const start_date = new Date(
+                record.event_date_start,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
+              const start_end = new Date(
+                record.event_date_end,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
 
-        return `${start_date} - ${start_end}`
-      },
-      width: 200,
-      align: 'center',
-    },
-    {
-      key: 'event_name',
-      title: 'ชื่อกิจกรรม',
-      dataIndex: 'event_name',
-      render: (value) => value,
-      width: 300,
-    },
-    {
-      key: 'event_venue',
-      title: 'สถานที่จัดกิจจกรรม',
-      dataIndex: 'event_venue',
-      render: (value) => value ?? '-',
-      width: 200,
-    },
-    {
-      key: 'file-record',
-      title: 'ไฟล์แนบ',
-      render: (_value, record: any) => {
-        return (
-          <FileTableContentField>
-            {record.file_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <DocumentIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.image_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <ImageBackgroundIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.file_documents.length === 0 &&
-              record.image_documents.length === 0 && <></>}
-          </FileTableContentField>
-        )
-      },
-      width: 100,
-      align: 'center',
-    },
-    {
-      key: 'maneage',
-      title: 'จัดการ',
-      width: 100,
-      align: 'center',
-      render: (_value, record) => {
-        return (
-          <FileTableContentField>
-            <Tooltip title={`ดูข้อมูล`}>
-              <EventContentField
-                onClick={() => handleRecordManage(record, EmodeOption.VIEW)}
-              >
-                <EyeOutlined />
-              </EventContentField>
-            </Tooltip>
-            <Tooltip title={`แก้ไขข้อมูล`}>
-              <EventContentField
-                onClick={() => handleRecordManage(record, EmodeOption.EDIT)}
-              >
-                <EditOutlined />
-              </EventContentField>
-            </Tooltip>
-            <Tooltip title={`ลบข้อมูล`}>
-              <Popconfirm
-                placement='top'
-                title={'ยืนยันการลบข้อมูล'}
-                onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                okText='ตกลง'
-                cancelText='ยกเลิก'
-              >
-                <EventContentField>
-                  <DeleteOutlined />
-                </EventContentField>
-              </Popconfirm>
-            </Tooltip>
-          </FileTableContentField>
-        )
-      },
-    },
-  ] : [
-    {
-      key: 'event_date',
-      title: 'ห้วงเวลา',
-      render: (_value, record) => {
-        const start_date = new Date(record.event_date_start).toLocaleDateString(
-          'th-TH',
+              return `${start_date} - ${start_end}`
+            },
+            width: 200,
+            align: 'center',
+          },
           {
-            year: '2-digit',
-            month: 'short',
-            day: 'numeric',
+            key: 'event_name',
+            title: 'ชื่อกิจกรรม',
+            dataIndex: 'event_name',
+            render: (value) => value,
+            width: 300,
           },
-        )
-        const start_end = new Date(record.event_date_end).toLocaleDateString(
-          'th-TH',
           {
-            year: '2-digit',
-            month: 'short',
-            day: 'numeric',
+            key: 'event_venue',
+            title: 'สถานที่จัดกิจจกรรม',
+            dataIndex: 'event_venue',
+            render: (value) => value ?? '-',
+            width: 200,
           },
-        )
+          {
+            key: 'file-record',
+            title: 'ไฟล์แนบ',
+            render: (_value, record: any) => {
+              return (
+                <FileTableContentField>
+                  {record.file_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <DocumentIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.image_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <ImageBackgroundIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.file_documents.length === 0 &&
+                    record.image_documents.length === 0 && <></>}
+                </FileTableContentField>
+              )
+            },
+            width: 100,
+            align: 'center',
+          },
+          {
+            key: 'maneage',
+            title: 'จัดการ',
+            width: 100,
+            align: 'center',
+            render: (_value, record) => {
+              return (
+                <FileTableContentField>
+                  <Tooltip title={`ดูข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.VIEW)
+                      }
+                    >
+                      <EyeOutlined />
+                    </EventContentField>
+                  </Tooltip>
+                  <Tooltip title={`แก้ไขข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.EDIT)
+                      }
+                    >
+                      <EditOutlined />
+                    </EventContentField>
+                  </Tooltip>
+                  <Tooltip title={`ลบข้อมูล`}>
+                    <Popconfirm
+                      placement='top'
+                      title={'ยืนยันการลบข้อมูล'}
+                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                      okText='ตกลง'
+                      cancelText='ยกเลิก'
+                    >
+                      <EventContentField>
+                        <DeleteOutlined />
+                      </EventContentField>
+                    </Popconfirm>
+                  </Tooltip>
+                </FileTableContentField>
+              )
+            },
+          },
+        ]
+      : [
+          {
+            key: 'event_date',
+            title: 'ห้วงเวลา',
+            render: (_value, record) => {
+              const start_date = new Date(
+                record.event_date_start,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
+              const start_end = new Date(
+                record.event_date_end,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
 
-        return `${start_date} - ${start_end}`
-      },
-      width: 200,
-      align: 'center',
-    },
-    {
-      key: 'event_name',
-      title: 'ชื่อกิจกรรม',
-      dataIndex: 'event_name',
-      render: (value) => value,
-      width: 300,
-    },
-    {
-      key: 'event_venue',
-      title: 'สถานที่จัดกิจจกรรม',
-      dataIndex: 'event_venue',
-      render: (value) => value ?? '-',
-      width: 200,
-    },
-    {
-      key: 'file-record',
-      title: 'ไฟล์แนบ',
-      render: (_value, record: any) => {
-        return (
-          <FileTableContentField>
-            {record.file_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <DocumentIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.image_documents.length > 0 && (
-              <Tooltip>
-                <EventContentField>
-                  <ImageBackgroundIcon />
-                </EventContentField>
-              </Tooltip>
-            )}
-            {record.file_documents.length === 0 &&
-              record.image_documents.length === 0 && <></>}
-          </FileTableContentField>
-        )
-      },
-      width: 100,
-      align: 'center',
-    },
-    {
-      key: 'maneage',
-      title: 'จัดการ',
-      width: 100,
-      align: 'center',
-      render: (_value, record) => {
-        return (
-          <FileTableContentField>
-            <Tooltip title={`ดูข้อมูล`}>
-              <EventContentField
-                onClick={() => handleRecordManage(record, EmodeOption.VIEW)}
-              >
-                <EyeOutlined />
-              </EventContentField>
-            </Tooltip>
-            <Tooltip title={`แก้ไขข้อมูล`}>
-              <EventContentField
-                onClick={() => handleRecordManage(record, EmodeOption.EDIT)}
-              >
-                <EditOutlined />
-              </EventContentField>
-            </Tooltip>
-            <Tooltip title={`ลบข้อมูล`}>
-              <Popconfirm
-                placement='top'
-                title={'ยืนยันการลบข้อมูล'}
-                onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                okText='ตกลง'
-                cancelText='ยกเลิก'
-              >
-                <EventContentField>
-                  <DeleteOutlined />
-                </EventContentField>
-              </Popconfirm>
-            </Tooltip>
-          </FileTableContentField>
-        )
-      },
-    },
-  ];
-
-
+              return `${start_date} - ${start_end}`
+            },
+            width: 200,
+            align: 'center',
+          },
+          {
+            key: 'event_name',
+            title: 'ชื่อกิจกรรม',
+            dataIndex: 'event_name',
+            render: (value) => value,
+            width: 300,
+          },
+          {
+            key: 'event_venue',
+            title: 'สถานที่จัดกิจจกรรม',
+            dataIndex: 'event_venue',
+            render: (value) => value ?? '-',
+            width: 200,
+          },
+          {
+            key: 'file-record',
+            title: 'ไฟล์แนบ',
+            render: (_value, record: any) => {
+              return (
+                <FileTableContentField>
+                  {record.file_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <DocumentIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.image_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <ImageBackgroundIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.file_documents.length === 0 &&
+                    record.image_documents.length === 0 && <></>}
+                </FileTableContentField>
+              )
+            },
+            width: 100,
+            align: 'center',
+          },
+          {
+            key: 'maneage',
+            title: 'จัดการ',
+            width: 100,
+            align: 'center',
+            render: (_value, record) => {
+              return (
+                <FileTableContentField>
+                  <Tooltip title={`ดูข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.VIEW)
+                      }
+                    >
+                      <EyeOutlined />
+                    </EventContentField>
+                  </Tooltip>
+                  <Tooltip title={`แก้ไขข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.EDIT)
+                      }
+                    >
+                      <EditOutlined />
+                    </EventContentField>
+                  </Tooltip>
+                  <Tooltip title={`ลบข้อมูล`}>
+                    <Popconfirm
+                      placement='top'
+                      title={'ยืนยันการลบข้อมูล'}
+                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                      okText='ตกลง'
+                      cancelText='ยกเลิก'
+                    >
+                      <EventContentField>
+                        <DeleteOutlined />
+                      </EventContentField>
+                    </Popconfirm>
+                  </Tooltip>
+                </FileTableContentField>
+              )
+            },
+          },
+        ]
 
   const onFinish = () => {
     const data = form.getFieldsValue()
@@ -647,22 +668,23 @@ const InternationalRelationsTopics = (
   }
 
   const RenderPDF = useCallback(() => {
-    const arr: TfieldInternationdata[] = []
+    const seletedData: TfieldInternationdata[] = []
     if (selectedRowKeys.length > 0) {
       for (let i = 0; i < selectedRowKeys.length; i++) {
         const id = selectedRowKeys[i] as string
         const findSelect = dataSource?.find((e) => e.id === id) as any
         if (typeof findSelect !== 'undefined') {
-          arr.push(findSelect)
+          seletedData.push(findSelect)
         }
       }
     }
-    return <ReactPDFDoc items={arr} />
+
+    return <ReactPDFDoc items={seletedData} />
   }, [dataSource, selectedRowKeys])
 
   const PDFonload = () => (
     <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
-      {({ loading }: any) => (
+      {({ loading }) => (
         <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
       )}
     </PDFDownloadLink>
@@ -670,17 +692,36 @@ const InternationalRelationsTopics = (
 
   const handleExportxlxs = async () => {
     await randerQueryApi()
-    const arr: TfieldInternationdata[] = []
-    if (selectedRowKeys.length > 0) {
-      for (let i = 0; i < selectedRowKeys.length; i++) {
-        const id = selectedRowKeys[i] as string
-        const findSelect = dataSource?.find((e) => e.id === id) as any
-        if (typeof findSelect !== 'undefined') {
-          arr.push(findSelect)
+    if (typeof dataSource !== 'undefined') {
+      if (selectedRowKeys.length > 0) {
+        const selectedData: TfieldInternationdata[] = []
+        for (let i = 0; i < selectedRowKeys.length; i++) {
+          const id = selectedRowKeys[i] as string
+          const findSelect = dataSource.find((e) => e.id === id) as any
+          if (typeof findSelect !== 'undefined') {
+            selectedData.push(findSelect)
+          }
         }
+        generateXLSX(selectedData)
+      } else generateXLSX(dataSource)
+    }
+  }
+
+  const handleDocxExport = async () => {
+    await randerQueryApi()
+    if (typeof dataSource !== 'undefined') {
+      if (selectedRowKeys.length > 0) {
+        const selectedData: TfieldInternationdata[] = []
+        for (let i = 0; i < selectedRowKeys.length; i++) {
+          const id = selectedRowKeys[i] as string
+          const findSelect = dataSource.find((e) => e.id === id) as any
+          if (typeof findSelect !== 'undefined') {
+            selectedData.push(findSelect)
+          }
+        }
+        generateDOCX(selectedData)
       }
     }
-    generateXLSX(arr)
   }
 
   return (
@@ -727,9 +768,14 @@ const InternationalRelationsTopics = (
                 <PlusCircleOutlined /> เพิ่ม
               </BtnMain>
             )}
-            <BtnMain onClick={() => setIsOpenExport(true)}>Export</BtnMain>
             <BtnMain
               disabled={selectedRowKeys.length === 0}
+              onClick={() => setIsOpenExport(true)}
+            >
+              Export
+            </BtnMain>
+            <BtnMain
+              disabled={dataSource?.length === 0}
               bgColor='#15bf3a'
               onClick={handleExportxlxs}
             >
@@ -932,7 +978,7 @@ const InternationalRelationsTopics = (
               >
                 <PDFonload />
               </BtnMain>
-              <BtnMain>
+              <BtnMain onClick={handleDocxExport}>
                 <span>Word</span>
               </BtnMain>
             </div>
@@ -973,7 +1019,7 @@ const Line = styled.div`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const BtnMain = styled(Button) <{ bgColor?: string }>`
+const BtnMain = styled(Button)<{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
