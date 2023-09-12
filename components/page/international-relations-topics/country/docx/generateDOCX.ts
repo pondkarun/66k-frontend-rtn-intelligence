@@ -6,143 +6,179 @@ import {
   TextRun,
   AlignmentType,
   ImageRun,
-  FrameAnchorType,
-  HorizontalPositionAlign,
-  VerticalPositionAlign,
 } from 'docx'
 import { TfieldInternationdata } from '@/interface/international_relations_datas.interface'
 
 /* eslint-disable import/no-anonymous-default-export */
 type DocConfigT = TfieldInternationdata[]
 
-export default async (data: DocConfigT) => {
-  if (data.length === 1) {
-    const header: Paragraph[] = []
-    const content: Paragraph[] = []
-    const contentReason: Paragraph[] = []
+export default async (data: DocConfigT, file_name?: string) => {
+  let mergeCommonToppic: Paragraph[] = []
+  let addToppicSpecifices: string[] = []
+  let addToppicSpecificesParagraph: Paragraph[] = []
+  let addNameSpecifices: string[] = []
+  let addNameSpecificesParagraph: Paragraph[] = []
 
-    for (let index = 0; index < data.length; index++) {
-      const _data = data[index]
+  const countPages = []
 
-      const imageBufferTem: ArrayBuffer[] = []
-      if (_data.image_documents) {
-        if (_data.image_documents.length > 0) {
-          const imageBuffer = await (
-            await fetch(_data.image_documents[0].url)
-          ).arrayBuffer()
-          imageBufferTem.push(imageBuffer)
+  const itemsCount = data.length
+  for (let z = 0; z < itemsCount; z++) {
+    const _data = data[z]
+
+    let bufferImage
+    if (_data.image_documents) {
+      bufferImage =
+        typeof _data.image_documents[0] === 'undefined'
+          ? ''
+          : await (await fetch(_data.image_documents[0].url)).arrayBuffer()
+    }
+    mergeCommonToppic.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: {
+          before: 200,
+        },
+        children: [
+          new TextRun({
+            text: _data.event_name,
+            allCaps: true,
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: {
+          before: 200,
+        },
+        children: [
+          new TextRun({
+            text: _data.event_venue,
+            allCaps: true,
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: {
+          before: 200,
+        },
+        children: [
+          new TextRun({
+            text: _data.leader_name_thai,
+            allCaps: true,
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: {
+          before: 200,
+        },
+        children: [
+          new TextRun({
+            text: _data.leader_name_foreign,
+            allCaps: true,
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: {
+          before: 200,
+        },
+        children: [
+          new ImageRun({
+            data: typeof bufferImage !== 'undefined' ? bufferImage : '',
+            transformation: {
+              width: 300,
+              height: 300,
+            },
+          }),
+        ],
+      }),
+    )
+
+    for (let x = 0; x < _data.specific_field.length; x++) {
+      const keyname = _data.specific_field[x]
+      if (keyname) {
+        const checkDupicateToppic = addToppicSpecifices.findIndex(
+          (x) => x === keyname.topic_reason_name,
+        )
+        if (checkDupicateToppic === -1) {
+          addToppicSpecifices.push(keyname.topic_reason_name)
+          addToppicSpecificesParagraph.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${x + 1}.${keyname.topic_reason_name}`,
+                  bold: true,
+                }),
+              ],
+            }),
+          )
         }
-      }
 
-      for (let t = 0; t < _data.specific_field.length; t++) {
-        const keyname = _data.specific_field[t]
-        if (keyname) {
-          for (let n = 0; n < keyname.sub_reason_name.length; n++) {
-            const sub_reason = keyname.sub_reason_name[n]
-            contentReason.push(
+        for (let p = 0; p < keyname.sub_reason_name.length; p++) {
+          const sub_reason = keyname.sub_reason_name[p]
+
+          const checkDupicate = addNameSpecifices.findIndex(
+            (x) => x === sub_reason.name,
+          )
+          if (checkDupicate === -1) {
+            addNameSpecifices.push(sub_reason.name)
+            addToppicSpecificesParagraph = [
+              ...addToppicSpecificesParagraph,
               new Paragraph({
                 spacing: {
                   before: 200,
                 },
-                style: '',
                 children: [
                   new TextRun({
-                    text: sub_reason.name,
+                    text: `${sub_reason.name}:`,
+                    bold: true,
+                  }),
+                  new Paragraph({
+                    spacing: {
+                      after: 200,
+                    },
+                    rightTabStop: 1,
+                    children: [
+                      new TextRun({
+                        text: sub_reason.value,
+                      }),
+                    ],
                   }),
                 ],
               }),
-            )
+            ]
           }
         }
-        content.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `${t + 1}.${keyname.topic_reason_name}`,
-              }),
-            ],
-          }),
-          ...contentReason,
-        )
       }
-
-      header.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: {
-            before: 200,
-          },
-          children: [
-            new TextRun({
-              text: _data.event_name,
-              allCaps: true,
-            }),
-          ],
-        }),
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: {
-            before: 200,
-          },
-          children: [
-            new TextRun({
-              text: _data.event_venue,
-              allCaps: true,
-            }),
-          ],
-        }),
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: {
-            before: 200,
-          },
-          children: [
-            new TextRun({
-              text: _data.leader_name_thai,
-              allCaps: true,
-            }),
-          ],
-        }),
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: {
-            before: 200,
-          },
-          children: [
-            new TextRun({
-              text: _data.leader_name_foreign,
-              allCaps: true,
-            }),
-          ],
-        }),
-        new Paragraph({
-          children: [
-            new ImageRun({
-              data: imageBufferTem[0],
-              transformation: {
-                width: 1000,
-                height: 1000,
-              },
-            }),
-          ],
-        }),
-      )
     }
 
-    const doc = new Document({
-      sections: [
-        {
-          properties: {},
-          children: [...header],
-        },
-        {
-          properties: {},
-          children: [...content],
-        },
+    countPages.push({
+      properties: {},
+      children: [
+        ...mergeCommonToppic,
+        ...addToppicSpecificesParagraph,
+        ...addNameSpecificesParagraph,
       ],
     })
-    Packer.toBlob(doc).then((blob) => {
-      download(blob, 'word-export')
-    })
+    mergeCommonToppic = []
+    addToppicSpecifices = []
+    addToppicSpecificesParagraph = []
+    addNameSpecifices = []
+    addNameSpecificesParagraph = []
   }
+
+  const doc = new Document({
+    sections: [...countPages],
+  })
+  Packer.toBlob(doc).then((blob) => {
+    download(
+      blob,
+      `${file_name || 'word-export'}`,
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    )
+  })
 }
