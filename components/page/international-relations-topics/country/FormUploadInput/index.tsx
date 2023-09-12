@@ -5,6 +5,8 @@ import { BsImage } from 'react-icons/bs'
 import styled from 'styled-components'
 import FormUpload from '@/components/shares/FormUpload'
 import { isArray } from 'lodash'
+import { InfoCircleOutlined } from '@ant-design/icons'
+import { Text } from '@react-pdf/renderer'
 
 interface FormUploadInputProps {
   label?: string
@@ -19,6 +21,7 @@ const FormUploadInput = (props: FormUploadInputProps) => {
   const { label, keys, form, name, dir } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpenInfo, setIsModalOpenInfo] = useState(false)
   const [type, setType] = useState<'image' | 'file' | null>(null)
   const [countImage, setCountImage] = useState(0);
   const [countFile, setCountFile] = useState(0);
@@ -49,6 +52,16 @@ const FormUploadInput = (props: FormUploadInputProps) => {
     <Fragment key={keys}>
       <ContainerBox>
         <span>{label}</span>
+        <Icon
+          onClick={() => {
+            setIsModalOpenInfo(!isModalOpenInfo)
+          }}
+        >
+          <Badge count={countFile}>
+            <InfoCircleOutlined />
+          </Badge>
+        </Icon>
+
         <Icon
           onClick={() => {
             setIsModalOpen(!isModalOpen)
@@ -84,6 +97,14 @@ const FormUploadInput = (props: FormUploadInputProps) => {
         </Modal>
 
         : null}
+
+      <Modal open={isModalOpenInfo} title="Information suggestion" onCancel={() => setIsModalOpenInfo(false)} footer={<></>}>
+        <div style={{ whiteSpace: "pre-line" }}>
+          {` ด้านการศึกษา: .................... \n
+          ด้านการฝึก: ....................  \n
+          ด้านความร่วมมือ: ....................  \n`}
+        </div>
+      </Modal>
     </Fragment>
   )
 }
