@@ -69,6 +69,14 @@ import {
   FrameAnchorType,
   HorizontalPositionAlign,
   VerticalPositionAlign,
+  ShadingType,
+  PositionalTab,
+  PositionalTabAlignment,
+  PositionalTabRelativeTo,
+  PositionalTabLeader,
+  TabStopType,
+  TabStopPosition,
+  UnderlineType,
 } from 'docx'
 import type { ISpacingProperties } from 'docx'
 import generateDOCX from './docx/generateDOCX'

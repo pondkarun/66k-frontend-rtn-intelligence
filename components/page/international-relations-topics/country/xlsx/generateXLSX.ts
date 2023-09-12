@@ -5,7 +5,7 @@ import { TfieldInternationdata } from '@/interface/international_relations_datas
 
 type SheelConfigT = TfieldInternationdata[]
 
-export default (data: SheelConfigT) => {
+export default (data: SheelConfigT, file_name?: string) => {
   const toppicName = [
     ['', 'หัวข้อทั่วไป'],
     [
@@ -143,7 +143,7 @@ export default (data: SheelConfigT) => {
   const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
   download(
     buffer,
-    `excel-file`,
+    `${file_name || 'excel-file'}`,
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   )
 }
