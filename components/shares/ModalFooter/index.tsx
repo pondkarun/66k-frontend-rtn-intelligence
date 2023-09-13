@@ -10,8 +10,8 @@ const ModalFooter = ({ mode, onOk, onCancel }: ModalFooterType) => {
   return (
     mode != "view" ?
       <>
-        <Button onClick={onOk}>ยกเลิก</Button>
-        <Button type='primary' onClick={onCancel}>บันทึก</Button>
+        <Button onClick={onCancel}>ยกเลิก</Button>
+        <Button type='primary' onClick={onOk}>บันทึก</Button>
       </>
       :
       <>
