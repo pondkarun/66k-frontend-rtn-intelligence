@@ -1,4 +1,4 @@
-import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Switch, Table, Tooltip, TreeSelect } from 'antd';
+import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Switch, Table, Tooltip, TreeSelect, message } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -141,7 +141,7 @@ const IdentityUsers = () => {
             title: 'Reset',
             dataIndex: 'position',
             key: 'position',
-            render: (text: any, obj: any) => <Button onChange={() => resetPassword(obj.id)}>Reset Password</Button>,
+            render: (text: any, obj: any) => <Button onClick={() => resetPassword(obj.id)}>Reset Password</Button>,
             width: 150,
             align: 'center',
         },
@@ -179,12 +179,10 @@ const IdentityUsers = () => {
         updateIdentityUsersService({
             password: "$2a$05$5eNVr0cQkwBkxLjTY1fuCObubVMlL0Ek2VXHPF7GhRH0uVH9PRy0q"
         }, id).then(res => {
+            message.success("บันทึกสำเร็จ")
             searchData("")
         }).catch(err => {
-            modal.error({
-                centered: true,
-                content: "มีบางอย่างพิดพลาด",
-            });
+            message.error("มีบางอย่างพิดพลาด")
         })
     }
 
@@ -192,12 +190,10 @@ const IdentityUsers = () => {
         updateIdentityUsersService({
             is_active: value
         }, id).then(res => {
+            message.success("บันทึกสำเร็จ")
             searchData("")
         }).catch(err => {
-            modal.error({
-                centered: true,
-                content: "มีบางอย่างพิดพลาด",
-            });
+            message.error("มีบางอย่างพิดพลาด")
         })
     }
 
