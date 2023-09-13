@@ -320,6 +320,7 @@ const IdentityUsers = () => {
                     width={600}
                     title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
                     open={isModalOpen}
+                    onCancel={handleCancel}
                     footer={<ModalFooter mode={mode} onOk={handleOk} onCancel={handleCancel} />}
                 >
                     <Form
