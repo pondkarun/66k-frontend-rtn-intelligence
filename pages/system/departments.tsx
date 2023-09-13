@@ -9,6 +9,7 @@ import { searchInternationalRelationsTopicsService } from '@/services/internatio
 import { addDepartmentsService, getAllDepartmentsListService, getAllDepartmentsService, getByIDDepartmentsService, updateDepartmentsService } from '@/services/departments';
 import { SelectProps } from 'antd/lib';
 import ModalFooter from '@/components/shares/ModalFooter';
+import trimDataString from '@/libs/trimFormDataString';
 
 
 const Departments = () => {
@@ -177,6 +178,7 @@ const Departments = () => {
     }
 
     const handleOk = () => {
+        trimDataString(form);
         form.submit()
     };
 

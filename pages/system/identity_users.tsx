@@ -9,6 +9,8 @@ import Layout from '@/components/layout'
 import { getAllDepartmentsService } from '@/services/departments';
 import type { ColumnsType } from 'antd/es/table';
 import ModalFooter from '@/components/shares/ModalFooter';
+import { isPlainObject, isString } from 'lodash';
+import trimDataString from '@/libs/trimFormDataString';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -234,6 +236,7 @@ const IdentityUsers = () => {
     }
 
     const handleOk = () => {
+        trimDataString(form);
         form.submit()
     };
 

@@ -7,6 +7,7 @@ import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
 import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicAllsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
 import ModalFooter from '@/components/shares/ModalFooter';
+import trimDataString from '@/libs/trimFormDataString';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -179,6 +180,7 @@ const InternationalRelationsTopics = () => {
     }
 
     const handleOk = () => {
+        trimDataString(form);
         form.submit()
     };
 
