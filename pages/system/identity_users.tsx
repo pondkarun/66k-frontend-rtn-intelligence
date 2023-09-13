@@ -131,9 +131,9 @@ const IdentityUsers = () => {
         },
         {
             title: 'สถานะเข้าใช้งาน',
-            dataIndex: 'position',
-            key: 'position',
-            render: (text: any, obj: any) => <Switch />,
+            dataIndex: 'is_active',
+            key: 'is_active',
+            render: (text: any, obj: any) => <Switch checked={text} disabled={obj.username === "superadmin"} onChange={(e) => updateStatusUser(obj.id, e)} />,
             width: 150,
             align: 'center',
         },
@@ -141,7 +141,7 @@ const IdentityUsers = () => {
             title: 'Reset',
             dataIndex: 'position',
             key: 'position',
-            render: (text: any, obj: any) => <Button>Reset Password</Button>,
+            render: (text: any, obj: any) => <Button onChange={() => resetPassword(obj.id)}>Reset Password</Button>,
             width: 150,
             align: 'center',
         },
@@ -172,8 +172,33 @@ const IdentityUsers = () => {
     ];
 
     const onFinishSearch = (value: any) => {
-        console.log('Finish:', value);
         searchData(value.search)
+    }
+
+    const resetPassword = (id: string) => {
+        updateIdentityUsersService({
+            password: "$2a$05$5eNVr0cQkwBkxLjTY1fuCObubVMlL0Ek2VXHPF7GhRH0uVH9PRy0q"
+        }, id).then(res => {
+            searchData("")
+        }).catch(err => {
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
+        })
+    }
+
+    const updateStatusUser = (id: string, value: boolean) => {
+        updateIdentityUsersService({
+            is_active: value
+        }, id).then(res => {
+            searchData("")
+        }).catch(err => {
+            modal.error({
+                centered: true,
+                content: "มีบางอย่างพิดพลาด",
+            });
+        })
     }
 
     /** Modal */
