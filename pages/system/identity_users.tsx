@@ -1,4 +1,4 @@
-import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Table, Tooltip, TreeSelect } from 'antd';
+import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Switch, Table, Tooltip, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -130,6 +130,22 @@ const IdentityUsers = () => {
             width: 200,
         },
         {
+            title: 'สถานะเข้าใช้งาน',
+            dataIndex: 'position',
+            key: 'position',
+            render: (text: any, obj: any) => <Switch />,
+            width: 150,
+            align: 'center',
+        },
+        {
+            title: 'Reset',
+            dataIndex: 'position',
+            key: 'position',
+            render: (text: any, obj: any) => <Button>Reset Password</Button>,
+            width: 150,
+            align: 'center',
+        },
+        {
             title: 'จัดการ',
             dataIndex: 'position',
             width: 110,
@@ -151,8 +167,6 @@ const IdentityUsers = () => {
                         </Popconfirm>
                     </Tooltip></>
                     : null}
-
-
             </>,
         },
     ];
