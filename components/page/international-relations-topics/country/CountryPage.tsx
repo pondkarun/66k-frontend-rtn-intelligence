@@ -59,6 +59,7 @@ import generateXLSX from './xlsx/generateXLSX'
 import generateDOCX from './docx/generateDOCX'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
+import ModalFooter from '@/components/shares/ModalFooter'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -542,48 +543,52 @@ const InternationalRelationsTopics = () => {
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
+    console.log('itemsForm', itemsForm)
 
-    for (const [key1, values] of Object.entries(
-      itemsForm.specific_field as unknown as never,
-    )) {
-      const subReason = []
-      const fields = Object.entries(values as unknown as never)
+    if (itemsForm.specific_field) {
+      for (const [key1, values] of Object.entries(
+        itemsForm.specific_field as unknown as never,
+      )) {
+        const subReason = []
+        const fields = Object.entries(values as unknown as never)
 
-      for (let index = 0; index < fields.length; index++) {
-        const element = fields[index] as any
-        let upload: any = undefined
-        if (element[1].upload) {
-          const _u = element[1].upload
-          upload = {}
-          if (isArray(_u.image)) {
-            upload.image = _u.image.map((e: any) => {
-              return {
-                url: '',
-                name: e.name,
-              }
-            })
+        for (let index = 0; index < fields.length; index++) {
+          const element = fields[index] as any
+          let upload: any = undefined
+          if (element[1].upload) {
+            const _u = element[1].upload
+            upload = {}
+            if (isArray(_u.image)) {
+              upload.image = _u.image.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
+            if (isArray(_u.file)) {
+              upload.file = _u.file.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
           }
-          if (isArray(_u.file)) {
-            upload.file = _u.file.map((e: any) => {
-              return {
-                url: '',
-                name: e.name,
-              }
-            })
-          }
+          subReason.push({
+            name: element[0],
+            value: element[1].value,
+            upload,
+          })
         }
-        subReason.push({
-          name: element[0],
-          value: element[1].value,
-          upload,
+
+        createReason.push({
+          topic_reason_name: key1,
+          sub_reason_name: subReason,
         })
       }
-
-      createReason.push({
-        topic_reason_name: key1,
-        sub_reason_name: subReason,
-      })
     }
+
     if (typeof itemsForm.file_documents !== 'undefined')
       if (itemsForm.file_documents.length > 0) {
         for (let x = 0; x < itemsForm.file_documents.length; x++) {
@@ -761,13 +766,6 @@ const InternationalRelationsTopics = () => {
             >
               Export
             </BtnMain>
-            <BtnMain
-              disabled={dataSource?.length === 0}
-              bgColor='#15bf3a'
-              onClick={handleExportxlxs}
-            >
-              Excel
-            </BtnMain>
           </Form.Item>
         </Col>
       </Row>
@@ -793,16 +791,14 @@ const InternationalRelationsTopics = () => {
       <Modal
         title={`${mode == 'edit' ? 'แก้ไข' : 'ดู'}หัวข้อความสัมพันธ์`}
         open={isModalOpen}
+        onCancel={() => setIsModalOpen(!isModalOpen)}
         width={800}
         footer={
-          <>
-            <Button onClick={() => setIsModalOpen(!isModalOpen)}>ยกเลิก</Button>
-            {mode !== EmodeOption.VIEW && (
-              <Button onClick={() => formInternational.submit()} type='primary'>
-                ตกลง
-              </Button>
-            )}
-          </>
+          <ModalFooter
+            mode={mode as string}
+            onOk={() => formInternational.submit()}
+            onCancel={() => setIsModalOpen(!isModalOpen)}
+          />
         }
       >
         <Form
@@ -818,6 +814,7 @@ const InternationalRelationsTopics = () => {
                   disabled={
                     mode === EmodeOption.VIEW || mode === EmodeOption.EDIT
                   }
+                  style={{ color: '#6e6d6d' }}
                 />
               </Form.Item>
             </Col>
@@ -828,12 +825,18 @@ const InternationalRelationsTopics = () => {
                 name='event_name'
                 rules={[{ required: true }]}
               >
-                <Input disabled={mode === EmodeOption.VIEW} />
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item id='event_venue' label='กิจกรรม' name='event_venue'>
-                <Input disabled={mode === EmodeOption.VIEW} />
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -842,7 +845,10 @@ const InternationalRelationsTopics = () => {
                 label='หัวหน้าคณะฝ่ายไทย'
                 name='leader_name_thai'
               >
-                <Input disabled={mode === EmodeOption.VIEW} />
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -851,7 +857,10 @@ const InternationalRelationsTopics = () => {
                 label='หัวหน้าคณะฝ่ายต่างประเทศ'
                 name='leader_name_foreign'
               >
-                <Input disabled={mode === EmodeOption.VIEW} />
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -863,6 +872,10 @@ const InternationalRelationsTopics = () => {
                 <DatePicker.RangePicker
                   disabled={mode === EmodeOption.VIEW}
                   format={'DD/MM/YYYY'}
+                  style={{
+                    color:
+                      mode === EmodeOption.VIEW ? '#6e6d6d !important' : '',
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -933,7 +946,12 @@ const InternationalRelationsTopics = () => {
                             </>
                           }
                         >
-                          <Input disabled={mode === EmodeOption.VIEW} />
+                          <Input
+                            disabled={mode === EmodeOption.VIEW}
+                            style={{
+                              color: mode === EmodeOption.VIEW ? '#6e6d6d' : '',
+                            }}
+                          />
                         </Form.Item>
                       </Col>
                     )
@@ -971,6 +989,13 @@ const InternationalRelationsTopics = () => {
               </BtnMain>
               <BtnMain onClick={handleDocxExport}>
                 <span>Word</span>
+              </BtnMain>
+              <BtnMain
+                disabled={selectedRowKeys.length === 0}
+                bgColor='#15bf3a'
+                onClick={handleExportxlxs}
+              >
+                Excel
               </BtnMain>
             </div>
           </div>
