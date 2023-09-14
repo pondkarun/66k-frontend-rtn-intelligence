@@ -1,17 +1,17 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useSelector } from 'react-redux'
 import ManageInternationalRelationsTopics from '../manage-international-relations-topics'
 import InternationalRelationsTopics from './CountryPage'
 
-export type ActionTprops = 'add' | ''
-
 const Country = () => {
-  const [action, setAction] = useState<ActionTprops>('')
+  const common = useSelector(({ common }) => common)
+
   return (
     <>
-      {action === 'add' ? (
-        <ManageInternationalRelationsTopics mode='add' setActiontype={setAction} />
+      {common.action === 'add' ? (
+        <ManageInternationalRelationsTopics mode='add' />
       ) : (
-        <InternationalRelationsTopics setActiontype={setAction} />
+        <InternationalRelationsTopics />
       )}
     </>
   )

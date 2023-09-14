@@ -1,7 +1,7 @@
 import { InboxOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, Col, Form, Modal, Row, Upload } from 'antd'
+import { Button, Col, Form, Modal, Row, Upload, message } from 'antd'
 import { useEffect, useState } from 'react'
-import { RcFile } from 'antd/lib/upload'
+import { RcFile, UploadChangeParam } from 'antd/lib/upload'
 import { useRouter } from 'next/router'
 import getBase64 from '@/libs/getBase64'
 import {
@@ -45,7 +45,7 @@ const FormUpload = ({
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
-  });
+  })
 
   const router = useRouter()
   const params = router.query
@@ -55,6 +55,16 @@ const FormUpload = ({
     form.setFieldValue(name, value)
   }
 
+  const beforeUploadValidateSize = (_info: UploadChangeParam<UploadFile<any>>, _type: 'file' | 'image') => {
+    const unitFile = _type === 'file' ? 50 : 10
+    const limitFile = Number(_info.file.size) / 1024 / 1024 < unitFile
+    if (!limitFile) {
+      message.error(`${_type === 'file' ? 'เอกสาร' : 'รูปภาพ'}มีขนาดเกิน ${unitFile}MB`)
+      return false
+    }
+    return true
+  }
+
   const propsDragger: UploadProps = {
     name,
     multiple: true,
@@ -62,22 +72,28 @@ const FormUpload = ({
     accept: acceptFile,
     onChange: async (info) => {
       // console.log('info :>> ', info);
-      try {
-        const fileUploaded = await internalUploadPublicService({
-          formData: info.fileList,
-          country_id: params.country as string,
-          ticpid_id: params.toppic ? (params.toppic as string) : (ticpidId as string),
-          dir: dir ?? undefined
-        })
-
-        if (fileUploaded === 'OK') {
-          info.file.status = 'done'
+      const isLimit = beforeUploadValidateSize(info, type)
+      if (isLimit) {
+        try {
+          const fileUploaded = await internalUploadPublicService({
+            formData: info.fileList,
+            country_id: params.country as string,
+            ticpid_id: params.toppic
+              ? (params.toppic as string)
+              : (ticpidId as string),
+            dir: dir ?? undefined,
+          })
+  
+          if (fileUploaded === 'OK') {
+            info.file.status = 'done'
+            setFile([...file, ...info.fileList])
+          }
+        } catch (error) {
+          info.file.status = 'error'
           setFile([...file, ...info.fileList])
         }
-      } catch (error) {
-        info.file.status = 'error'
-        setFile([...file, ...info.fileList])
       }
+      
     },
     fileList: [],
     onDrop(e) {
@@ -91,22 +107,28 @@ const FormUpload = ({
     accept: acceptFile,
     onChange: async (info) => {
       // console.log('propsButton :>> ', info)
-      try {
-        const fileUploaded = await internalUploadPublicService({
-          formData: info.fileList,
-          country_id: params.country as string,
-          ticpid_id: params.toppic ? (params.toppic as string) : (ticpidId as string),
-          dir: dir ?? undefined
-        })
-
-        if (fileUploaded === 'OK') {
-          info.file.status = 'done'
+      const isLimit = beforeUploadValidateSize(info, type)
+      if (isLimit) {
+        try {
+          const fileUploaded = await internalUploadPublicService({
+            formData: info.fileList,
+            country_id: params.country as string,
+            ticpid_id: params.toppic
+              ? (params.toppic as string)
+              : (ticpidId as string),
+            dir: dir ?? undefined,
+          })
+  
+          if (fileUploaded === 'OK') {
+            info.file.status = 'done'
+            setFile([...file, ...info.fileList])
+          }
+        } catch (error) {
+          info.file.status = 'error'
           setFile([...file, ...info.fileList])
         }
-      } catch (error) {
-        info.file.status = 'error'
-        setFile([...file, ...info.fileList])
       }
+      
     },
     fileList: [],
     onDrop(e) {
@@ -126,8 +148,10 @@ const FormUpload = ({
             ? (params.toppic as string)
             : (ticpidId as string),
           file_name: info.file.name,
-          dir: dir ?? undefined
-        }).then(res => { }).catch(error => { })
+          dir: dir ?? undefined,
+        })
+          .then((res) => {})
+          .catch((error) => {})
         setFile(info.fileList)
       } catch (error) {
         setFile([])
@@ -149,7 +173,7 @@ const FormUpload = ({
 
     setFileType(file.type?.split('/')[1])
     setPreviewImage(file.url || (file.preview as string))
-    if (type === "file" && file.url) {
+    if (type === 'file' && file.url) {
       const a = document.createElement('a')
       a.href = file.url
       a.target = '_blank'
@@ -167,7 +191,7 @@ const FormUpload = ({
     setWindowSize({
       width: window.innerWidth,
       height: window.innerHeight,
-    });
+    })
   }
 
   useEffect(() => {
@@ -192,14 +216,14 @@ const FormUpload = ({
   }, [randerList])
 
   useEffect(() => {
-    checkWindowSize();
+    checkWindowSize()
   }, [])
-
 
   return (
     <div>
-      <label>{`อัพโหลดไฟล์เอกสาร ${type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-        }`}</label>
+      <label>{`อัปโหลดไฟล์เอกสาร ${
+        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
+      }`}</label>
       {!disabled && (
         <Form.Item name={name}>
           <Dragger {...propsDragger}>
@@ -219,7 +243,7 @@ const FormUpload = ({
         {!disabled && (
           <>
             <Col xs={10} span={12}>
-              <h3>อัพโหลดไฟล์</h3>
+              <h3>อัปโหลดไฟล์</h3>
             </Col>
             <Col xs={14} span={12} style={{ textAlign: 'end' }}>
               <Form.Item name={name}>
@@ -248,7 +272,9 @@ const FormUpload = ({
             footer={null}
             onCancel={() => setPreviewOpen(false)}
           >
-            {fileType === 'pdf' || fileType === 'xlsx' || fileType === 'docx' ? (
+            {fileType === 'pdf' ||
+            fileType === 'xlsx' ||
+            fileType === 'docx' ? (
               <iframe
                 style={{ width: '100%', height: '100%', minHeight: '400px' }}
                 src={previewImage}
@@ -262,6 +288,5 @@ const FormUpload = ({
     </div>
   )
 }
-
 
 export default FormUpload

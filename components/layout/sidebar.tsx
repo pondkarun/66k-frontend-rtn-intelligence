@@ -10,6 +10,7 @@ import { international_relations_topicsAttributes } from '@/interface/internatio
 import { setObjToppic, setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
 import { setBackground } from '@/redux/actions/configActions';
 import type { MenuProps } from 'antd';
+import { setActionFormInput, setCollapsed } from '@/redux/actions/commonAction';
 const { Sider } = Layout;
 
 
@@ -236,7 +237,7 @@ const SidebarLayoutComponents = () => {
     const { country_group } = useSelector(({ country }) => country);
     const { profile, topics, menus }: useSelectorAuth = useSelector(({ auth }) => auth);
     const { country, toppic } = useSelector(({ toppic_menu }) => toppic_menu);
-    const [collapsed, setCollapsed] = useState(false);
+    const { collapsed } = useSelector((state: any) => state.common)
     const [windowSize, setWindowSize] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 0,
         height: typeof window !== 'undefined' ? window.innerHeight : 0,
@@ -245,7 +246,7 @@ const SidebarLayoutComponents = () => {
     useEffect(() => {
         dispatch(setBackground("#111730"));
         checkWindowSize();
-        windowSize.width <= 740 ? setCollapsed(true) : setCollapsed(false);
+        windowSize.width <= 740 ? dispatch(setCollapsed(true)) : (setCollapsed(false));
     }, [])
 
     useEffect(() => {
@@ -267,7 +268,15 @@ const SidebarLayoutComponents = () => {
 
     const onClick = (id: string) => {
         dispatch(setSelectCountry(id))
-        if (Router.pathname !== '/') Router.replace(`/international-relations-topics/${id}`);
+        if (Router.pathname !== '/') {
+            if (Router.pathname.split('/').length >= 3) {
+                // dispatch(setSelectCountry(''))
+                dispatch(setSelectToppic(''))
+                dispatch(setActionFormInput(''))
+                return Router.push('/')
+            }
+            Router.replace(`/international-relations-topics/${id}`);
+        }
         if (toppic) {
             Router.push(`/international-relations-topics/${id}/${toppic}`);
         }
@@ -282,10 +291,11 @@ const SidebarLayoutComponents = () => {
 
     /** menu */
     const [currentMenu, setCurrentMenu] = useState('mail');
+    const [currentMenuID, setCurrentMenuID] = useState('');
     const [itemsMenu, setItemsMenu] = useState<any[]>([]);
 
     useEffect(() => {
-        const menuItem: any[] = [];
+        const menuItem: any = [];
         if (isArray(menus)) {
             menus.forEach(e => {
                 const model: any = {
@@ -308,14 +318,19 @@ const SidebarLayoutComponents = () => {
         }
         // console.log('menuItem :>> ', menuItem);
         setItemsMenu(menuItem)
+        setCurrentMenu(menuItem.key)
     }, [menus])
 
     const onClickMenu: MenuProps['onClick'] = (e) => {
         // console.log('click ', e);
+        dispatch(setSelectCountry(''))
+        dispatch(setSelectToppic(''))
         if (e.keyPath.length >= 2) {
             const find = itemsMenu.find(w => w.key == e.keyPath[1]);
             if (find) {
                 const findChildren = find.children.find((w: any) => w.key == e.key);
+                // console.log('findChildren', findChildren)
+                setCurrentMenuID(findChildren.key)
                 if (findChildren?.path) {
                     Router.push(findChildren.path);
                 }
@@ -324,9 +339,21 @@ const SidebarLayoutComponents = () => {
         setCurrentMenu(e.key);
     }
 
+    const WrapperMenuMenage = useCallback(() => {
+        return (
+            <>
+                <H1 style={{ paddingTop: 20 }}>เมนู</H1>
+                <Menu className='ant-customize-menu' theme="dark" defaultOpenKeys={[`${currentMenu}`]} defaultSelectedKeys={[`${currentMenu}`]} selectedKeys={[`${currentMenuID}`]} expandIcon={(props) => (
+                    // eslint-disable-next-line react/prop-types
+                    props.isOpen ? <DownOutlined /> : <RightOutlined />
+                )} onClick={onClickMenu} items={itemsMenu} mode="inline" />
+            </>
+        )
+    }, [currentMenu, itemsMenu])
+
     return (
         <>
-            <Sidebar width={350} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} >
+            <Sidebar width={350} trigger={null} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
                 <div style={{ margin: "15px 10px 15px 10px" }} >
                     <section>
                         <Logo />
@@ -390,13 +417,7 @@ const SidebarLayoutComponents = () => {
                             {country ? <ToppicMenu list={topics as any} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
 
                             {itemsMenu.length > 0 ? (
-                                <>
-                                    <H1 style={{ paddingTop: 20 }}>เมนู</H1>
-                                    <Menu className='ant-customize-menu' theme="dark" expandIcon={(props) => (
-                                        // eslint-disable-next-line react/prop-types
-                                        props.isOpen ? <DownOutlined /> : <RightOutlined />
-                                    )} onClick={onClickMenu} selectedKeys={[currentMenu]} items={itemsMenu} mode="inline" />
-                                </>
+                               <WrapperMenuMenage />
                             ) : null}
                         </>
                     </div> : null}
@@ -497,11 +518,13 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     const [activeKey, setActiveKey] = useState('')
 
     const onChange = (value: any) => {
-        console.log('value :>> ', value);
+        // console.log('value :>> ', value);
     }
     const onClick = (id: string) => {
         // console.log('id :>> ', id);
+        dispatch(setActionFormInput(''))
         dispatch(setSelectToppic(id))
+        dispatch(setSelectCountry(country))
         Router.push(`/international-relations-topics/${country}/${id}`);
     }
 
@@ -511,14 +534,6 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                 // console.log('main', e)
                 if (e.children.length > 0) {
                     const child1 = e.children.find((f: any) => f.id === toppic) as any
-                    // console.log('child1', child1)
-                    // if (child1?.children.length > 0) {
-                    //     const child2 = child1.children.find((f: any) => f.id === toppic) as any
-                    //     console.log('child2', child2)
-                    //     if (child2?.parent_id) {
-                    //         setActiveKey(child2.parent_id)
-                    //     }
-                    // }
                     if (child1?.parent_id) {
                         setActiveKey(child1.parent_id)
                     }
@@ -532,7 +547,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     const WrapperCollapse = useCallback(() => {
         return( 
             <>
-                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange} defaultActiveKey={[`${activeKey}`]}>
+                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
                     {list.map((e: any, i) => {
                         // console.log('first e :>>> ', e)
                         const is_last_node = e.children.filter((w: any) => w.last_node == true);
