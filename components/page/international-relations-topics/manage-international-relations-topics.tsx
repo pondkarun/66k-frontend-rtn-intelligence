@@ -24,6 +24,8 @@ import {
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
 import { setActionFormInput } from '@/redux/actions/commonAction'
+import { internalUploadPublicService } from '@/services/upload'
+import trimDataString from '@/libs/trimFormDataString'
 import FormUploadInput from './country/FormUploadInput'
 
 type SpecificFieldType = {
@@ -125,27 +127,49 @@ const ManageInternationalRelationsTopics = (
       }
     }
 
-    if (isArray(data.file_documents))
+    let fileUploadedImg: any
+    let fileUploadedDoc: any
+    if (data.image_documents) {
+      fileUploadedImg = await internalUploadPublicService({
+        formData: data.image_documents,
+        country_id: router.query.country as string,
+        ticpid_id: router.query.toppic as string,
+        dir: id,
+      })
+    }
+    if (data.file_documents) {
+      fileUploadedDoc = await internalUploadPublicService({
+        formData: data.file_documents,
+        country_id: router.query.country as string,
+        ticpid_id: router.query.toppic as string,
+        dir: id,
+      })
+    }
+
+    if (fileUploadedDoc) {
       for (let x = 0; x < data.file_documents.length; x++) {
         const file_document = data.file_documents[x]
-
+        const url = fileUploadedDoc.data[x]
         createValuesReasonFile.push({
-          url: `${process.env.NEXT_PUBLIC_UPLOAD}/pubilc/${router.query.country}/${router.query.toppic}/${id}/${file_document.name}`,
+          url,
           name: file_document.name,
         })
       }
-
-    if (isArray(data.image_documents))
+    }
+      
+    if (fileUploadedImg) {
       for (let z = 0; z < data.image_documents.length; z++) {
         const image_document = data.image_documents[z]
+        const url = fileUploadedImg.data[z]
         createValuesReasonImage.push({
-          url: `${process.env.NEXT_PUBLIC_UPLOAD}/pubilc/${router.query.country}/${router.query.toppic}/${id}/${image_document.name}`,
+          url,
           name: image_document.name,
         })
       }
+    }
 
-    const event_date_start = dayjs(data.event_date[0]).add(1, 'day') as unknown as string
-    const event_date_end = dayjs(data.event_date[1]).add(1, 'day') as unknown as string
+    const event_date_start = dayjs(data.event_date[0]) as unknown as string
+    const event_date_end = dayjs(data.event_date[1]) as unknown as string
 
     const modalRequst: Omit<
       Tforminternational,
@@ -165,8 +189,6 @@ const ManageInternationalRelationsTopics = (
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
     }
-
-    // console.log('modalRequst :>> ', modalRequst);
 
     try {
       await addInternationalDataRelationsTopicsService(modalRequst)
@@ -289,7 +311,10 @@ const ManageInternationalRelationsTopics = (
           </Fragment>
         ))}
         <Space>
-          <Button type='primary' onClick={() => form.submit()}>
+          <Button type='primary' onClick={() => {
+            trimDataString(form)
+            form.submit()
+          }}>
             บันทึก
           </Button>
           <Button

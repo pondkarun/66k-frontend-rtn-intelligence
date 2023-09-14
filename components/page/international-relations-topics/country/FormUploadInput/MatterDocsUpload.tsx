@@ -48,15 +48,8 @@ const MatterDocsUpload = ({
     accept: '.pdf,.xlsx,.doc,.ptt',
     onChange: async (info) => {
       // console.log('info :>> ', info);
-      const fileUploaded = await internalUploadPublicService({
-        formData: info.fileList,
-        country_id: params.country as string,
-        ticpid_id: params.toppic as string,
-      })
-      if (fileUploaded === 'OK') {
-        info.file.status = 'done'
-        setFile([...file, ...info.fileList])
-      }
+      info.file.status = 'done'
+      setFile([...file, ...info.fileList])
     },
     fileList: [],
     onDrop(e) {
@@ -69,15 +62,8 @@ const MatterDocsUpload = ({
     accept: '.pdf,.xlsx,.doc,.ptt',
     onChange: async (info) => {
       // console.log('propsButton :>> ', info)
-      const fileUploaded = await internalUploadPublicService({
-        formData: info.fileList,
-        country_id: params.country as string,
-        ticpid_id: params.toppic as string,
-      })
-      if (fileUploaded === 'OK') {
-        info.file.status = 'done'
-        setFile([...file, ...info.fileList])
-      }
+      info.file.status = 'done'
+      setFile([...file, ...info.fileList])
     },
     fileList: [],
     onDrop(e) {

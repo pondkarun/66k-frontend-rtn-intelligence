@@ -1,5 +1,5 @@
-import { FormInstance } from 'antd';
 import { isArray, isPlainObject, isString } from 'lodash';
+import type { FormInstance } from 'antd';
 
 const trimDataString = (form: FormInstance<any>) => {
   const body = form.getFieldValue(undefined);
