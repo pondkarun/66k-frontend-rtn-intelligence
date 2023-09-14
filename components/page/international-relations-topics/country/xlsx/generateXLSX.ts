@@ -7,109 +7,113 @@ type SheelConfigT = TfieldInternationdata[]
 
 export default (data: SheelConfigT, file_name?: string) => {
   const toppicName = [
-    ['', data[0].ir_topic.name],
+    ['', 'ข้อมูลทั่วไป'],
     [
       'ลำดับ',
+      'หัวข้อ',
       'ชื่อกิจกรรม',
       'สถานที่จัดกิจกรรม',
       'หัวหน้าคณะฝ่ายไทย',
       'หัวหน้าคณะฝ่ายต่างประเทศ',
       'วันที่เริ่มต้น',
       'วันที่สิ้นสุด',
+      'แก้ไขล่าสุด',
+      'แก้ไขโดย',
     ],
   ]
-  let getData = data.map((item, num) => [
+  const getData = data.map((item, num) => [
     num + 1,
+    item.ir_topic.name,
     item.event_name,
-    item.event_venue,
-    item.leader_name_thai,
-    item.leader_name_foreign,
+    item.event_venue ?? '',
+    item.leader_name_thai ?? '',
+    item.leader_name_foreign ?? '',
     item.event_date_start,
     item.event_date_end,
+    item.created_by,
+    new Date(item.updated_date).toLocaleDateString('th-TH', {
+      year: '2-digit',
+      month: 'short',
+      day: 'numeric',
+    }),
   ])
 
+  const addToppicSpecifices: string[] = []
   const addNameSpecifices: string[] = []
   const addMergeCell: {
     s: { r: number; c: number }
     e: { r: number; c: number }
   }[] = []
-  const addToppicSpecifices: string[] = []
 
-  addMergeCell.push({ s: { r: 0, c: 1 }, e: { r: 0, c: 6 } })
+  addMergeCell.push({ s: { r: 0, c: 1 }, e: { r: 0, c: 9 } })
 
   const itemsCount = data.length
-  let amount = 0
-  for (let z = 0; z < itemsCount; z++) {
-    const item = data[z]
-    for (let s = 0; s < getData.length; s++) {
-      const lengthofnull = getData[s].length - toppicName[0].length
-      let index = 0
-      while (index < lengthofnull) {
-        addToppicSpecifices.push(``)
-        index++
-      }
-      for (let t = 0; t < item.specific_field.length; t++) {
-        const keyname = item.specific_field[t]
-        const startCell = addMergeCell[t].e.c + item.specific_field.length - 1
-        let endCell = startCell
-        if (keyname) {
-          const checkDupicateToppic = addToppicSpecifices.findIndex(
-            (x) => x === keyname.topic_reason_name,
-          )
-          if (checkDupicateToppic === -1) {
-            addToppicSpecifices.push(keyname.topic_reason_name)
-          }
-          let m = 1
-          while (m < keyname.sub_reason_name.length) {
-            addToppicSpecifices.push(``)
-            m++
-            endCell++
-          }
+  let startAddHeaderStr = 0
 
-          const _addValuesSpecifices: string[] = []
-          for (let n = 0; n < keyname.sub_reason_name.length; n++) {
-            const sub_reason = keyname.sub_reason_name[n]
-            const checkDupicate = addNameSpecifices.findIndex(
-              (x) => x === sub_reason.name,
-            )
-            if (checkDupicate === -1) {
-              addNameSpecifices.push(sub_reason.name)
-            }
-            _addValuesSpecifices.push(sub_reason.value)
-          }
-          const modalMergeCell = {
-            s: { r: 0, c: startCell },
-            e: { r: 0, c: endCell },
-          }
-          if (itemsCount > 1) {
-            if (amount !== itemsCount) {
-              getData = getData.map((data) => [
-                ...data,
-                ..._addValuesSpecifices,
-              ])
-              addMergeCell.push(modalMergeCell)
-              amount++
-            }
-          } else {
-            getData = getData.map((data) => [...data, ..._addValuesSpecifices])
-            addMergeCell.push(modalMergeCell)
-          }
-        }
+  const addDatas = []
+
+  for (let index = 0; index < itemsCount; index++) {
+    const items = data[index]
+    const lengthofnull = getData[index].length - toppicName[0].length
+    if (startAddHeaderStr === 0) {
+      let count_toppic = 0
+      while (count_toppic < lengthofnull) {
+        addToppicSpecifices.push('')
+        count_toppic++
       }
+      startAddHeaderStr = itemsCount
+    }
+
+    const _addValuesSpecifices: string[] = []
+    let endCell: number
+    if (items.specific_field.length > 0) {
+      for (let a = 0; a < items.specific_field.length; a++) {
+        const specific = items.specific_field[a]
+        const startCell =
+          addMergeCell[a].e.c + items.specific_field.length - 1
+        endCell = startCell
+
+        const checkDupicateToppic = addToppicSpecifices.findIndex(
+          (x) => x === specific.topic_reason_name,
+        )
+        if (checkDupicateToppic === -1) {
+          addToppicSpecifices.push(specific.topic_reason_name)
+        }
+
+        let m = 1
+        while (m < specific.sub_reason_name.length) {
+          addToppicSpecifices.push(``)
+          m++
+          endCell++
+        }
+
+        for (let b = 0; b < specific.sub_reason_name.length; b++) {
+          const subSpecific = specific.sub_reason_name[b]
+          const checkDupicate = addNameSpecifices.findIndex(
+            (x) => x === subSpecific.name,
+          )
+          if (checkDupicate === -1) {
+            addNameSpecifices.push(subSpecific.name)
+          }
+          _addValuesSpecifices.push(subSpecific.value)
+        }
+        const modalMergeCell = {
+          s: { r: 0, c: startCell },
+          e: { r: 0, c: endCell },
+        }
+        addMergeCell.push(modalMergeCell)
+      }
+
+      addDatas.push([...getData[index], ..._addValuesSpecifices])
+    } else {
+      _addValuesSpecifices.push('')
+      addDatas.push([...getData[index], ..._addValuesSpecifices])
     }
   }
 
   const headerColumn = [...toppicName[0], ...addToppicSpecifices]
   const dataColumn1 = [...toppicName[1], ...addNameSpecifices]
-  const minusNumber = headerColumn.length - dataColumn1.length
-
-  let count = 0
-  /* pop remove values = '' */
-  while (count < minusNumber) {
-    headerColumn.pop()
-    count++
-  }
-  const formatData = [headerColumn, dataColumn1, ...getData]
+  const formatData = [headerColumn, dataColumn1, ...addDatas]
 
   const workbook = XLSX.utils.book_new()
   const ws = XLSX.utils.aoa_to_sheet([])
