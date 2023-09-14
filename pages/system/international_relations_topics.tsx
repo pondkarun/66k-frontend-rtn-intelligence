@@ -1,13 +1,14 @@
-import { Badge, Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, TreeSelect } from 'antd';
+import { Badge, Button, Card, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, TreeSelect, Typography } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloseOutlined, DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
 import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicAllsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
 import ModalFooter from '@/components/shares/ModalFooter';
 import trimDataString from '@/libs/trimFormDataString';
+import { FormInstance } from 'antd/lib';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -263,7 +264,7 @@ const InternationalRelationsTopics = () => {
                 </ConfigProvider>
 
                 <Modal
-                    width={700}
+                    width={800}
                     title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
                     open={isModalOpen}
                     onCancel={handleCancel}
@@ -302,6 +303,8 @@ const InternationalRelationsTopics = () => {
                             <Input disabled={mode == "view" ? true : false} style={{ width: "85%" }} />
                         </Form.Item>
 
+
+                        {/* <Specifics form={form} /> */}
                         <TitleText>Specific</TitleText>
 
                         <Form.List name="guide_line_specific_field">
@@ -358,6 +361,107 @@ const InternationalRelationsTopics = () => {
                 {contextHolder}
             </>
         </Layout >
+    )
+}
+
+const Specifics = ({ form }: { form: FormInstance<any> }) => {
+
+    const demo = {
+        "parent_id": "03181e63-f06f-4dce-a8e8-f318ec959109",
+        "name": "ความร่วมมือระดับประเทศ",
+        "guide_line_specific_field": [
+            {
+                "groups": "ระดับประเทศ",
+                "value": [
+                    "การข่าว",
+                    "การเมือง"
+                ]
+            }
+        ]
+    }
+    return (
+        <Form
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 21 }}
+            form={form}
+            style={{ maxWidth: 800 }}
+        >
+            <TitleText>Specific</TitleText>
+            <Form.List name="guide_line_specific_field">
+                {(fields, { add, remove }) => (
+                    <div style={{ display: 'flex', rowGap: 16, flexDirection: 'column', paddingTop: 10 }}>
+                        {fields.map((field) => (
+                            <Card
+                                size="small"
+                                title={`Groups ${field.name + 1}`}
+                                key={field.key}
+                                extra={
+                                    <CloseOutlined
+                                        onClick={() => {
+                                            remove(field.name);
+                                        }}
+                                    />
+                                }
+                            >
+                                <Form.Item label="Groups" name={[field.name, 'groups']} rules={[{ required: true, message: 'Missing groups name' }]}>
+                                    <Input />
+                                </Form.Item>
+
+                                {/* Nest Form.List */}
+                                <Form.Item label="Value">
+                                    <Form.List name={[field.name, 'value']}>
+                                        {(subFields, subOpt) => (
+                                            <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
+                                                {subFields.map((subField) => (
+                                                    <Space key={subField.key}>
+                                                        <Form.Item noStyle name={[subField.name]} rules={[{ required: true, message: 'Missing value' }]}>
+                                                            <Input />
+                                                        </Form.Item>
+                                                        {/* <Form.Item noStyle name={[subField.name]}>
+                                                            <Input placeholder="second" />
+                                                        </Form.Item> */}
+                                                        <CloseOutlined
+                                                            onClick={() => {
+                                                                subOpt.remove(subField.name);
+                                                            }}
+                                                        />
+                                                    </Space>
+                                                ))}
+                                                <Button type="dashed" onClick={() => subOpt.add()} block>
+                                                    + Add Value
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </Form.List>
+                                </Form.Item>
+                            </Card>
+                        ))}
+
+                        <Button type="dashed" onClick={() => add()} block>
+                            + Add Group
+                        </Button>
+                    </div>
+                )}
+            </Form.List>
+
+            {/* View
+            <Form.Item noStyle shouldUpdate>
+                {() => (
+                    <Typography>
+                        <pre style={{ fontSize: 16 }}>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
+                    </Typography>
+                )}
+            </Form.Item>
+
+            True
+            <Form.Item noStyle shouldUpdate>
+                {() => (
+                    <Typography>
+                        <pre style={{ fontSize: 16 }}>{JSON.stringify(demo, null, 2)}</pre>
+                    </Typography>
+                )}
+            </Form.Item> */}
+        </Form>
     )
 }
 
