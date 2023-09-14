@@ -280,7 +280,7 @@ const ManageInternationalRelationsTopics = (
                         />
                       }
                     >
-                      <Input.TextArea />
+                      <Input.TextArea autoSize />
                     </Form.Item>
                   </Col>
                 )
