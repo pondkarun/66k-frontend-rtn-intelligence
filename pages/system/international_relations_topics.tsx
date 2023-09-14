@@ -6,6 +6,8 @@ import { DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCir
 import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
 import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicAllsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
+import ModalFooter from '@/components/shares/ModalFooter';
+import trimDataString from '@/libs/trimFormDataString';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -178,6 +180,7 @@ const InternationalRelationsTopics = () => {
     }
 
     const handleOk = () => {
+        trimDataString(form);
         form.submit()
     };
 
@@ -259,7 +262,12 @@ const InternationalRelationsTopics = () => {
                     <TableSearch rowKey={"id"} columns={columns} dataSource={data} scroll={{ x: "100%", y: "100%" }} />
                 </ConfigProvider>
 
-                <Modal width={700} title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Modal
+                    width={700}
+                    title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
+                    open={isModalOpen}
+                    footer={<ModalFooter mode={mode} onOk={handleOk} onCancel={handleCancel} />}
+                >
                     <Form
                         form={form}
                         labelCol={{ span: 6 }}

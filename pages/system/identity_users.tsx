@@ -1,4 +1,4 @@
-import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Table, Tooltip, TreeSelect } from 'antd';
+import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Switch, Table, Tooltip, TreeSelect, message } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -8,6 +8,9 @@ import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
 import { getAllDepartmentsService } from '@/services/departments';
 import type { ColumnsType } from 'antd/es/table';
+import ModalFooter from '@/components/shares/ModalFooter';
+import { isPlainObject, isString } from 'lodash';
+import trimDataString from '@/libs/trimFormDataString';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -129,6 +132,22 @@ const IdentityUsers = () => {
             width: 200,
         },
         {
+            title: 'สถานะเข้าใช้งาน',
+            dataIndex: 'is_active',
+            key: 'is_active',
+            render: (text: any, obj: any) => <Switch checked={text} disabled={obj.username === "superadmin"} onChange={(e) => updateStatusUser(obj.id, e)} />,
+            width: 150,
+            align: 'center',
+        },
+        {
+            title: 'Reset',
+            dataIndex: 'position',
+            key: 'position',
+            render: (text: any, obj: any) => <Button onClick={() => resetPassword(obj.id)}>Reset Password</Button>,
+            width: 150,
+            align: 'center',
+        },
+        {
             title: 'จัดการ',
             dataIndex: 'position',
             width: 110,
@@ -150,15 +169,34 @@ const IdentityUsers = () => {
                         </Popconfirm>
                     </Tooltip></>
                     : null}
-
-
             </>,
         },
     ];
 
     const onFinishSearch = (value: any) => {
-        console.log('Finish:', value);
         searchData(value.search)
+    }
+
+    const resetPassword = (id: string) => {
+        updateIdentityUsersService({
+            password: "$2a$05$5eNVr0cQkwBkxLjTY1fuCObubVMlL0Ek2VXHPF7GhRH0uVH9PRy0q"
+        }, id).then(res => {
+            message.success("บันทึกสำเร็จ")
+            searchData("")
+        }).catch(err => {
+            message.error("มีบางอย่างพิดพลาด")
+        })
+    }
+
+    const updateStatusUser = (id: string, value: boolean) => {
+        updateIdentityUsersService({
+            is_active: value
+        }, id).then(res => {
+            message.success("บันทึกสำเร็จ")
+            searchData("")
+        }).catch(err => {
+            message.error("มีบางอย่างพิดพลาด")
+        })
     }
 
     /** Modal */
@@ -198,6 +236,7 @@ const IdentityUsers = () => {
     }
 
     const handleOk = () => {
+        trimDataString(form);
         form.submit()
     };
 
@@ -277,7 +316,12 @@ const IdentityUsers = () => {
                     <TableSearch rowKey={"id"} columns={columns} dataSource={data} scroll={{ x: "100%", y: "100%" }} />
                 </ConfigProvider>
 
-                <Modal width={600} title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Modal
+                    width={600}
+                    title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
+                    open={isModalOpen}
+                    footer={<ModalFooter mode={mode} onOk={handleOk} onCancel={handleCancel} />}
+                >
                     <Form
                         form={form}
                         labelCol={{ span: 6 }}
