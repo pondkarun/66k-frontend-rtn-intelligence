@@ -58,78 +58,108 @@ interface ReactPDFDocProps {
 const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
   return (
     <Document>
-      {items.map((item) => (
-        <Page size='A4' style={styles.body} key={item.id}>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              rowGap: 14,
-            }}
-          >
-            <Text style={styles.textToppic}>{item.event_name}</Text>
-            <Text style={styles.textToppic}>{item.event_venue}</Text>
-            <Text style={styles.textToppic}>{item.leader_name_thai}</Text>
-            <Text style={styles.textToppic}>{item.leader_name_foreign}</Text>
-          </View>
-          {typeof item.image_documents !== 'undefined' ? (
-            item.image_documents.length > 0 ? (
-              item.image_documents[0].url !== '' ? (
-                <View
-                  style={{
-                    display: 'flex',
-                    alignSelf: 'center',
-                    padding: '20px 20px',
-                  }}
-                >
-                  <Image
-                    src={item.image_documents[0].url}
-                    style={styles.image}
-                  />
-                </View>
-              ) : null
-            ) : null
-          ) : null}
-          <View style={styles.separator} />
-          {item.specific_field.map((specific, index) => (
-            <Fragment key={index}>
+      {items.map((item) => {
+        const start_date = new Date(item.event_date_start).toLocaleDateString(
+          'th-TH',
+          {
+            year: '2-digit',
+            month: 'short',
+            day: 'numeric',
+          },
+        )
+        const start_end = new Date(item.event_date_end).toLocaleDateString(
+          'th-TH',
+          {
+            year: '2-digit',
+            month: 'short',
+            day: 'numeric',
+          },
+        )
+        return (
+          <Fragment key={item.id}>
+            <Page size='A4' style={styles.body} key={item.id}>
               <View
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  rowGap: 4,
+                  rowGap: 14,
                 }}
               >
-                <Text style={{ fontWeight: 'semibold', paddingBottom: 10 }}>{`${
-                  index + 1
-                }.${specific.topic_reason_name}`}</Text>
-                {specific.sub_reason_name.map((subreason, index) => (
-                  <Fragment key={index}>
+                <Text style={styles.textToppic}>{item.event_name}</Text>
+                <Text style={styles.textToppic}>{item.event_venue}</Text>
+                <Text
+                  style={styles.textToppic}
+                >{`${start_date} - ${start_end}`}</Text>
+                <Text style={styles.textToppic}>{item.leader_name_thai}</Text>
+                <Text style={styles.textToppic}>
+                  {item.leader_name_foreign}
+                </Text>
+              </View>
+              {typeof item.image_documents !== 'undefined' ? (
+                item.image_documents.length > 0 ? (
+                  item.image_documents[0].url !== '' ? (
                     <View
                       style={{
                         display: 'flex',
-                        flexWrap: 'nowrap',
-                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        padding: '20px 20px',
                       }}
                     >
+                      <Image
+                        src={item.image_documents[0].url}
+                        style={styles.image}
+                      />
+                    </View>
+                  ) : null
+                ) : null
+              ) : null}
+              <View style={styles.separator} />
+              {item.specific_field.map((specific, index) => (
+                <Fragment key={index}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      rowGap: 4,
+                    }}
+                  >
+                    <Text
+                      style={{ fontWeight: 'semibold', paddingBottom: 10 }}
+                    >{`${index + 1}.${specific.topic_reason_name}`}</Text>
+                    {specific.sub_reason_name.map((subreason, index) => (
                       <Fragment key={index}>
                         <View
-                          style={{ flex: '1 0 80px', fontWeight: 'semibold' }}
+                          style={{
+                            display: 'flex',
+                            flexWrap: 'nowrap',
+                            flexDirection: 'row',
+                          }}
                         >
-                          <Text>{`${subreason.name} :`}</Text>
-                        </View>
-                        <View style={{ flex: '1 0 260px', paddingBottom: 10 }}>
-                          <Text>{subreason.value}</Text>
+                          <Fragment key={index}>
+                            <View
+                              style={{
+                                flex: '1 0 80px',
+                                fontWeight: 'semibold',
+                              }}
+                            >
+                              <Text>{`${subreason.name} :`}</Text>
+                            </View>
+                            <View
+                              style={{ flex: '1 0 260px', paddingBottom: 10 }}
+                            >
+                              <Text>{subreason.value}</Text>
+                            </View>
+                          </Fragment>
                         </View>
                       </Fragment>
-                    </View>
-                  </Fragment>
-                ))}
-              </View>
-            </Fragment>
-          ))}
-        </Page>
-      ))}
+                    ))}
+                  </View>
+                </Fragment>
+              ))}
+            </Page>
+          </Fragment>
+        )
+      })}
     </Document>
   )
 }

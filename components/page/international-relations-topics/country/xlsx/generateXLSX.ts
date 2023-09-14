@@ -7,11 +7,11 @@ type SheelConfigT = TfieldInternationdata[]
 
 export default (data: SheelConfigT, file_name?: string) => {
   const toppicName = [
-    ['', 'หัวข้อทั่วไป'],
+    ['', data[0].ir_topic.name],
     [
       'ลำดับ',
       'ชื่อกิจกรรม',
-      'สถานที่จัดกิจกรรม',
+      'กิจกรรม',
       'หัวหน้าคณะฝ่ายไทย',
       'หัวหน้าคณะฝ่ายต่างประเทศ',
       'วันที่เริ่มต้น',

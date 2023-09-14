@@ -10,9 +10,12 @@ import {
   message,
 } from 'antd'
 import React, { useState, Fragment } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import { useRouter } from 'next/router'
+import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs'
+import { isArray, isPlainObject } from 'lodash'
 import FormUpload from '@/components/shares/FormUpload'
 import {
   TdocumentsOption,
@@ -20,10 +23,8 @@ import {
 } from '@/interface/international_relations_datas.interface'
 import { addInternationalDataRelationsTopicsService } from '@/services/internationalRelationsDatas'
 import { TMapReason } from '@/interface/international_relations_topics.interface'
-import { v4 as uuidv4 } from 'uuid';
-import { ActionTprops } from './country'
+import { setActionFormInput } from '@/redux/actions/commonAction'
 import FormUploadInput from './country/FormUploadInput'
-import { isArray, isPlainObject } from 'lodash'
 
 type SpecificFieldType = {
   groups: string
@@ -32,7 +33,6 @@ type SpecificFieldType = {
 
 type ManageInternationalRelationsTopicsType = {
   mode: 'add' | 'edit'
-  setActiontype: React.Dispatch<React.SetStateAction<ActionTprops>>
 }
 
 //#region -> styled
@@ -59,12 +59,13 @@ const Line = styled('div')`
 const ManageInternationalRelationsTopics = (
   props: ManageInternationalRelationsTopicsType,
 ) => {
-  const { mode, setActiontype } = props
+  const { mode } = props
   const router = useRouter()
   const [idAdd, setIdAdd] = useState(uuidv4())
 
   const [finalSubmit, setFinalSubmit] = useState(false)
 
+  const dispatch = useDispatch()
   const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu)
   const [form] = Form.useForm<Tforminternational>()
 
@@ -143,8 +144,8 @@ const ManageInternationalRelationsTopics = (
         })
       }
 
-    const event_date_start = data.event_date[0].toISOString()
-    const event_date_end = data.event_date[1].toISOString()
+    const event_date_start = dayjs(data.event_date[0]).add(1, 'day') as unknown as string
+    const event_date_end = dayjs(data.event_date[1]).add(1, 'day') as unknown as string
 
     const modalRequst: Omit<
       Tforminternational,
@@ -176,7 +177,7 @@ const ManageInternationalRelationsTopics = (
       form.resetFields()
       setFinalSubmit(!finalSubmit)
       message.success('เพิ่มข้อมูลสำเร็จ')
-      setActiontype('')
+      dispatch(setActionFormInput(''))
     }
   }
 
@@ -292,7 +293,7 @@ const ManageInternationalRelationsTopics = (
           </Button>
           <Button
             onClick={() => {
-              setActiontype('')
+              dispatch(setActionFormInput(''))
             }}
           >
             ยกเลิก

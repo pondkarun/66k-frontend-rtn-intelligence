@@ -200,7 +200,7 @@ const MatterImgupload = ({
         // footer={<></>}
       >
         <Title>{text}</Title>
-        <label>{`อัพโหลดไฟล์เอกสาร (jpg, png, svg)`}</label>
+        <label>{`อัปโหลดไฟล์เอกสาร (jpg, png, svg)`}</label>
 
         {/* <Dragger {...propsDragger}>
           <p className='ant-upload-drag-icon'>

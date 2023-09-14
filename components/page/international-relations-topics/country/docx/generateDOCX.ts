@@ -25,12 +25,31 @@ export default async (data: DocConfigT, file_name?: string) => {
   for (let z = 0; z < itemsCount; z++) {
     const _data = data[z]
 
-    let bufferImage
+    const createImageParagraph = []
+
     if (_data.image_documents) {
-      bufferImage =
-        typeof _data.image_documents[0] === 'undefined'
-          ? ''
-          : await (await fetch(_data.image_documents[0].url)).arrayBuffer()
+      if (typeof _data.image_documents[0] !== 'undefined') {
+        const getImage = await (
+          await fetch(_data.image_documents[0].url)
+        ).arrayBuffer()
+        createImageParagraph.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: {
+              before: 200,
+            },
+            children: [
+              new ImageRun({
+                data: getImage,
+                transformation: {
+                  width: 200,
+                  height: 200,
+                },
+              }),
+            ],
+          }),
+        )
+      }
     }
     mergeCommonToppic.push(
       new Paragraph({
@@ -81,21 +100,7 @@ export default async (data: DocConfigT, file_name?: string) => {
           }),
         ],
       }),
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: {
-          before: 200,
-        },
-        children: [
-          new ImageRun({
-            data: typeof bufferImage !== 'undefined' ? bufferImage : '',
-            transformation: {
-              width: 300,
-              height: 300,
-            },
-          }),
-        ],
-      }),
+      ...createImageParagraph,
     )
 
     for (let x = 0; x < _data.specific_field.length; x++) {
@@ -134,7 +139,7 @@ export default async (data: DocConfigT, file_name?: string) => {
                 },
                 children: [
                   new TextRun({
-                    text: `${sub_reason.name}:`,
+                    text: `${sub_reason.name}:  `,
                     bold: true,
                   }),
                   new Paragraph({

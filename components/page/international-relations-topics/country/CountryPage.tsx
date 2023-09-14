@@ -53,33 +53,13 @@ import {
 } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
-import { ActionTprops } from '../country'
+import { setActionFormInput } from '@/redux/actions/commonAction'
 import FormUploadInput from './FormUploadInput'
 import generateXLSX from './xlsx/generateXLSX'
+import generateDOCX from './docx/generateDOCX'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
-import download from 'downloadjs'
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  AlignmentType,
-  ImageRun,
-  FrameAnchorType,
-  HorizontalPositionAlign,
-  VerticalPositionAlign,
-  ShadingType,
-  PositionalTab,
-  PositionalTabAlignment,
-  PositionalTabRelativeTo,
-  PositionalTabLeader,
-  TabStopType,
-  TabStopPosition,
-  UnderlineType,
-} from 'docx'
-import type { ISpacingProperties } from 'docx'
-import generateDOCX from './docx/generateDOCX'
+import ModalFooter from '@/components/shares/ModalFooter'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -90,14 +70,7 @@ type QueryProps = {
   search?: string
 }
 
-interface InternationalRelationsTopicsProps {
-  setActiontype: React.Dispatch<React.SetStateAction<ActionTprops>>
-}
-
-const InternationalRelationsTopics = (
-  props: InternationalRelationsTopicsProps,
-) => {
-  const { setActiontype } = props
+const InternationalRelationsTopics = () => {
   const dispatch = useDispatch()
   const router = useRouter()
   const path = router.query as { country?: string; toppic?: string }
@@ -294,7 +267,7 @@ const InternationalRelationsTopics = (
         docs: mapDocs,
         img: mapImage,
       })
-      console.log('mapImage :>> ', mapImage)
+
       formInternational.setFieldsValue({
         ...responseDatas.data,
         toppic_name: _record.ir_topic.name,
@@ -318,7 +291,7 @@ const InternationalRelationsTopics = (
       message.error('เกิดข้อผิดพลาดบางอย่าง')
       return
     } finally {
-      message.success('ลบข้อมูลสพเร็จ')
+      message.success('ลบข้อมูลสำเร็จ')
       randerQueryApi()
     }
   }
@@ -359,7 +332,7 @@ const InternationalRelationsTopics = (
           },
           {
             key: 'event_venue',
-            title: 'สถานที่จัดกิจจกรรม',
+            title: 'กิจกรรม',
             dataIndex: 'event_venue',
             render: (value) => value ?? '-',
             width: 200,
@@ -480,7 +453,7 @@ const InternationalRelationsTopics = (
           },
           {
             key: 'event_venue',
-            title: 'สถานที่จัดกิจจกรรม',
+            title: 'กิจจกรรม',
             dataIndex: 'event_venue',
             render: (value) => value ?? '-',
             width: 200,
@@ -566,52 +539,56 @@ const InternationalRelationsTopics = (
   }
 
   const onFinishInternational = async () => {
-    const itemsForm: any = formInternational.getFieldValue(undefined)
+    const itemsForm = formInternational.getFieldsValue()
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
+    console.log('itemsForm', itemsForm)
 
-    for (const [key1, values] of Object.entries(
-      itemsForm.specific_field as unknown as never,
-    )) {
-      const subReason = []
-      const fields = Object.entries(values as unknown as never)
+    if (itemsForm.specific_field) {
+      for (const [key1, values] of Object.entries(
+        itemsForm.specific_field as unknown as never,
+      )) {
+        const subReason = []
+        const fields = Object.entries(values as unknown as never)
 
-      for (let index = 0; index < fields.length; index++) {
-        const element = fields[index] as any
-        let upload: any = undefined
-        if (element[1].upload) {
-          const _u = element[1].upload
-          upload = {}
-          if (isArray(_u.image)) {
-            upload.image = _u.image.map((e: any) => {
-              return {
-                url: '',
-                name: e.name,
-              }
-            })
+        for (let index = 0; index < fields.length; index++) {
+          const element = fields[index] as any
+          let upload: any = undefined
+          if (element[1].upload) {
+            const _u = element[1].upload
+            upload = {}
+            if (isArray(_u.image)) {
+              upload.image = _u.image.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
+            if (isArray(_u.file)) {
+              upload.file = _u.file.map((e: any) => {
+                return {
+                  url: '',
+                  name: e.name,
+                }
+              })
+            }
           }
-          if (isArray(_u.file)) {
-            upload.file = _u.file.map((e: any) => {
-              return {
-                url: '',
-                name: e.name,
-              }
-            })
-          }
+          subReason.push({
+            name: element[0],
+            value: element[1].value,
+            upload,
+          })
         }
-        subReason.push({
-          name: element[0],
-          value: element[1].value,
-          upload,
+
+        createReason.push({
+          topic_reason_name: key1,
+          sub_reason_name: subReason,
         })
       }
-
-      createReason.push({
-        topic_reason_name: key1,
-        sub_reason_name: subReason,
-      })
     }
+
     if (typeof itemsForm.file_documents !== 'undefined')
       if (itemsForm.file_documents.length > 0) {
         for (let x = 0; x < itemsForm.file_documents.length; x++) {
@@ -634,8 +611,14 @@ const InternationalRelationsTopics = (
         }
       }
 
-    const event_date_start = itemsForm.event_date[0].toISOString()
-    const event_date_end = itemsForm.event_date[1].toISOString()
+    const event_date_start = dayjs(itemsForm.event_date[0]).add(
+      1,
+      'day',
+    ) as unknown as string
+    const event_date_end = dayjs(itemsForm.event_date[1]).add(
+      1,
+      'day',
+    ) as unknown as string
 
     const modalRequst: Omit<
       Tforminternational,
@@ -654,6 +637,7 @@ const InternationalRelationsTopics = (
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
     }
+
     try {
       await editInternationalDatasService(modalRequst, internationalId)
     } catch (error) {
@@ -663,7 +647,7 @@ const InternationalRelationsTopics = (
       message.success('แก้ไขข้อมูลสำเร็จ')
       formInternational.resetFields()
       setIsModalOpen(!isModalOpen)
-      randerQueryApi()
+      randerQueryCountryApi()
     }
   }
 
@@ -699,7 +683,7 @@ const InternationalRelationsTopics = (
   )
 
   const handleExportxlxs = async () => {
-    await randerQueryApi()
+    await randerQueryCountryApi()
     if (typeof dataSource !== 'undefined') {
       if (selectedRowKeys.length > 0) {
         const selectedData: TfieldInternationdata[] = []
@@ -716,7 +700,7 @@ const InternationalRelationsTopics = (
   }
 
   const handleDocxExport = async () => {
-    await randerQueryApi()
+    await randerQueryCountryApi()
     if (typeof dataSource !== 'undefined') {
       if (selectedRowKeys.length > 0) {
         const selectedData: TfieldInternationdata[] = []
@@ -770,7 +754,7 @@ const InternationalRelationsTopics = (
             {path.toppic && (
               <BtnMain
                 onClick={() => {
-                  setActiontype('add')
+                  dispatch(setActionFormInput('add'))
                 }}
               >
                 <PlusCircleOutlined /> เพิ่ม
@@ -781,13 +765,6 @@ const InternationalRelationsTopics = (
               onClick={() => setIsOpenExport(true)}
             >
               Export
-            </BtnMain>
-            <BtnMain
-              disabled={dataSource?.length === 0}
-              bgColor='#15bf3a'
-              onClick={handleExportxlxs}
-            >
-              Excel
             </BtnMain>
           </Form.Item>
         </Col>
@@ -814,9 +791,15 @@ const InternationalRelationsTopics = (
       <Modal
         title={`${mode == 'edit' ? 'แก้ไข' : 'ดู'}หัวข้อความสัมพันธ์`}
         open={isModalOpen}
-        onOk={() => formInternational.submit()}
         onCancel={() => setIsModalOpen(!isModalOpen)}
         width={800}
+        footer={
+          <ModalFooter
+            mode={mode as string}
+            onOk={() => formInternational.submit()}
+            onCancel={() => setIsModalOpen(!isModalOpen)}
+          />
+        }
       >
         <Form
           form={formInternational}
@@ -831,6 +814,7 @@ const InternationalRelationsTopics = (
                   disabled={
                     mode === EmodeOption.VIEW || mode === EmodeOption.EDIT
                   }
+                  style={{ color: '#6e6d6d' }}
                 />
               </Form.Item>
             </Col>
@@ -841,16 +825,18 @@ const InternationalRelationsTopics = (
                 name='event_name'
                 rules={[{ required: true }]}
               >
-                <Input disabled={mode === EmodeOption.VIEW} />
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                id='event_venue'
-                label='สถานที่จัดกิจกรรม'
-                name='event_venue'
-              >
-                <Input disabled={mode === EmodeOption.VIEW} />
+              <Form.Item id='event_venue' label='กิจกรรม' name='event_venue'>
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -859,7 +845,10 @@ const InternationalRelationsTopics = (
                 label='หัวหน้าคณะฝ่ายไทย'
                 name='leader_name_thai'
               >
-                <Input disabled={mode === EmodeOption.VIEW} />
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -868,7 +857,10 @@ const InternationalRelationsTopics = (
                 label='หัวหน้าคณะฝ่ายต่างประเทศ'
                 name='leader_name_foreign'
               >
-                <Input disabled={mode === EmodeOption.VIEW} />
+                <Input
+                  disabled={mode === EmodeOption.VIEW}
+                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -880,6 +872,10 @@ const InternationalRelationsTopics = (
                 <DatePicker.RangePicker
                   disabled={mode === EmodeOption.VIEW}
                   format={'DD/MM/YYYY'}
+                  style={{
+                    color:
+                      mode === EmodeOption.VIEW ? '#6e6d6d !important' : '',
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -950,7 +946,12 @@ const InternationalRelationsTopics = (
                             </>
                           }
                         >
-                          <Input disabled={mode === EmodeOption.VIEW} />
+                          <Input
+                            disabled={mode === EmodeOption.VIEW}
+                            style={{
+                              color: mode === EmodeOption.VIEW ? '#6e6d6d' : '',
+                            }}
+                          />
                         </Form.Item>
                       </Col>
                     )
@@ -988,6 +989,13 @@ const InternationalRelationsTopics = (
               </BtnMain>
               <BtnMain onClick={handleDocxExport}>
                 <span>Word</span>
+              </BtnMain>
+              <BtnMain
+                disabled={selectedRowKeys.length === 0}
+                bgColor='#15bf3a'
+                onClick={handleExportxlxs}
+              >
+                Excel
               </BtnMain>
             </div>
           </div>

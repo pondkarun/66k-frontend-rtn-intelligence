@@ -207,7 +207,7 @@ const MatterDocsUpload = ({
           Check useForm
         </Button>
         <Title>{text}</Title>
-        <label>{`อัพโหลดไฟล์เอกสาร (xlsx, docx, ptt, pdf)`}</label>
+        <label>{`อัปโหลดไฟล์เอกสาร (xlsx, docx, ptt, pdf)`}</label>
         {/* <Form name='validate_other' onFinish={handleOk}>
           <Form.Item name='dragger'>
             <Dragger {...propsDragger}>
