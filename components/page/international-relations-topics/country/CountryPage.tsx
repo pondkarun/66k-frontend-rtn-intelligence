@@ -225,12 +225,12 @@ const InternationalRelationsTopics = () => {
                 'responseDatas.data.file_documents :>> ',
                 responseDatas.data.file_documents,
               )
-              console.log('_url :>> ', _url)
+              // console.log('_url :>> ', _url)
               const splitSlach = _url.split('/')
               const pathName = splitSlach[splitSlach.length - 1]
               return pathName === fileDocument.name
             })
-            console.log('docs :>> ', docs)
+            // console.log('docs :>> ', docs)
             mapDocs.push({ ...fileDocument, url: docs as string })
           }
 
@@ -301,237 +301,237 @@ const InternationalRelationsTopics = () => {
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> =
     path.country && path.toppic
       ? [
-        {
-          key: 'event_date',
-          title: 'ห้วงเวลา',
-          render: (_value, record) => {
-            const start_date = new Date(
-              record.event_date_start,
-            ).toLocaleDateString('th-TH', {
-              year: '2-digit',
-              month: 'short',
-              day: 'numeric',
-            })
-            const start_end = new Date(
-              record.event_date_end,
-            ).toLocaleDateString('th-TH', {
-              year: '2-digit',
-              month: 'short',
-              day: 'numeric',
-            })
+          {
+            key: 'event_date',
+            title: 'ห้วงเวลา',
+            render: (_value, record) => {
+              const start_date = new Date(
+                record.event_date_start,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
+              const start_end = new Date(
+                record.event_date_end,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
 
-            return `${start_date} - ${start_end}`
+              return `${start_date} - ${start_end}`
+            },
+            width: 200,
+            align: 'center',
           },
-          width: 200,
-          align: 'center',
-        },
-        {
-          key: 'event_name',
-          title: 'ชื่อกิจกรรม',
-          dataIndex: 'event_name',
-          render: (value) => value,
-          width: 300,
-        },
-        {
-          key: 'event_venue',
-          title: 'สถานที่จัดกิจกรรม',
-          dataIndex: 'event_venue',
-          render: (value) => value ?? '-',
-          width: 200,
-        },
-        {
-          key: 'file-record',
-          title: 'ไฟล์แนบ',
-          render: (_value, record: any) => {
-            return (
-              <FileTableContentField>
-                {record.file_documents.length > 0 && (
-                  <Tooltip>
-                    <EventContentField>
-                      <DocumentIcon />
+          {
+            key: 'event_name',
+            title: 'ชื่อกิจกรรม',
+            dataIndex: 'event_name',
+            render: (value) => value,
+            width: 300,
+          },
+          {
+            key: 'event_venue',
+            title: 'สถานที่จัดกิจกรรม',
+            dataIndex: 'event_venue',
+            render: (value) => value ?? '-',
+            width: 200,
+          },
+          {
+            key: 'file-record',
+            title: 'ไฟล์แนบ',
+            render: (_value, record: any) => {
+              return (
+                <FileTableContentField>
+                  {record.file_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <DocumentIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.image_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <ImageBackgroundIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.file_documents.length === 0 &&
+                    record.image_documents.length === 0 && <></>}
+                </FileTableContentField>
+              )
+            },
+            width: 100,
+            align: 'center',
+          },
+          {
+            key: 'maneage',
+            title: 'จัดการ',
+            width: 100,
+            align: 'center',
+            render: (_value, record) => {
+              return (
+                <FileTableContentField>
+                  <Tooltip title={`ดูข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.VIEW)
+                      }
+                    >
+                      <EyeOutlined />
                     </EventContentField>
                   </Tooltip>
-                )}
-                {record.image_documents.length > 0 && (
-                  <Tooltip>
-                    <EventContentField>
-                      <ImageBackgroundIcon />
+                  <Tooltip title={`แก้ไขข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.EDIT)
+                      }
+                    >
+                      <EditOutlined />
                     </EventContentField>
                   </Tooltip>
-                )}
-                {record.file_documents.length === 0 &&
-                  record.image_documents.length === 0 && <></>}
-              </FileTableContentField>
-            )
+                  <Tooltip title={`ลบข้อมูล`}>
+                    <Popconfirm
+                      placement='top'
+                      title={'ยืนยันการลบข้อมูล'}
+                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                      okText='ตกลง'
+                      cancelText='ยกเลิก'
+                    >
+                      <EventContentField>
+                        <DeleteOutlined />
+                      </EventContentField>
+                    </Popconfirm>
+                  </Tooltip>
+                </FileTableContentField>
+              )
+            },
           },
-          width: 100,
-          align: 'center',
-        },
-        {
-          key: 'maneage',
-          title: 'จัดการ',
-          width: 100,
-          align: 'center',
-          render: (_value, record) => {
-            return (
-              <FileTableContentField>
-                <Tooltip title={`ดูข้อมูล`}>
-                  <EventContentField
-                    onClick={() =>
-                      handleRecordManage(record, EmodeOption.VIEW)
-                    }
-                  >
-                    <EyeOutlined />
-                  </EventContentField>
-                </Tooltip>
-                <Tooltip title={`แก้ไขข้อมูล`}>
-                  <EventContentField
-                    onClick={() =>
-                      handleRecordManage(record, EmodeOption.EDIT)
-                    }
-                  >
-                    <EditOutlined />
-                  </EventContentField>
-                </Tooltip>
-                <Tooltip title={`ลบข้อมูล`}>
-                  <Popconfirm
-                    placement='top'
-                    title={'ยืนยันการลบข้อมูล'}
-                    onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                    okText='ตกลง'
-                    cancelText='ยกเลิก'
-                  >
-                    <EventContentField>
-                      <DeleteOutlined />
-                    </EventContentField>
-                  </Popconfirm>
-                </Tooltip>
-              </FileTableContentField>
-            )
-          },
-        },
-      ]
+        ]
       : [
-        {
-          key: 'ir_topic',
-          title: 'หัวข้อ',
-          render: (_value, record) => {
-            return (
-              <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
-            )
+          {
+            key: 'ir_topic',
+            title: 'หัวข้อ',
+            render: (_value, record) => {
+              return (
+                <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
+              )
+            },
+            width: 200,
           },
-          width: 200,
-        },
-        {
-          key: 'event_date',
-          title: 'ห้วงเวลา',
-          render: (_value, record) => {
-            const start_date = new Date(
-              record.event_date_start,
-            ).toLocaleDateString('th-TH', {
-              year: '2-digit',
-              month: 'short',
-              day: 'numeric',
-            })
-            const start_end = new Date(
-              record.event_date_end,
-            ).toLocaleDateString('th-TH', {
-              year: '2-digit',
-              month: 'short',
-              day: 'numeric',
-            })
+          {
+            key: 'event_date',
+            title: 'ห้วงเวลา',
+            render: (_value, record) => {
+              const start_date = new Date(
+                record.event_date_start,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
+              const start_end = new Date(
+                record.event_date_end,
+              ).toLocaleDateString('th-TH', {
+                year: '2-digit',
+                month: 'short',
+                day: 'numeric',
+              })
 
-            return `${start_date} - ${start_end}`
+              return `${start_date} - ${start_end}`
+            },
+            width: 200,
+            align: 'center',
           },
-          width: 200,
-          align: 'center',
-        },
-        {
-          key: 'event_name',
-          title: 'ชื่อกิจกรรม',
-          dataIndex: 'event_name',
-          render: (value) => value,
-          width: 300,
-        },
-        {
-          key: 'event_venue',
-          title: 'สถานที่จัดกิจกรรม',
-          dataIndex: 'event_venue',
-          render: (value) => value ?? '-',
-          width: 200,
-        },
-        {
-          key: 'file-record',
-          title: 'ไฟล์แนบ',
-          render: (_value, record: any) => {
-            return (
-              <FileTableContentField>
-                {record.file_documents.length > 0 && (
-                  <Tooltip>
-                    <EventContentField>
-                      <DocumentIcon />
+          {
+            key: 'event_name',
+            title: 'ชื่อกิจกรรม',
+            dataIndex: 'event_name',
+            render: (value) => value,
+            width: 300,
+          },
+          {
+            key: 'event_venue',
+            title: 'สถานที่จัดกิจกรรม',
+            dataIndex: 'event_venue',
+            render: (value) => value ?? '-',
+            width: 200,
+          },
+          {
+            key: 'file-record',
+            title: 'ไฟล์แนบ',
+            render: (_value, record: any) => {
+              return (
+                <FileTableContentField>
+                  {record.file_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <DocumentIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.image_documents.length > 0 && (
+                    <Tooltip>
+                      <EventContentField>
+                        <ImageBackgroundIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.file_documents.length === 0 &&
+                    record.image_documents.length === 0 && <></>}
+                </FileTableContentField>
+              )
+            },
+            width: 100,
+            align: 'center',
+          },
+          {
+            key: 'maneage',
+            title: 'จัดการ',
+            width: 100,
+            align: 'center',
+            render: (_value, record) => {
+              return (
+                <FileTableContentField>
+                  <Tooltip title={`ดูข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.VIEW)
+                      }
+                    >
+                      <EyeOutlined />
                     </EventContentField>
                   </Tooltip>
-                )}
-                {record.image_documents.length > 0 && (
-                  <Tooltip>
-                    <EventContentField>
-                      <ImageBackgroundIcon />
+                  <Tooltip title={`แก้ไขข้อมูล`}>
+                    <EventContentField
+                      onClick={() =>
+                        handleRecordManage(record, EmodeOption.EDIT)
+                      }
+                    >
+                      <EditOutlined />
                     </EventContentField>
                   </Tooltip>
-                )}
-                {record.file_documents.length === 0 &&
-                  record.image_documents.length === 0 && <></>}
-              </FileTableContentField>
-            )
+                  <Tooltip title={`ลบข้อมูล`}>
+                    <Popconfirm
+                      placement='top'
+                      title={'ยืนยันการลบข้อมูล'}
+                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                      okText='ตกลง'
+                      cancelText='ยกเลิก'
+                    >
+                      <EventContentField>
+                        <DeleteOutlined />
+                      </EventContentField>
+                    </Popconfirm>
+                  </Tooltip>
+                </FileTableContentField>
+              )
+            },
           },
-          width: 100,
-          align: 'center',
-        },
-        {
-          key: 'maneage',
-          title: 'จัดการ',
-          width: 100,
-          align: 'center',
-          render: (_value, record) => {
-            return (
-              <FileTableContentField>
-                <Tooltip title={`ดูข้อมูล`}>
-                  <EventContentField
-                    onClick={() =>
-                      handleRecordManage(record, EmodeOption.VIEW)
-                    }
-                  >
-                    <EyeOutlined />
-                  </EventContentField>
-                </Tooltip>
-                <Tooltip title={`แก้ไขข้อมูล`}>
-                  <EventContentField
-                    onClick={() =>
-                      handleRecordManage(record, EmodeOption.EDIT)
-                    }
-                  >
-                    <EditOutlined />
-                  </EventContentField>
-                </Tooltip>
-                <Tooltip title={`ลบข้อมูล`}>
-                  <Popconfirm
-                    placement='top'
-                    title={'ยืนยันการลบข้อมูล'}
-                    onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                    okText='ตกลง'
-                    cancelText='ยกเลิก'
-                  >
-                    <EventContentField>
-                      <DeleteOutlined />
-                    </EventContentField>
-                  </Popconfirm>
-                </Tooltip>
-              </FileTableContentField>
-            )
-          },
-        },
-      ]
+        ]
 
   const onFinish = () => {
     const data = form.getFieldsValue()
@@ -602,7 +602,7 @@ const InternationalRelationsTopics = () => {
     //           file_name: file_doc.name,
     //         })
     //       }
-          
+
     //     }
     //   }
     // }
@@ -619,7 +619,7 @@ const InternationalRelationsTopics = () => {
     //           file_name: file_img.name,
     //         })
     //       }
-         
+
     //     }
     //   }
     // }
@@ -692,7 +692,7 @@ const InternationalRelationsTopics = () => {
       file_documents: createValuesReasonFile,
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
-    }    
+    }
 
     try {
       await editInternationalDatasService(modalRequst, internationalId)
@@ -891,7 +891,11 @@ const InternationalRelationsTopics = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item id='event_venue' label='สถานที่จัดกิจกรรม' name='event_venue'>
+              <Form.Item
+                id='event_venue'
+                label='สถานที่จัดกิจกรรม'
+                name='event_venue'
+              >
                 <Input
                   disabled={mode === EmodeOption.VIEW}
                   style={{ color: mode === EmodeOption.VIEW ? '#000' : '' }}
@@ -932,8 +936,7 @@ const InternationalRelationsTopics = () => {
                   disabled={mode === EmodeOption.VIEW}
                   format={'DD/MM/YYYY'}
                   style={{
-                    color:
-                      mode === EmodeOption.VIEW ? '#000 !important' : '',
+                    color: mode === EmodeOption.VIEW ? '#000 !important' : '',
                   }}
                 />
               </Form.Item>
@@ -1006,7 +1009,8 @@ const InternationalRelationsTopics = () => {
                             </>
                           }
                         >
-                          <Input.TextArea autoSize
+                          <Input.TextArea
+                            autoSize
                             disabled={mode === EmodeOption.VIEW}
                             style={{
                               color: mode === EmodeOption.VIEW ? '#000' : '',
@@ -1095,7 +1099,7 @@ const Line = styled.div`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const BtnMain = styled(Button) <{ bgColor?: string }>`
+const BtnMain = styled(Button)<{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
