@@ -332,7 +332,7 @@ const InternationalRelationsTopics = () => {
           },
           {
             key: 'event_venue',
-            title: 'กิจกรรม',
+            title: 'สถานที่จัดกิจกรรม',
             dataIndex: 'event_venue',
             render: (value) => value ?? '-',
             width: 200,
@@ -453,7 +453,7 @@ const InternationalRelationsTopics = () => {
           },
           {
             key: 'event_venue',
-            title: 'กิจจกรรม',
+            title: 'สถานที่จัดกิจกรรม',
             dataIndex: 'event_venue',
             render: (value) => value ?? '-',
             width: 200,
@@ -832,7 +832,7 @@ const InternationalRelationsTopics = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item id='event_venue' label='กิจกรรม' name='event_venue'>
+              <Form.Item id='event_venue' label='สถานที่จัดกิจกรรม' name='event_venue'>
                 <Input
                   disabled={mode === EmodeOption.VIEW}
                   style={{ color: mode === EmodeOption.VIEW ? '#000' : '' }}
