@@ -1,6 +1,12 @@
-import { InboxOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, Col, Form, Modal, Row, Upload, message } from 'antd'
-import { useEffect, useState } from 'react'
+import {
+  InboxOutlined,
+  LeftOutlined,
+  PlusOutlined,
+  RightOutlined,
+  UploadOutlined,
+} from '@ant-design/icons'
+import { Button, Carousel, Col, Form, Modal, Row, Upload, message } from 'antd'
+import { Fragment, Key, Ref, useEffect, useRef, useState } from 'react'
 import { RcFile, UploadChangeParam } from 'antd/lib/upload'
 import { useRouter } from 'next/router'
 import getBase64 from '@/libs/getBase64'
@@ -47,6 +53,8 @@ const FormUpload = ({
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
   })
 
+  const slider = useRef<{next: () => void, prev: () => void}>(null)
+
   const router = useRouter()
   const params = router.query
 
@@ -55,11 +63,16 @@ const FormUpload = ({
     form.setFieldValue(name, value)
   }
 
-  const beforeUploadValidateSize = (_info: UploadChangeParam<UploadFile<any>>, _type: 'file' | 'image') => {
+  const beforeUploadValidateSize = (
+    _info: UploadChangeParam<UploadFile<any>>,
+    _type: 'file' | 'image',
+  ) => {
     const unitFile = _type === 'file' ? 50 : 10
     const limitFile = Number(_info.file.size) / 1024 / 1024 < unitFile
     if (!limitFile) {
-      message.error(`${_type === 'file' ? 'เอกสาร' : 'รูปภาพ'}มีขนาดเกิน ${unitFile}MB`)
+      message.error(
+        `${_type === 'file' ? 'เอกสาร' : 'รูปภาพ'}มีขนาดเกิน ${unitFile}MB`,
+      )
       return false
     }
     return true
@@ -74,26 +87,15 @@ const FormUpload = ({
       // console.log('info :>> ', info);
       const isLimit = beforeUploadValidateSize(info, type)
       if (isLimit) {
-        try {
-          const fileUploaded = await internalUploadPublicService({
-            formData: info.fileList,
-            country_id: params.country as string,
-            ticpid_id: params.toppic
-              ? (params.toppic as string)
-              : (ticpidId as string),
-            dir: dir ?? undefined,
-          })
-  
-          if (fileUploaded === 'OK') {
-            info.file.status = 'done'
-            setFile([...file, ...info.fileList])
-          }
-        } catch (error) {
+        const isLimit = beforeUploadValidateSize(info, type)
+        if (isLimit) {
+          info.file.status = 'done'
+          setFile([...file, ...info.fileList])
+        } else {
           info.file.status = 'error'
           setFile([...file, ...info.fileList])
         }
       }
-      
     },
     fileList: [],
     onDrop(e) {
@@ -109,26 +111,12 @@ const FormUpload = ({
       // console.log('propsButton :>> ', info)
       const isLimit = beforeUploadValidateSize(info, type)
       if (isLimit) {
-        try {
-          const fileUploaded = await internalUploadPublicService({
-            formData: info.fileList,
-            country_id: params.country as string,
-            ticpid_id: params.toppic
-              ? (params.toppic as string)
-              : (ticpidId as string),
-            dir: dir ?? undefined,
-          })
-  
-          if (fileUploaded === 'OK') {
-            info.file.status = 'done'
-            setFile([...file, ...info.fileList])
-          }
-        } catch (error) {
-          info.file.status = 'error'
-          setFile([...file, ...info.fileList])
-        }
+        info.file.status = 'done'
+        setFile([...file, ...info.fileList])
+      } else {
+        info.file.status = 'error'
+        setFile([...file, ...info.fileList])
       }
-      
     },
     fileList: [],
     onDrop(e) {
@@ -141,21 +129,7 @@ const FormUpload = ({
     accept: acceptFile,
     action: '/api/upload',
     onChange: (info) => {
-      try {
-        removeInternalUploadPublicService({
-          country_id: params.country as string,
-          ticpid_id: params.toppic
-            ? (params.toppic as string)
-            : (ticpidId as string),
-          file_name: info.file.name,
-          dir: dir ?? undefined,
-        })
-          .then((res) => {})
-          .catch((error) => {})
-        setFile(info.fileList)
-      } catch (error) {
-        setFile([])
-      }
+      setFile(info.fileList)
     },
     fileList: file,
     onPreview(e) {
@@ -178,9 +152,12 @@ const FormUpload = ({
       a.href = file.url
       a.target = '_blank'
       a.click()
-    } else {
-      setPreviewOpen(true)
-    }
+    } else if (type === 'file' && file.preview) {
+      const blob = new Blob([file.originFileObj as any], { type: 'application/pdf'})
+      const urlBlob = URL.createObjectURL(blob) 
+      window.open(urlBlob, '_blank')
+
+    } else setPreviewOpen(true)
 
     setPreviewTitle(
       file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1),
@@ -268,20 +245,32 @@ const FormUpload = ({
           )}
           <Modal
             open={previewOpen}
-            title={previewTitle}
+            title={null}
             footer={null}
+            width={700}
             onCancel={() => setPreviewOpen(false)}
           >
-            {fileType === 'pdf' ||
-            fileType === 'xlsx' ||
-            fileType === 'docx' ? (
-              <iframe
-                style={{ width: '100%', height: '100%', minHeight: '400px' }}
-                src={previewImage}
-              />
-            ) : (
-              <img alt='example' style={{ width: '100%' }} src={previewImage} />
-            )}
+            {file.length > 0 ? (
+              <>
+                <Carousel effect='fade' ref={slider as any}>
+                  {file.map((list: { uid: Key; name: string; url: string, preview?: string }) => (
+                    <Fragment key={list.uid}>
+                      <img
+                        alt={list.name}
+                        style={{ width: '100%', height: '700px' }}
+                        src={list.url ? list.url : list.preview}
+                      />
+                    </Fragment>
+                  ))}
+                </Carousel>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                >
+                  <Button onClick={() => slider.current?.prev()} type='text' icon={<LeftOutlined />} />
+                  <Button onClick={() => slider.current?.next()} type='text' icon={<RightOutlined />} />
+                </div>
+              </>
+            ) : null}
           </Modal>
         </Col>
       </Row>

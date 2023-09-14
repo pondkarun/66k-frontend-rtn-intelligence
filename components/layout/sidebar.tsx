@@ -9,8 +9,8 @@ import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
 import { setObjToppic, setSelectCountry, setSelectToppic } from '@/redux/actions/toppicMenuActions';
 import { setBackground } from '@/redux/actions/configActions';
-import type { MenuProps } from 'antd';
 import { setActionFormInput, setCollapsed } from '@/redux/actions/commonAction';
+import type { MenuProps } from 'antd';
 const { Sider } = Layout;
 
 

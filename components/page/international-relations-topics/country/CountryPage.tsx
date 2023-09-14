@@ -50,16 +50,18 @@ import { TMapReason } from '@/interface/international_relations_topics.interface
 import {
   HOSTMAINUPLOADAPI,
   getInternalFilePublicService,
+  internalUploadPublicService,
 } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
 import { setActionFormInput } from '@/redux/actions/commonAction'
+import ModalFooter from '@/components/shares/ModalFooter'
+import trimDataString from '@/libs/trimFormDataString'
 import FormUploadInput from './FormUploadInput'
 import generateXLSX from './xlsx/generateXLSX'
 import generateDOCX from './docx/generateDOCX'
 import type { ColumnsType } from 'antd/es/table'
 import type { TableRowSelection } from 'antd/es/table/interface'
-import ModalFooter from '@/components/shares/ModalFooter'
 
 enum EmodeOption {
   VIEW = 'view',
@@ -292,7 +294,7 @@ const InternationalRelationsTopics = () => {
       return
     } finally {
       message.success('ลบข้อมูลสำเร็จ')
-      randerQueryApi()
+      randerQueryCountryApi()
     }
   }
 
@@ -543,7 +545,6 @@ const InternationalRelationsTopics = () => {
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
-    console.log('itemsForm', itemsForm)
 
     if (itemsForm.specific_field) {
       for (const [key1, values] of Object.entries(
@@ -589,12 +590,66 @@ const InternationalRelationsTopics = () => {
       }
     }
 
+    // if (itemsForm.file_documents) {
+    //   if (itemsForm.file_documents.length > 0) {
+    //     for (let p = 0; p < itemsForm.file_documents.length; p++) {
+    //       const file_doc = itemsForm.file_documents[p] as any
+    //       if (file_doc.url) {
+    //         await removeInternalUploadPublicService({
+    //           country_id: router.query.country as string,
+    //           ticpid_id: toppicId,
+    //           dir: internationalId,
+    //           file_name: file_doc.name,
+    //         })
+    //       }
+          
+    //     }
+    //   }
+    // }
+
+    // if (itemsForm.image_documents) {
+    //   if (itemsForm.image_documents.length > 0) {
+    //     for (let p = 0; p < itemsForm.image_documents.length; p++) {
+    //       const file_img = itemsForm.image_documents[p] as any
+    //       if (file_img.url) {
+    //         await removeInternalUploadPublicService({
+    //           country_id: router.query.country as string,
+    //           ticpid_id: toppicId,
+    //           dir: internationalId,
+    //           file_name: file_img.name,
+    //         })
+    //       }
+         
+    //     }
+    //   }
+    // }
+
+    let fileUploadedImg: any
+    let fileUploadedDoc: any
+    if (itemsForm.image_documents) {
+      fileUploadedImg = await internalUploadPublicService({
+        formData: itemsForm.image_documents,
+        country_id: router.query.country as string,
+        ticpid_id: toppicId,
+        dir: internationalId,
+      })
+    }
+    if (itemsForm.file_documents) {
+      fileUploadedDoc = await internalUploadPublicService({
+        formData: itemsForm.file_documents,
+        country_id: router.query.country as string,
+        ticpid_id: toppicId,
+        dir: internationalId,
+      })
+    }
+
     if (typeof itemsForm.file_documents !== 'undefined')
       if (itemsForm.file_documents.length > 0) {
         for (let x = 0; x < itemsForm.file_documents.length; x++) {
           const file_document = itemsForm.file_documents[x]
+          const urlFile = fileUploadedDoc.data[x]
           createValuesReasonFile.push({
-            url: file_document.url,
+            url: file_document.url ? file_document.url : urlFile,
             name: file_document.name,
           })
         }
@@ -604,8 +659,9 @@ const InternationalRelationsTopics = () => {
       if (itemsForm.image_documents.length > 0) {
         for (let z = 0; z < itemsForm.image_documents.length; z++) {
           const image_document = itemsForm.image_documents[z]
+          const urlFile = fileUploadedImg.data[z]
           createValuesReasonImage.push({
-            url: image_document.url,
+            url: image_document.url ? image_document.url : urlFile,
             name: image_document.name,
           })
         }
@@ -636,7 +692,7 @@ const InternationalRelationsTopics = () => {
       file_documents: createValuesReasonFile,
       image_documents: createValuesReasonImage,
       ir_topic_breadcrumb: null,
-    }
+    }    
 
     try {
       await editInternationalDatasService(modalRequst, internationalId)
@@ -764,7 +820,7 @@ const InternationalRelationsTopics = () => {
               disabled={selectedRowKeys.length === 0}
               onClick={() => setIsOpenExport(true)}
             >
-              Export
+              Reports
             </BtnMain>
           </Form.Item>
         </Col>
@@ -796,7 +852,10 @@ const InternationalRelationsTopics = () => {
         footer={
           <ModalFooter
             mode={mode as string}
-            onOk={() => formInternational.submit()}
+            onOk={() => {
+              trimDataString(formInternational)
+              formInternational.submit()
+            }}
             onCancel={() => setIsModalOpen(!isModalOpen)}
           />
         }

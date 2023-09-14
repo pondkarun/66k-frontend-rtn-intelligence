@@ -31,7 +31,7 @@ export const internalUploadPublicService = async ({
   formData,
   dir,
 }: TinternalUploadPublicProps) => {
-  await axios.post(
+  const response =  await axios.post(
     `${HOSTMAINUPLOADAPI}/internal/upload/${country_id}/${ticpid_id}?dir=${dir || ''}`,
     formData,
     {
@@ -40,7 +40,11 @@ export const internalUploadPublicService = async ({
       },
     },
   )
-  return 'OK'
+  
+  return {
+    message: 'OK',
+    data: response.data.data
+  }
 }
 
 export const removeInternalUploadPublicService = async (
