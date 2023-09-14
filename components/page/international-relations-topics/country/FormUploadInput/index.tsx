@@ -15,10 +15,11 @@ interface FormUploadInputProps {
   form: any
   name: any
   dir?: string
+  mode?: string
 }
 
 const FormUploadInput = (props: FormUploadInputProps) => {
-  const { label, keys, form, name, dir } = props
+  const { label, keys, form, name, dir, mode } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalOpenInfo, setIsModalOpenInfo] = useState(false)
@@ -92,8 +93,8 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             name={[...name, type]}
             acceptFile={type == "file" ? '.pdf,.xlsx,.doc,.ptt' : ".jpg,.png,.svg,.webp"}
             dir={dirPath ? `${dirPath}${type}` : undefined}
+            disabled={mode == "view" ? true : false}
           />
-
         </Modal>
 
         : null}
