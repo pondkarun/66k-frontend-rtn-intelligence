@@ -942,11 +942,12 @@ const InternationalRelationsTopics = () => {
                                   'upload',
                                 ]}
                                 dir={internationalId}
+                                mode={mode}
                               />
                             </>
                           }
                         >
-                          <Input
+                          <Input.TextArea
                             disabled={mode === EmodeOption.VIEW}
                             style={{
                               color: mode === EmodeOption.VIEW ? '#000' : '',

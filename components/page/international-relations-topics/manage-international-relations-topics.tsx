@@ -276,10 +276,11 @@ const ManageInternationalRelationsTopics = (
                           form={form}
                           name={['specific_field', e.groups, item, 'upload']}
                           dir={idAdd}
+                          mode={mode}
                         />
                       }
                     >
-                      <Input />
+                      <Input.TextArea />
                     </Form.Item>
                   </Col>
                 )
