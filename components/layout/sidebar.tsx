@@ -353,7 +353,7 @@ const SidebarLayoutComponents = () => {
 
     return (
         <>
-            <Sidebar width={350} trigger={null} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
+            <Sidebar width={350} trigger={null}  collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
                 <div style={{ margin: "15px 10px 15px 10px" }} >
                     <section>
                         <Logo />
