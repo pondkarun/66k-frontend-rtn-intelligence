@@ -814,7 +814,7 @@ const InternationalRelationsTopics = () => {
                   disabled={
                     mode === EmodeOption.VIEW || mode === EmodeOption.EDIT
                   }
-                  style={{ color: '#6e6d6d' }}
+                  style={{ color: '#000' }}
                 />
               </Form.Item>
             </Col>
@@ -827,7 +827,7 @@ const InternationalRelationsTopics = () => {
               >
                 <Input
                   disabled={mode === EmodeOption.VIEW}
-                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                  style={{ color: mode === EmodeOption.VIEW ? '#000' : '' }}
                 />
               </Form.Item>
             </Col>
@@ -835,7 +835,7 @@ const InternationalRelationsTopics = () => {
               <Form.Item id='event_venue' label='กิจกรรม' name='event_venue'>
                 <Input
                   disabled={mode === EmodeOption.VIEW}
-                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                  style={{ color: mode === EmodeOption.VIEW ? '#000' : '' }}
                 />
               </Form.Item>
             </Col>
@@ -847,7 +847,7 @@ const InternationalRelationsTopics = () => {
               >
                 <Input
                   disabled={mode === EmodeOption.VIEW}
-                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                  style={{ color: mode === EmodeOption.VIEW ? '#000' : '' }}
                 />
               </Form.Item>
             </Col>
@@ -859,7 +859,7 @@ const InternationalRelationsTopics = () => {
               >
                 <Input
                   disabled={mode === EmodeOption.VIEW}
-                  style={{ color: mode === EmodeOption.VIEW ? '#6e6d6d' : '' }}
+                  style={{ color: mode === EmodeOption.VIEW ? '#000' : '' }}
                 />
               </Form.Item>
             </Col>
@@ -874,7 +874,7 @@ const InternationalRelationsTopics = () => {
                   format={'DD/MM/YYYY'}
                   style={{
                     color:
-                      mode === EmodeOption.VIEW ? '#6e6d6d !important' : '',
+                      mode === EmodeOption.VIEW ? '#000 !important' : '',
                   }}
                 />
               </Form.Item>
@@ -949,7 +949,7 @@ const InternationalRelationsTopics = () => {
                           <Input
                             disabled={mode === EmodeOption.VIEW}
                             style={{
-                              color: mode === EmodeOption.VIEW ? '#6e6d6d' : '',
+                              color: mode === EmodeOption.VIEW ? '#000' : '',
                             }}
                           />
                         </Form.Item>
