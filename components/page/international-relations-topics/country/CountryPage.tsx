@@ -1,6 +1,7 @@
-import { Fragment, useCallback, useEffect, useState } from 'react'
+import { Fragment, Key, useCallback, useEffect, useRef, useState } from 'react'
 import {
   Button,
+  Carousel,
   Col,
   DatePicker,
   Form,
@@ -17,7 +18,9 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  LeftOutlined,
   PlusCircleOutlined,
+  RightOutlined,
 } from '@ant-design/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
@@ -103,6 +106,16 @@ const InternationalRelationsTopics = () => {
   }>()
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [selectMenageRow, setSelectMenageRow] = useState<{
+    items: TdocumentsOption
+    openModal: boolean
+    type?: 'img' | 'file' | undefined
+  }>({
+    items: [],
+    openModal: false,
+    type: undefined,
+  })
+  const slider = useRef<{ next: () => void; prev: () => void }>(null)
 
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
@@ -183,7 +196,7 @@ const InternationalRelationsTopics = () => {
       } catch (error) {
         /* empty */
       }
-      console.log('responseFiles :>> ', responseFiles)
+      // console.log('responseFiles :>> ', responseFiles)
 
       const responseDatas: any = await getByInternationalDatasService(
         _record.id,
@@ -465,24 +478,60 @@ const InternationalRelationsTopics = () => {
             title: 'ไฟล์แนบ',
             render: (_value, record: any) => {
               return (
-                <FileTableContentField>
-                  {record.file_documents.length > 0 && (
-                    <Tooltip>
-                      <EventContentField>
-                        <DocumentIcon />
-                      </EventContentField>
-                    </Tooltip>
-                  )}
-                  {record.image_documents.length > 0 && (
-                    <Tooltip>
-                      <EventContentField>
-                        <ImageBackgroundIcon />
-                      </EventContentField>
-                    </Tooltip>
-                  )}
-                  {record.file_documents.length === 0 &&
-                    record.image_documents.length === 0 && <></>}
-                </FileTableContentField>
+                <>
+                  <FileTableContentField>
+                    {record.file_documents?.length > 0 && (
+                      <Tooltip
+                        trigger='click'
+                        title={record.file_documents.map(
+                          (item: any, index: Key) => (
+                            <div
+                              key={index}
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                              }}
+                            >
+                              <a
+                                href={item.url}
+                                target='_blank'
+                                rel='noreferrer'
+                              >
+                                {item.name}
+                              </a>
+                            </div>
+                          ),
+                        )}
+                        overlayInnerStyle={{
+                          backgroundColor: '#fff',
+                          minWidth: 100,
+                        }}
+                        arrow={false}
+                      >
+                        <EventContentField>
+                          <DocumentIcon />
+                        </EventContentField>
+                      </Tooltip>
+                    )}
+                    {record.image_documents?.length > 0 && (
+                      <Tooltip>
+                        <EventContentField
+                          onClick={() => {
+                            setSelectMenageRow({
+                              items: record.image_documents,
+                              openModal: true,
+                              type: 'img',
+                            })
+                          }}
+                        >
+                          <ImageBackgroundIcon />
+                        </EventContentField>
+                      </Tooltip>
+                    )}
+                    {record.file_documents.length === 0 &&
+                      record.image_documents.length === 0 && <></>}
+                  </FileTableContentField>
+                </>
               )
             },
             width: 100,
@@ -935,9 +984,6 @@ const InternationalRelationsTopics = () => {
                 <DatePicker.RangePicker
                   disabled={mode === EmodeOption.VIEW}
                   format={'DD/MM/YYYY'}
-                  style={{
-                    color: mode === EmodeOption.VIEW ? '#000 !important' : '',
-                  }}
                 />
               </Form.Item>
             </Col>
@@ -1071,6 +1117,57 @@ const InternationalRelationsTopics = () => {
             <RenderPDF />
           </PDFViewer>
         ) : null}
+      </Modal>
+
+      {/* viewModal */}
+      <Modal
+        open={selectMenageRow.openModal}
+        title={null}
+        footer={null}
+        width={700}
+        onCancel={() =>
+          setSelectMenageRow({
+            openModal: false,
+            items: [],
+            type: undefined,
+          })
+        }
+      >
+        {selectMenageRow.type == 'img' ? (
+          <Carousel effect='fade'>
+            {selectMenageRow.items.map((item, index) => (
+              <Fragment key={index}>
+                <img
+                  alt={item.name}
+                  style={{
+                    width: '100%',
+                    height: '700px',
+                  }}
+                  src={item.url}
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Button
+                    onClick={() => slider.current?.prev()}
+                    type='text'
+                    icon={<LeftOutlined />}
+                  />
+                  <Button
+                    onClick={() => slider.current?.next()}
+                    type='text'
+                    icon={<RightOutlined />}
+                  />
+                </div>
+              </Fragment>
+            ))}
+          </Carousel>
+        ) : (
+          <></>
+        )}
       </Modal>
     </>
   )
