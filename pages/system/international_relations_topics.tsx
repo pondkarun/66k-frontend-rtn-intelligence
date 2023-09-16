@@ -122,20 +122,17 @@ const InternationalRelationsTopics = () => {
                     <Manage onClick={() => addEditViewModal("view", obj.id)}><EyeOutlined /></Manage>
                 </Tooltip>
 
+                <Tooltip title={`แก้ไขข้อมูล`}>
+                    <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
+                </Tooltip>
 
-                {obj.username !== "superadmin" ? <>
-                    <Tooltip title={`แก้ไขข้อมูล`}>
-                        <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
-                    </Tooltip>
-
+                {!(obj.international?.length > 0) ?
                     <Tooltip title={`ลบข้อมูล`}>
                         <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => delData(obj.id)} okText="ตกลง" cancelText="ยกเลิก">
                             <Manage><DeleteOutlined /></Manage>
                         </Popconfirm>
-                    </Tooltip></>
+                    </Tooltip>
                     : null}
-
-
             </>,
         },
     ];

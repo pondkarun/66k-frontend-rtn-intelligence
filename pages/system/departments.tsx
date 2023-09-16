@@ -9,6 +9,7 @@ import { internationalRelationsTopicsService } from '@/services/internationalRel
 import { addDepartmentsService, getAllDepartmentsListService, getAllDepartmentsService, getByIDDepartmentsService, updateDepartmentsService } from '@/services/departments';
 import ModalFooter from '@/components/shares/ModalFooter';
 import trimDataString from '@/libs/trimFormDataString';
+import { isArray } from 'lodash';
 
 const { SHOW_PARENT } = TreeSelect;
 const Departments = () => {
@@ -234,11 +235,18 @@ const Departments = () => {
                     handleCancel()
                 }
             }
-        } catch (error) {
-            modal.error({
-                centered: true,
-                content: "มีบางอย่างพิดพลาด",
-            });
+        } catch (error: any) {
+            console.log('eror.response? :>> ', error.response?.data);
+            if (isArray(error.response?.data)) {
+                modal.error({
+                    centered: true,
+                    content: error.response?.data[0]?.error?.message ?? "มีบางอย่างพิดพลาด",
+                });
+            } else
+                modal.error({
+                    centered: true,
+                    content: "มีบางอย่างพิดพลาด",
+                });
         }
     }
 

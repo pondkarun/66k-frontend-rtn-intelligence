@@ -8,7 +8,7 @@ const apiPost = (url: string, data?: any, configs?: AxiosRequestConfig): Promise
         Api.post(url, data, { ...configs }).then((res) => {
             resolve(res);
         }).catch((eror) => {
-            if (eror.response?.status === 403 || eror.response?.status === 403) {
+            if (eror.response?.status === 402 || eror.response?.status === 403) {
                 refreshToken().then((res) => {
                     Api.post(url, data).then((res) => {
                         resolve(res);
@@ -31,7 +31,7 @@ const apiGet = (url: string, data?: any): Promise<any> => {
         Api.get(url, data).then((res) => {
             resolve(res);
         }).catch((eror) => {
-            if (eror.response?.status === 403 || eror.response?.status === 403) {
+            if (eror.response?.status === 402 || eror.response?.status === 403) {
                 refreshToken().then((res) => {
                     Api.get(url, data).then((res) => {
                         resolve(res);
@@ -54,7 +54,7 @@ const apiPut = (url: string, data?: any): Promise<any> => {
         Api.put(url, data).then((res) => {
             resolve(res);
         }).catch((eror) => {
-            if (eror.response?.status === 403 || eror.response?.status === 403) {
+            if (eror.response?.status === 402 || eror.response?.status === 403) {
                 refreshToken().then((res) => {
                     Api.put(url, data).then((res) => {
                         resolve(res);
@@ -77,7 +77,7 @@ const apiPatch = (url: string, data?: any): Promise<any> => {
         Api.patch(url, data).then((res) => {
             resolve(res);
         }).catch((eror) => {
-            if (eror.response?.status === 403 || eror.response?.status === 403) {
+            if (eror.response?.status === 402 || eror.response?.status === 403) {
                 refreshToken().then((res) => {
                     Api.patch(url, data).then((res) => {
                         resolve(res);
@@ -100,7 +100,7 @@ const apiDelete = (url: string, data?: any): Promise<any> => {
         Api.delete(url, data).then((res) => {
             resolve(res);
         }).catch((eror) => {
-            if (eror.response?.status === 403 || eror.response?.status === 403) {
+            if (eror.response?.status === 402 || eror.response?.status === 403) {
                 refreshToken().then((res) => {
                     Api.delete(url, data).then((res) => {
                         resolve(res);
