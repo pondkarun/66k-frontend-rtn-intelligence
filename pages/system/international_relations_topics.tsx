@@ -59,6 +59,10 @@ const InternationalRelationsTopics = () => {
         searchData("")
     }, [])
 
+    const loadMasterData = () => {
+        getAllTopics()
+    }
+
     const searchData = async (search?: string) => {
         try {
             const res: any = await searchInternationalRelationsTopicsService(search);
@@ -168,6 +172,7 @@ const InternationalRelationsTopics = () => {
                 content: 'บันทึกสำเร็จ',
             });
             handleCancel()
+            loadMasterData()
             searchData(formSearch.getFieldValue("search"))
         } catch (error) {
             modal.error({
@@ -214,6 +219,7 @@ const InternationalRelationsTopics = () => {
                     await getAllTopics()
                 }
                 handleCancel()
+                loadMasterData()
             }
         } catch (error) {
             modal.error({
