@@ -357,28 +357,78 @@ const InternationalRelationsTopics = () => {
             title: 'ไฟล์แนบ',
             render: (_value, record: any) => {
               return (
-                <FileTableContentField>
-                  {record.file_documents.length > 0 && (
-                    <Tooltip>
-                      <EventContentField>
-                        <DocumentIcon />
-                      </EventContentField>
-                    </Tooltip>
-                  )}
-                  {record.image_documents.length > 0 && (
-                    <Tooltip>
-                      <EventContentField>
-                        <ImageBackgroundIcon />
-                      </EventContentField>
-                    </Tooltip>
-                  )}
-                  {record.file_documents.length === 0 &&
-                    record.image_documents.length === 0 && <></>}
-                </FileTableContentField>
+                <>
+                  <FileTableContentField>
+                    {record.file_documents?.length > 0 && (
+                      <Tooltip
+                        trigger='click'
+                        title={record.file_documents.map(
+                          (item: any, index: Key) => (
+                            <div
+                              key={index}
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                              }}
+                            >
+                              <a
+                                href={item.url}
+                                target='_blank'
+                                rel='noreferrer'
+                              >
+                                {item.name}
+                              </a>
+                            </div>
+                          ),
+                        )}
+                        overlayInnerStyle={{
+                          backgroundColor: '#fff',
+                          minWidth: 100,
+                        }}
+                        arrow={false}
+                      >
+                        <EventContentField>
+                          <DocumentIcon />
+                        </EventContentField>
+                      </Tooltip>
+                    )}
+                    {record.image_documents?.length > 0 && (
+                      <Tooltip>
+                        <EventContentField
+                          onClick={() => {
+                            setSelectMenageRow({
+                              items: record.image_documents,
+                              openModal: true,
+                              type: 'img',
+                            })
+                          }}
+                        >
+                          <ImageBackgroundIcon />
+                        </EventContentField>
+                      </Tooltip>
+                    )}
+                    {record.file_documents.length === 0 &&
+                      record.image_documents.length === 0 && <></>}
+                  </FileTableContentField>
+                </>
               )
             },
             width: 100,
             align: 'center',
+          },
+          {
+            key: 'created_by',
+            title: 'ชื่อผู้แก้ไข',
+            dataIndex: 'created_by',
+            render: (value) => value ?? '-',
+            width: 100,
+          },
+          {
+            key: 'created_at',
+            title: 'แก้ไขล่าสุด',
+            dataIndex: 'created_date',
+            render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
+            width: 100,
           },
           {
             key: 'maneage',
@@ -433,7 +483,7 @@ const InternationalRelationsTopics = () => {
                 <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
               )
             },
-            width: 200,
+            width: 180,
           },
           {
             key: 'event_date',
@@ -456,7 +506,7 @@ const InternationalRelationsTopics = () => {
 
               return `${start_date} - ${start_end}`
             },
-            width: 200,
+            width: 180,
             align: 'center',
           },
           {
@@ -471,7 +521,7 @@ const InternationalRelationsTopics = () => {
             title: 'สถานที่จัดกิจกรรม',
             dataIndex: 'event_venue',
             render: (value) => value ?? '-',
-            width: 200,
+            width: 180,
           },
           {
             key: 'file-record',
@@ -536,6 +586,20 @@ const InternationalRelationsTopics = () => {
             },
             width: 100,
             align: 'center',
+          },
+          {
+            key: 'created_by',
+            title: 'ชื่อผู้แก้ไข',
+            dataIndex: 'created_by',
+            render: (value) => value ?? '-',
+            width: 180,
+          },
+          {
+            key: 'created_at',
+            title: 'แก้ไขล่าสุด',
+            dataIndex: 'created_date',
+            render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
+            width: 180,
           },
           {
             key: 'maneage',

@@ -1,6 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
 import * as XLSX from 'xlsx'
 import download from 'downloadjs'
+import dayjs from 'dayjs'
 import { TfieldInternationdata } from '@/interface/international_relations_datas.interface'
 
 type SheelConfigT = TfieldInternationdata[]
@@ -31,11 +32,7 @@ export default (data: SheelConfigT, file_name?: string) => {
     item.event_date_start,
     item.event_date_end,
     item.created_by,
-    new Date(item.updated_date).toLocaleDateString('th-TH', {
-      year: '2-digit',
-      month: 'short',
-      day: 'numeric',
-    }),
+    item.updated_date ? dayjs(item.updated_date).format('DD-MM-YYYY H:mm') : '' 
   ])
 
   const addToppicSpecifices: string[] = []
