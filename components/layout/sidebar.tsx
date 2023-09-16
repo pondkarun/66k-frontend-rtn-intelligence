@@ -1,9 +1,9 @@
-import { Badge, Button, Col, Collapse, Layout, Menu, Modal, Row } from 'antd';
+import { Badge, Button, Col, Collapse, Form, Input, Layout, Menu, Modal, Row } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
 import styled from "styled-components";
 import Router from "next/router";
-import { AppstoreOutlined, DownOutlined, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DownOutlined, EditFilled, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
 import { isArray } from 'lodash';
 import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
@@ -11,6 +11,10 @@ import { setObjToppic, setSelectCountry, setSelectToppic } from '@/redux/actions
 import { setBackground } from '@/redux/actions/configActions';
 import { setActionFormInput, setCollapsed } from '@/redux/actions/commonAction';
 import type { MenuProps } from 'antd';
+import ModalFooter from '../shares/ModalFooter';
+import { getByIdIdentityUsersService } from '@/services/identity_users';
+import { changePasswordService } from '@/services/auth';
+import { changePasswordInterface } from '@/interface/auth.interface';
 const { Sider } = Layout;
 
 
@@ -169,6 +173,12 @@ const CollapseToppic = styled(Collapse)`
 `
 const PanelToppic = styled(Collapse.Panel)``
 
+const ButtonEdit = styled("div")`
+    font-size: 14px;
+    cursor: pointer;
+    color: aliceblue !important;
+    text-decoration: underline;
+`
 
 const MenuSidebar = styled(Menu)`
     color: #fff;
@@ -242,6 +252,7 @@ const SidebarLayoutComponents = () => {
         width: typeof window !== 'undefined' ? window.innerWidth : 0,
         height: typeof window !== 'undefined' ? window.innerHeight : 0,
     });
+    const [modal, contextHolder] = Modal.useModal();
 
     useEffect(() => {
         dispatch(setBackground("#111730"));
@@ -351,16 +362,109 @@ const SidebarLayoutComponents = () => {
         )
     }, [currentMenu, itemsMenu])
 
+
+    /* Edit User */
+    const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+    const [formEdit] = Form.useForm();
+
+    const onClickEdit = async () => {
+        setIsModalOpenEdit(true)
+    }
+
+    const handleOkEdit = () => {
+        formEdit.submit()
+    }
+
+    const handleCancelEdit = () => {
+        formEdit.resetFields()
+        setIsModalOpenEdit(false)
+    }
+
+    const onFinishEdit = async (value: changePasswordInterface) => {
+        try {
+            await changePasswordService(value);
+            modal.success({
+                centered: true,
+                content: "เปลี่ยนรหัสผ่านสำเร็จ",
+            });
+            handleCancelEdit()
+        } catch (error: any) {
+            // console.log('eror.response? :>> ', error.response?.data);
+            if (error.response?.data) {
+                modal.error({
+                    centered: true,
+                    content: error.response?.data?.error?.message ?? "มีบางอย่างพิดพลาด",
+                });
+            } else
+                modal.error({
+                    centered: true,
+                    content: "มีบางอย่างพิดพลาด",
+                });
+        }
+    }
+
+    const onFinishFailedEdit = (error: any) => {
+        console.log('error :>> ', error);
+    }
+
     return (
         <>
-            <Sidebar width={350} trigger={null}  collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
+            {contextHolder}
+            <Modal
+                width={600}
+                title={`เปลี่ยนรหัสผ่าน`}
+                open={isModalOpenEdit}
+                onCancel={handleCancelEdit}
+                footer={<ModalFooter mode={"edit"} onOk={handleOkEdit} onCancel={handleCancelEdit} />}
+            >
+                <Form
+                    form={formEdit}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 16 }}
+                    onFinish={onFinishEdit}
+                    onFinishFailed={onFinishFailedEdit}
+                    autoComplete="off"
+                >
+
+                    <Form.Item
+                        label="รหัสผ่านเก่า"
+                        name="password_old"
+                        rules={[{ required: true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="รหัสผ่านใหม่"
+                        name="password_new"
+                        rules={[{ required: true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="ยืนยันรหัสผ่านใหม่"
+                        name="password_new_confirm"
+                        rules={[{ required: true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                </Form>
+            </Modal>
+
+
+            <Sidebar width={350} trigger={null} collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
                 <div style={{ margin: "15px 10px 15px 10px" }} >
                     <section>
                         <Logo />
                         {!collapsed ?
                             <NameUser>
-                                <div>{`${profile?.rank ?? ""} ${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`}</div>
+                                <div>
+                                    {`${profile?.rank ?? ""} ${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`}
+                                </div>
                                 <div>{profile?.position}</div>
+                                <ButtonEdit onClick={onClickEdit}>เปลี่ยนรหัส</ButtonEdit>
                             </NameUser>
                             : null
                         }
@@ -417,7 +521,7 @@ const SidebarLayoutComponents = () => {
                             {country ? <ToppicMenu list={topics as any} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
 
                             {itemsMenu.length > 0 ? (
-                               <WrapperMenuMenage />
+                                <WrapperMenuMenage />
                             ) : null}
                         </>
                     </div> : null}
@@ -540,12 +644,12 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                 }
             })
         } else setActiveKey('')
-        
+
     }, [toppic])
 
 
     const WrapperCollapse = useCallback(() => {
-        return( 
+        return (
             <>
                 <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
                     {list.map((e: any, i) => {

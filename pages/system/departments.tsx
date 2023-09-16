@@ -236,7 +236,7 @@ const Departments = () => {
                 }
             }
         } catch (error: any) {
-            console.log('eror.response? :>> ', error.response?.data);
+            // console.log('eror.response? :>> ', error.response?.data);
             if (isArray(error.response?.data)) {
                 modal.error({
                     centered: true,
