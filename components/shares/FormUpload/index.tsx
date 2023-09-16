@@ -53,7 +53,7 @@ const FormUpload = ({
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
   })
 
-  const slider = useRef<{next: () => void, prev: () => void}>(null)
+  const slider = useRef<{ next: () => void, prev: () => void }>(null)
 
   const router = useRouter()
   const params = router.query
@@ -153,8 +153,8 @@ const FormUpload = ({
       a.target = '_blank'
       a.click()
     } else if (type === 'file' && file.preview) {
-      const blob = new Blob([file.originFileObj as any], { type: 'application/pdf'})
-      const urlBlob = URL.createObjectURL(blob) 
+      const blob = new Blob([file.originFileObj as any], { type: 'application/pdf' })
+      const urlBlob = URL.createObjectURL(blob)
       window.open(urlBlob, '_blank')
 
     } else setPreviewOpen(true)
@@ -198,9 +198,8 @@ const FormUpload = ({
 
   return (
     <div>
-      <label>{`อัปโหลดไฟล์เอกสาร ${
-        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-      }`}</label>
+      <label>{`อัปโหลดไฟล์${type == 'image' ? "รูปภาพ" : "เอกสาร"} ${type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
+        }`}</label>
       {!disabled && (
         <Form.Item name={name}>
           <Dragger {...propsDragger}>
@@ -220,7 +219,7 @@ const FormUpload = ({
         {!disabled && (
           <>
             <Col xs={10} span={12}>
-              <h3>อัปโหลดไฟล์</h3>
+              {type == 'image' ? <h3>อัปโหลดรูปภาพ</h3> : <h3>อัปโหลดไฟล์เอกสาร</h3>}
             </Col>
             <Col xs={14} span={12} style={{ textAlign: 'end' }}>
               <Form.Item name={name}>

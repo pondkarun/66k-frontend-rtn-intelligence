@@ -1,31 +1,34 @@
-import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Row, Select, Space, Table, Tooltip, TreeSelect } from 'antd';
+import { Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Row, Table, Tooltip, Tree, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, PartitionOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
-import { searchInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
+import { internationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
 import { addDepartmentsService, getAllDepartmentsListService, getAllDepartmentsService, getByIDDepartmentsService, updateDepartmentsService } from '@/services/departments';
-import { SelectProps } from 'antd/lib';
 import ModalFooter from '@/components/shares/ModalFooter';
 import trimDataString from '@/libs/trimFormDataString';
 
-
+const { SHOW_PARENT } = TreeSelect;
 const Departments = () => {
     const dispatch = useDispatch();
     const [data, setData] = useState([]);
-    const [topics, setTopics] = useState([]);
+    const [topicsTreeData, setTopicsTreeData] = useState([]);
     const [departmentsAll, setDepartmentsAll] = useState([]);
     const [formSearch] = Form.useForm();
     const [modal, contextHolder] = Modal.useModal();
 
     useEffect(() => {
+        init()
+    }, [])
+
+    const init = () => {
         dispatch(setBackground("#fff"));
         getAllTopics()
         getAllDepartment()
         searchData("")
-    }, [])
+    }
 
     const searchData = async (search?: string) => {
         try {
@@ -60,23 +63,24 @@ const Departments = () => {
 
     const getAllTopics = async () => {
         try {
-            console.log('1 :>> ', 1);
-            const res: any = await searchInternationalRelationsTopicsService();
+            const res: any = await internationalRelationsTopicsService();
             let data: any = [];
             if (res.data?.data) {
+                const _res = res.data?.data;
+                /* setTopics */
                 const setData = (arr: any) => {
-                    console.log('arr www:>> ', arr);
                     arr?.forEach((e: any) => {
+                        e.key = e.id;
                         e.value = e.id;
                         e.label = e.name;
+                        e.title = e.name;
                         setData(e.children)
                     });
                 }
-                setData(res.data.data)
-                data = res.data.data
+                setData(_res)
+                data = _res
             }
-            console.log('data :>> ', data);
-            setTopics(data)
+            setTopicsTreeData(data)
         } catch (error) {
             console.log('error :>> ', error);
         }
@@ -126,11 +130,14 @@ const Departments = () => {
                         <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
                     </Tooltip>
 
-                    <Tooltip title={`ลบข้อมูล`}>
-                        <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => delData(obj.id)} okText="ตกลง" cancelText="ยกเลิก">
-                            <Manage><DeleteOutlined /></Manage>
-                        </Popconfirm>
-                    </Tooltip></>
+                    {!(obj.permission_ir_topics?.length > 0) ?
+                        <Tooltip title={`ลบข้อมูล`}>
+                            <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => delData(obj.id)} okText="ตกลง" cancelText="ยกเลิก">
+                                <Manage><DeleteOutlined /></Manage>
+                            </Popconfirm>
+                        </Tooltip>
+                        : null}
+                </>
                     : null}
             </>,
         },
@@ -142,6 +149,7 @@ const Departments = () => {
 
     /** Modal */
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalTreeOpen, setIsModalTreeOpen] = useState(false);
     const [mode, setIsMode] = useState("add");
     const [dataId, setIsDataId] = useState("");
     const [form] = Form.useForm();
@@ -165,9 +173,11 @@ const Departments = () => {
             }, id)
             modal.success({
                 centered: true,
-                content: 'บันทึกสำเร็จ',
+                content: 'ลบข้อมูลสำเร็จ',
             });
-            handleCancel()
+            dispatch(setBackground("#fff"));
+            getAllTopics()
+            getAllDepartment()
             searchData(formSearch.getFieldValue("search"))
         } catch (error) {
             modal.error({
@@ -188,8 +198,16 @@ const Departments = () => {
         form.resetFields()
     };
 
+    const handleFinish = () => {
+        setIsModalOpen(false);
+        setIsMode("add");
+        form.resetFields()
+        init()
+    };
+
     const onFinish = async (value: any) => {
         try {
+            // console.log('value :>> ', value);
             let isError = false, textError = null;
             if (mode == "add") {
                 const callback: any = await addDepartmentsService(value);
@@ -211,8 +229,10 @@ const Departments = () => {
                     });
                     await searchData(formSearch.getFieldValue("search"))
                     await getAllTopics()
+                    handleFinish()
+                } else {
+                    handleCancel()
                 }
-                handleCancel()
             }
         } catch (error) {
             modal.error({
@@ -226,13 +246,20 @@ const Departments = () => {
         console.log('error :>> ', error);
     }
 
-    const selectProps: any = {
-        mode: 'multiple',
-        style: { width: '100%' },
-        options: topics,
-        placeholder: 'Select Item...',
-        maxTagCount: 'responsive',
-        filterOption: (input: any, option: any) => (option?.label ?? '').includes(input)
+    const tProps = {
+        treeData: topicsTreeData,
+        // treeCheckable: true,
+        showCheckedStrategy: SHOW_PARENT,
+        placeholder: 'Please select',
+        style: {
+            width: '85%'
+        },
+        showLine: true,
+        multiple: true,
+        treeDefaultExpandAll: true,
+        allowClear: true,
+        maxTagTextLength: 20,
+        maxTagCount: 5
     };
 
     return (
@@ -256,6 +283,7 @@ const Departments = () => {
                         <Form.Item>
                             <ButtonSearch onClick={() => formSearch.submit()}>ค้นหา</ButtonSearch>
                             <ButtonSearch onClick={() => setIsModalOpen(true)}><PlusCircleOutlined /> เพิ่ม</ButtonSearch>
+                            <ButtonSearch onClick={() => setIsModalTreeOpen(true)}><PartitionOutlined /> Tree</ButtonSearch>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -267,6 +295,21 @@ const Departments = () => {
                 }}>
                     <TableSearch rowKey={"id"} columns={columns} dataSource={data} scroll={{ x: "100%", y: "100%" }} />
                 </ConfigProvider>
+
+                <Modal
+                    width={700}
+                    title={``}
+                    open={isModalTreeOpen}
+                    onCancel={() => setIsModalTreeOpen(!isModalTreeOpen)}
+                    footer={<div />}
+                >
+
+                    <TreeDisabled
+                        showLine
+                        treeData={topicsTreeData}
+                        disabled
+                    />
+                </Modal>
 
                 <Modal
                     width={700}
@@ -296,7 +339,7 @@ const Departments = () => {
                                 treeDefaultExpandAll
                                 treeData={departmentsAll}
                                 filterTreeNode={(input: any, option: any) => (option?.title ?? '').includes(input)}
-                                disabled={mode != "add" ? true : false}
+                                disabled={mode == "view"}
                             />
                         </Form.Item>
 
@@ -323,9 +366,7 @@ const Departments = () => {
                             name="permission_ir_topics"
                             style={{ paddingTop: 20 }}
                         >
-
-                            <Select {...selectProps} style={{ width: '85%' }} />
-
+                            <TreeSelect {...tProps} />
                         </Form.Item>
 
                     </Form>
@@ -368,6 +409,12 @@ const TableSearch = styled(Table)`
         background: #00408E !important;
         color: rgb(255 255 255) !important;
         text-align: center !important;
+    }
+`
+const TreeDisabled = styled(Tree)`
+    .ant-tree-treenode-disabled .ant-tree-node-content-wrapper {
+        color: rgb(0 0 0) !important;
+        cursor: auto !important;
     }
 `
 //#endregion
