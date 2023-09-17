@@ -8,6 +8,7 @@ import {
   setSelectToppic,
 } from '@/redux/actions/toppicMenuActions'
 import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 
 const BreadcrumbNav = styled(Breadcrumb)`
   padding: 15px 20px;
@@ -84,75 +85,77 @@ const BreadcrumbLayoutComponents = () => {
   const dispatch = useDispatch()
   const state = useSelector((state: any) => state.toppic_menu)
   const router = useRouter()
+  const pathname = usePathname()
+
+  console.log('pathname :>> ', pathname);
+
+  const BreadcrumbView = () => {
+    switch (pathname) {
+      case "/system/identity_users":
+        return (
+          <BreadcrumbNav separator='>'>
+            <span style={{ paddingRight: 5 }}>จัดการระบบ : </span>
+            <BreadcrumbNav.Item href='/system/identity_users'>ผู้ใช้งาน</BreadcrumbNav.Item>
+          </BreadcrumbNav>
+        )
+      case "/system/international_relations_topics":
+        return (
+          <BreadcrumbNav separator='>'>
+            <span style={{ paddingRight: 5 }}>จัดการระบบ : </span>
+            <BreadcrumbNav.Item href='/system/international_relations_topics'>หัวข้อความสัมพันธ์ระหว่างประเทศ</BreadcrumbNav.Item>
+          </BreadcrumbNav>
+        )
+      case "/system/departments":
+        return (
+          <BreadcrumbNav separator='>'>
+            <span style={{ paddingRight: 5 }}>จัดการระบบ : </span>
+            <BreadcrumbNav.Item href='/system/departments'>หน่วยงาน</BreadcrumbNav.Item>
+          </BreadcrumbNav>
+        )
+      default:
+        return (
+          <>
+            <BreadcrumbNav separator='>'>
+              <span style={{ paddingRight: 5 }}>เลือกหัวข้อ : </span>
+              <BreadcrumbNav.Item href='/'>หน้าหลัก</BreadcrumbNav.Item>
+              {!state.country ? (
+                <span>เลือกประเทศ</span>
+              ) : (
+                <>
+                  <BreadcrumbNav.Item
+                    href={`/international-relations-topics/${state.country}`}
+                    onClick={() => {
+                      dispatch(setSelectToppic(undefined))
+                      dispatch(setObjToppic(undefined))
+                    }}
+                  >
+                    {state.country_obj?.initials_th}
+                  </BreadcrumbNav.Item>
+                  {!state.toppic && router.pathname !== '/' ? (
+                    <span>ค้นหาข้อมูล</span>
+                  ) : null}
+                </>
+              )}
+              {state.toppic && (
+                <>
+                  <BreadcrumbNav.Item
+                    href={`/international-relations-topics/${state.country}/${state.toppic}`}
+                  >
+                    {state.toppic_obj?.name}
+                  </BreadcrumbNav.Item>
+                </>
+              )}
+            </BreadcrumbNav>
+
+          </>
+        )
+        break;
+    }
+  }
 
   return (
     <>
-      <BreadcrumbNav separator='>'>
-        <span style={{ paddingRight: 5 }}>เลือกหัวข้อ : </span>
-        <BreadcrumbNav.Item href='/'>หน้าหลัก</BreadcrumbNav.Item>
-        {!state.country ? (
-          <span>เลือกประเทศ</span>
-        ) : (
-          <>
-            <BreadcrumbNav.Item
-              href={`/international-relations-topics/${state.country}`}
-              onClick={() => {
-                dispatch(setSelectToppic(undefined))
-                dispatch(setObjToppic(undefined))
-              }}
-            >
-              {state.country_obj?.initials_th}
-            </BreadcrumbNav.Item>
-            {!state.toppic && router.pathname !== '/' ? (
-              <span>ค้นหาข้อมูล</span>
-            ) : null}
-          </>
-        )}
-        {state.toppic && (
-          <>
-            <BreadcrumbNav.Item
-              href={`/international-relations-topics/${state.country}/${state.toppic}`}
-            >
-              {state.toppic_obj?.name}
-            </BreadcrumbNav.Item>
-          </>
-        )}
-        {/* {state.country && (
-          <>
-            <BreadcrumbNav.Item>ความสัมพันธ์ระหว่างรัฐบาล</BreadcrumbNav.Item>
-            <BreadcrumbNav.Item>
-              การเยี่ยมเยือนผู้บังคับบัญชา
-            </BreadcrumbNav.Item>
-            <BreadcrumbNav.Item>การไปเยือน</BreadcrumbNav.Item>
-          </>
-        )} */}
-      </BreadcrumbNav>
-      {/* <BreadcrumbManage>
-        <LayoutButton>
-          <BreadcrumbButton
-            color='#fff'
-            background='#0066FF'
-            onClick={detailData}
-          >
-            <MdContentPaste />
-          </BreadcrumbButton>
-          <BreadcrumbButton
-            color='#000'
-            background='#FFC12B'
-            onClick={searchData}
-          >
-            <MdOutlineSearch />
-          </BreadcrumbButton>
-          <BreadcrumbButton
-            color='#fff'
-            background='#00963F'
-            disabled
-            onClick={addData}
-          >
-            <HiPlus />
-          </BreadcrumbButton>
-        </LayoutButton>
-      </BreadcrumbManage> */}
+      {BreadcrumbView()}
     </>
   )
 }
