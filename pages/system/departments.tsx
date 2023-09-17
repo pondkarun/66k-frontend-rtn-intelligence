@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { DeleteOutlined, EditOutlined, EyeOutlined, PartitionOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
-import { internationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
+import { internationalRelationsTopicAllsService } from '@/services/internationalRelationsTopics';
 import { addDepartmentsService, getAllDepartmentsListService, getAllDepartmentsService, getByIDDepartmentsService, updateDepartmentsService } from '@/services/departments';
 import ModalFooter from '@/components/shares/ModalFooter';
 import trimDataString from '@/libs/trimFormDataString';
@@ -64,7 +64,7 @@ const Departments = () => {
 
     const getAllTopics = async () => {
         try {
-            const res: any = await internationalRelationsTopicsService();
+            const res: any = await internationalRelationsTopicAllsService();
             let data: any = [];
             if (res.data?.data) {
                 const _res = res.data?.data;
