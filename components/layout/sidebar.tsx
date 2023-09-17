@@ -619,7 +619,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes['data'][], index?: string }) => {
     const dispatch = useDispatch();
     const { toppic, country } = useSelector(({ toppic_menu }) => toppic_menu);
-    const [activeKey, setActiveKey] = useState('')
+    const [activeKey, setActiveKey] = useState<string[]>([])
 
     const onChange = (value: any) => {
         // console.log('value :>> ', value);
@@ -639,11 +639,11 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                 if (e.children.length > 0) {
                     const child1 = e.children.find((f: any) => f.id === toppic) as any
                     if (child1?.parent_id) {
-                        setActiveKey(child1.parent_id)
+                        setActiveKey([child1.parent_id])
                     }
                 }
             })
-        } else setActiveKey('')
+        } else setActiveKey([])
 
     }, [toppic])
 
@@ -651,7 +651,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     const WrapperCollapse = useCallback(() => {
         return (
             <>
-                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
+                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange} defaultActiveKey={activeKey}>
                     {list.map((e: any, i) => {
 
                         const is_last_node = e.children.filter((w: any) => w.last_node == true);
