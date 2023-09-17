@@ -51,6 +51,9 @@ const TreeDisabled = styled(Tree)`
         cursor: auto !important;
     }
 `
+const SpaceForm = styled(Space)`
+    align-items: start !important;
+`
 
 //#endregion
 
@@ -169,6 +172,21 @@ const InternationalRelationsTopics = () => {
         if (id) {
             setIsDataId(id)
             const callback: any = await getByIDInternationalRelationsTopicsService(id);
+
+            /* new */
+            if (callback.data) {
+                callback.data.guide_line_specific_field?.forEach((e: any) => {
+                    const _value: any = []
+                    e.value.forEach((value: any, index: number) => {
+                        _value.push({
+                            value,
+                            detail: e.detail ? e.detail[index] ?? null : null
+                        })
+                    });
+                    e.value = _value
+                });
+            }
+
             form.setFieldsValue(callback.data)
         }
         setIsModalOpen(true);
@@ -208,7 +226,18 @@ const InternationalRelationsTopics = () => {
 
     const onFinish = async (value: any) => {
         try {
-            // console.log('value :>> ', value);
+
+            /* new */
+            value.guide_line_specific_field.forEach((e: any) => {
+                const _value: any = [], _detail: any = [];
+                e.value?.forEach((i: any) => {
+                    _value.push(i.value)
+                    _detail.push(i.detail)
+                });
+                e.value = _value;
+                e.detail = _detail;
+            });
+
             let isError = false, textError = null;
             if (mode == "add") {
                 const callback: any = await addInternationalRelationsTopicsService(value);
@@ -235,6 +264,7 @@ const InternationalRelationsTopics = () => {
                 loadMasterData()
             }
         } catch (error) {
+            console.log('error :>> ', error);
             modal.error({
                 centered: true,
                 content: "มีบางอย่างพิดพลาด",
@@ -335,8 +365,8 @@ const InternationalRelationsTopics = () => {
                         </Form.Item>
 
 
-                        {/* <Specifics form={form} /> */}
-                        <TitleText>Specific</TitleText>
+                        <Specifics form={form} />
+                        {/* <TitleText>Specific</TitleText>
 
                         <Form.List name="guide_line_specific_field">
                             {(fields, { add, remove }) => (
@@ -385,7 +415,7 @@ const InternationalRelationsTopics = () => {
 
                                 </div>
                             )}
-                        </Form.List>
+                        </Form.List> */}
 
                     </Form>
                 </Modal>
@@ -411,12 +441,7 @@ const Specifics = ({ form }: { form: FormInstance<any> }) => {
         ]
     }
     return (
-        <Form
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 21 }}
-            form={form}
-            style={{ maxWidth: 800 }}
-        >
+        <>
             <TitleText>Specific</TitleText>
             <Form.List name="guide_line_specific_field">
                 {(fields, { add, remove }) => (
@@ -444,19 +469,19 @@ const Specifics = ({ form }: { form: FormInstance<any> }) => {
                                         {(subFields, subOpt) => (
                                             <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
                                                 {subFields.map((subField) => (
-                                                    <Space key={subField.key}>
-                                                        <Form.Item noStyle name={[subField.name]} rules={[{ required: true, message: 'Missing value' }]}>
+                                                    <SpaceForm key={subField.key}>
+                                                        <Form.Item noStyle name={[subField.name, "value"]}>
                                                             <Input />
                                                         </Form.Item>
-                                                        {/* <Form.Item noStyle name={[subField.name]}>
-                                                            <Input placeholder="second" />
-                                                        </Form.Item> */}
+                                                        <Form.Item noStyle name={[subField.name, "detail"]}>
+                                                            <Input.TextArea />
+                                                        </Form.Item>
                                                         <CloseOutlined
                                                             onClick={() => {
                                                                 subOpt.remove(subField.name);
                                                             }}
                                                         />
-                                                    </Space>
+                                                    </SpaceForm>
                                                 ))}
                                                 <Button type="dashed" onClick={() => subOpt.add()} block>
                                                     + Add Value
@@ -492,7 +517,7 @@ const Specifics = ({ form }: { form: FormInstance<any> }) => {
                     </Typography>
                 )}
             </Form.Item> */}
-        </Form>
+        </>
     )
 }
 

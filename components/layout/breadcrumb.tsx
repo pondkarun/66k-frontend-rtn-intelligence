@@ -87,8 +87,6 @@ const BreadcrumbLayoutComponents = () => {
   const router = useRouter()
   const pathname = usePathname()
 
-  console.log('pathname :>> ', pathname);
-
   const BreadcrumbView = () => {
     switch (pathname) {
       case "/system/identity_users":
