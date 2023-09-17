@@ -653,19 +653,25 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
             <>
                 <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
                     {list.map((e: any, i) => {
-                        // console.log('first e :>>> ', e)
+
                         const is_last_node = e.children.filter((w: any) => w.last_node == true);
                         return (
-                            (is_last_node.length == 0) ?
-                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                    <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
-                                </PanelToppic>
-                                :
-                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                    {is_last_node.map((_e: any, _i: number) => (
-                                        <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
-                                    ))}
-                                </PanelToppic>
+                            e.last_node === true ?
+                                (
+                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                        <div key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${index ? `${index}.` : ""}${i + 1}.1 ${e.name}`}</div>
+                                    </PanelToppic>
+                                )
+                                : (is_last_node.length == 0) ?
+                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                        <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
+                                    </PanelToppic>
+                                    :
+                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                        {is_last_node.map((_e: any, _i: number) => (
+                                            <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
+                                        ))}
+                                    </PanelToppic>
                         )
                     })}
                 </CollapseToppic>
