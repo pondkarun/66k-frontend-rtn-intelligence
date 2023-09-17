@@ -5,17 +5,18 @@ type ModalFooterType = {
   mode: string;
   onOk: () => void;
   onCancel: () => void;
+  loading?: boolean;
 }
-const ModalFooter = ({ mode, onOk, onCancel }: ModalFooterType) => {
+const ModalFooter = ({ mode, onOk, onCancel, loading }: ModalFooterType) => {
   return (
     mode != "view" ?
       <>
-        <Button onClick={onCancel}>ยกเลิก</Button>
-        <Button type='primary' onClick={onOk}>บันทึก</Button>
+        <Button loading={loading} onClick={onCancel}>ยกเลิก</Button>
+        <Button loading={loading} type='primary' onClick={onOk}>บันทึก</Button>
       </>
       :
       <>
-        <Button onClick={onCancel}>ปิด</Button>
+        <Button loading={loading} onClick={onCancel}>ปิด</Button>
       </>
   )
 }

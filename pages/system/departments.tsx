@@ -19,6 +19,7 @@ const Departments = () => {
     const [departmentsAll, setDepartmentsAll] = useState([]);
     const [formSearch] = Form.useForm();
     const [modal, contextHolder] = Modal.useModal();
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         init()
@@ -33,9 +34,12 @@ const Departments = () => {
 
     const searchData = async (search?: string) => {
         try {
+            setLoading(true)
             const res: any = await getAllDepartmentsService(search);
             setData(res.data?.data ?? [])
+            setLoading(false)
         } catch (error) {
+            setLoading(false)
             modal.error({
                 centered: true,
                 content: "มีบางอย่างพิดพลาด",
@@ -50,7 +54,9 @@ const Departments = () => {
             if (res.data?.data) {
                 const setData = (arr: any) => {
                     arr.forEach((e: any) => {
+                        e.key = e.id;
                         e.value = e.id;
+                        e.label = e.name;
                         e.title = e.name;
                         setData(e.children)
                     });
@@ -209,6 +215,7 @@ const Departments = () => {
     const onFinish = async (value: any) => {
         try {
             // console.log('value :>> ', value);
+            setLoading(true)
             let isError = false, textError = null;
             if (mode == "add") {
                 const callback: any = await addDepartmentsService(value);
@@ -235,7 +242,9 @@ const Departments = () => {
                     handleCancel()
                 }
             }
+            setLoading(false)
         } catch (error: any) {
+            setLoading(false)
             // console.log('eror.response? :>> ', error.response?.data);
             if (isArray(error.response?.data)) {
                 modal.error({
@@ -289,7 +298,7 @@ const Departments = () => {
                     </Col>
                     <Col xs={24} md={12} span={6}>
                         <Form.Item>
-                            <ButtonSearch onClick={() => formSearch.submit()}>ค้นหา</ButtonSearch>
+                            <ButtonSearch loading={loading} onClick={() => formSearch.submit()}>ค้นหา</ButtonSearch>
                             <ButtonSearch onClick={() => setIsModalOpen(true)}><PlusCircleOutlined /> เพิ่ม</ButtonSearch>
                             <ButtonSearch onClick={() => setIsModalTreeOpen(true)}><PartitionOutlined /> Tree</ButtonSearch>
                         </Form.Item>
@@ -301,7 +310,7 @@ const Departments = () => {
                         colorPrimary: "#00408E",
                     },
                 }}>
-                    <TableSearch rowKey={"id"} columns={columns} dataSource={data} scroll={{ x: "100%", y: "100%" }} />
+                    <TableSearch loading={loading} rowKey={"id"} columns={columns} dataSource={data} scroll={{ x: "100%", y: "100%" }} />
                 </ConfigProvider>
 
                 <Modal
@@ -314,7 +323,7 @@ const Departments = () => {
 
                     <TreeDisabled
                         showLine
-                        treeData={topicsTreeData}
+                        treeData={departmentsAll}
                         disabled
                     />
                 </Modal>
@@ -324,7 +333,7 @@ const Departments = () => {
                     title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
                     open={isModalOpen}
                     onCancel={handleCancel}
-                    footer={<ModalFooter mode={mode} onOk={handleOk} onCancel={handleCancel} />}
+                    footer={<ModalFooter mode={mode} onOk={handleOk} onCancel={handleCancel} loading={loading} />}
                 >
                     <Form
                         form={form}

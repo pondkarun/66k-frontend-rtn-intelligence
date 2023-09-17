@@ -1,8 +1,8 @@
-import { Badge, Button, Card, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, TreeSelect, Typography } from 'antd';
+import { Badge, Button, Card, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, Tree, TreeSelect, Typography } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { CloseOutlined, DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloseOutlined, DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PartitionOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
 import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicAllsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
@@ -44,6 +44,14 @@ const TableSearch = styled(Table)`
         text-align: center !important;
     }
 `
+
+const TreeDisabled = styled(Tree)`
+    .ant-tree-treenode-disabled .ant-tree-node-content-wrapper {
+        color: rgb(0 0 0) !important;
+        cursor: auto !important;
+    }
+`
+
 //#endregion
 
 const InternationalRelationsTopics = () => {
@@ -62,6 +70,8 @@ const InternationalRelationsTopics = () => {
     const loadMasterData = () => {
         getAllTopics()
     }
+
+
 
     const searchData = async (search?: string) => {
         try {
@@ -82,7 +92,9 @@ const InternationalRelationsTopics = () => {
             if (res.data?.data) {
                 const setData = (arr: any) => {
                     arr.forEach((e: any) => {
+                        e.key = e.id;
                         e.value = e.id;
+                        e.label = e.name;
                         e.title = e.name;
                         setData(e.children)
                     });
@@ -147,6 +159,7 @@ const InternationalRelationsTopics = () => {
 
     /** Modal */
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalTreeOpen, setIsModalTreeOpen] = useState(false);
     const [mode, setIsMode] = useState("add");
     const [dataId, setIsDataId] = useState("");
     const [form] = Form.useForm();
@@ -254,6 +267,7 @@ const InternationalRelationsTopics = () => {
                         <Form.Item>
                             <ButtonSearch onClick={() => formSearch.submit()}>ค้นหา</ButtonSearch>
                             <ButtonSearch onClick={() => setIsModalOpen(true)}><PlusCircleOutlined /> เพิ่ม</ButtonSearch>
+                            <ButtonSearch onClick={() => setIsModalTreeOpen(true)}><PartitionOutlined /> Tree</ButtonSearch>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -266,6 +280,20 @@ const InternationalRelationsTopics = () => {
                     <TableSearch rowKey={"id"} columns={columns} dataSource={data} scroll={{ x: "100%", y: "100%" }} />
                 </ConfigProvider>
 
+                <Modal
+                    width={700}
+                    title={``}
+                    open={isModalTreeOpen}
+                    onCancel={() => setIsModalTreeOpen(!isModalTreeOpen)}
+                    footer={<div />}
+                >
+
+                    <TreeDisabled
+                        showLine
+                        treeData={topics}
+                        disabled
+                    />
+                </Modal>
                 <Modal
                     width={800}
                     title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
