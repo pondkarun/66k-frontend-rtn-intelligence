@@ -31,6 +31,7 @@ import FormUploadInput from './country/FormUploadInput'
 type SpecificFieldType = {
   groups: string
   value: string[]
+  detail?: string[]
 }
 
 type ManageInternationalRelationsTopicsType = {
@@ -156,7 +157,7 @@ const ManageInternationalRelationsTopics = (
         })
       }
     }
-      
+
     if (fileUploadedImg) {
       for (let z = 0; z < data.image_documents.length; z++) {
         const image_document = data.image_documents[z]
@@ -279,37 +280,41 @@ const ManageInternationalRelationsTopics = (
             />
           </Col>
         </Row>
-        {toppic_obj?.guide_line_specific_field?.map((e: SpecificFieldType, index: number) => (
-          <Fragment key={e.groups + index}>
-            <SubTitle>{e.groups}</SubTitle>
-            <Line />
+        {toppic_obj?.guide_line_specific_field?.map((e: SpecificFieldType, index: number) => {
+          return (
+            <Fragment key={e.groups + index}>
+              <SubTitle>{e.groups}</SubTitle>
+              <Line />
 
-            <Row gutter={[16, 0]}>
-              {e.value.map((item: string, index: number) => {
-                return (
-                  <Col xs={24} md={12} span={12} key={item + index}>
-                    <Form.Item
-                      name={['specific_field', e.groups, item, 'value']}
-                      label={
-                        <FormUploadInput
-                          label={item}
-                          keys={item + index}
-                          id={item}
-                          form={form}
-                          name={['specific_field', e.groups, item, 'upload']}
-                          dir={idAdd}
-                          mode={mode}
-                        />
-                      }
-                    >
-                      <Input.TextArea autoSize />
-                    </Form.Item>
-                  </Col>
-                )
-              })}
-            </Row>
-          </Fragment>
-        ))}
+              <Row gutter={[16, 0]}>
+                {e.value.map((item: string, index: number) => {
+                  return (
+                    <Col xs={24} md={12} span={12} key={item + index}>
+                      <Form.Item
+                        name={['specific_field', e.groups, item, 'value']}
+                        label={
+                          <FormUploadInput
+                            label={item}
+                            keys={item + index}
+                            id={item}
+                            form={form}
+                            name={['specific_field', e.groups, item, 'upload']}
+                            dir={idAdd}
+                            mode={mode}
+                            detail={e.detail?.[index]}
+                          />
+                        }
+                      >
+                        <Input.TextArea autoSize />
+                      </Form.Item>
+                    </Col>
+                  )
+                })}
+              </Row>
+            </Fragment>
+          )
+        }
+        )}
         <Space>
           <Button type='primary' onClick={() => {
             trimDataString(form)
