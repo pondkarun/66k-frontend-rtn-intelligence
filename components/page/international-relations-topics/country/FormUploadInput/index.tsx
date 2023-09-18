@@ -16,10 +16,11 @@ interface FormUploadInputProps {
   name: any
   dir?: string
   mode?: string
+  detail?: string
 }
 
 const FormUploadInput = (props: FormUploadInputProps) => {
-  const { label, keys, form, name, dir, mode } = props
+  const { label, keys, form, name, dir, mode, detail } = props
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalOpenInfo, setIsModalOpenInfo] = useState(false)
@@ -53,7 +54,8 @@ const FormUploadInput = (props: FormUploadInputProps) => {
     <Fragment key={keys}>
       <ContainerBox>
         <span>{label}</span>
-        {/* <Icon
+
+        {detail ? <Icon
           onClick={() => {
             setIsModalOpenInfo(!isModalOpenInfo)
           }}
@@ -61,7 +63,8 @@ const FormUploadInput = (props: FormUploadInputProps) => {
           <Badge count={countFile}>
             <InfoCircleOutlined />
           </Badge>
-        </Icon> */}
+        </Icon> : null}
+
 
         <Icon
           onClick={() => {
@@ -101,9 +104,7 @@ const FormUploadInput = (props: FormUploadInputProps) => {
 
       <Modal open={isModalOpenInfo} title="Information suggestion" onCancel={() => setIsModalOpenInfo(false)} footer={<></>}>
         <div style={{ whiteSpace: "pre-line" }}>
-          {` ด้านการศึกษา: .................... \n
-          ด้านการฝึก: ....................  \n
-          ด้านความร่วมมือ: ....................  \n`}
+          {detail}
         </div>
       </Modal>
     </Fragment>

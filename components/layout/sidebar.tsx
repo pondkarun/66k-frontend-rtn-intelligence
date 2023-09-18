@@ -1,9 +1,9 @@
-import { Badge, Button, Col, Collapse, Layout, Menu, Modal, Row } from 'antd';
+import { Badge, Button, Col, Collapse, Form, Input, Layout, Menu, Modal, Row } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
 import styled from "styled-components";
 import Router from "next/router";
-import { AppstoreOutlined, DownOutlined, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DownOutlined, EditFilled, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
 import { isArray } from 'lodash';
 import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
@@ -11,6 +11,10 @@ import { setObjToppic, setSelectCountry, setSelectToppic } from '@/redux/actions
 import { setBackground } from '@/redux/actions/configActions';
 import { setActionFormInput, setCollapsed } from '@/redux/actions/commonAction';
 import type { MenuProps } from 'antd';
+import ModalFooter from '../shares/ModalFooter';
+import { getByIdIdentityUsersService } from '@/services/identity_users';
+import { changePasswordService } from '@/services/auth';
+import { changePasswordInterface } from '@/interface/auth.interface';
 const { Sider } = Layout;
 
 
@@ -169,6 +173,12 @@ const CollapseToppic = styled(Collapse)`
 `
 const PanelToppic = styled(Collapse.Panel)``
 
+const ButtonEdit = styled("div")`
+    font-size: 14px;
+    cursor: pointer;
+    color: aliceblue !important;
+    text-decoration: underline;
+`
 
 const MenuSidebar = styled(Menu)`
     color: #fff;
@@ -242,6 +252,7 @@ const SidebarLayoutComponents = () => {
         width: typeof window !== 'undefined' ? window.innerWidth : 0,
         height: typeof window !== 'undefined' ? window.innerHeight : 0,
     });
+    const [modal, contextHolder] = Modal.useModal();
 
     useEffect(() => {
         dispatch(setBackground("#111730"));
@@ -351,16 +362,109 @@ const SidebarLayoutComponents = () => {
         )
     }, [currentMenu, itemsMenu])
 
+
+    /* Edit User */
+    const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+    const [formEdit] = Form.useForm();
+
+    const onClickEdit = async () => {
+        setIsModalOpenEdit(true)
+    }
+
+    const handleOkEdit = () => {
+        formEdit.submit()
+    }
+
+    const handleCancelEdit = () => {
+        formEdit.resetFields()
+        setIsModalOpenEdit(false)
+    }
+
+    const onFinishEdit = async (value: changePasswordInterface) => {
+        try {
+            await changePasswordService(value);
+            modal.success({
+                centered: true,
+                content: "เปลี่ยนรหัสผ่านสำเร็จ",
+            });
+            handleCancelEdit()
+        } catch (error: any) {
+            // console.log('eror.response? :>> ', error.response?.data);
+            if (error.response?.data) {
+                modal.error({
+                    centered: true,
+                    content: error.response?.data?.error?.message ?? "มีบางอย่างพิดพลาด",
+                });
+            } else
+                modal.error({
+                    centered: true,
+                    content: "มีบางอย่างพิดพลาด",
+                });
+        }
+    }
+
+    const onFinishFailedEdit = (error: any) => {
+        console.log('error :>> ', error);
+    }
+
     return (
         <>
-            <Sidebar width={350} trigger={null}  collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
+            {contextHolder}
+            <Modal
+                width={600}
+                title={`เปลี่ยนรหัสผ่าน`}
+                open={isModalOpenEdit}
+                onCancel={handleCancelEdit}
+                footer={<ModalFooter mode={"edit"} onOk={handleOkEdit} onCancel={handleCancelEdit} />}
+            >
+                <Form
+                    form={formEdit}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 16 }}
+                    onFinish={onFinishEdit}
+                    onFinishFailed={onFinishFailedEdit}
+                    autoComplete="off"
+                >
+
+                    <Form.Item
+                        label="รหัสผ่านเก่า"
+                        name="password_old"
+                        rules={[{ required: true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="รหัสผ่านใหม่"
+                        name="password_new"
+                        rules={[{ required: true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="ยืนยันรหัสผ่านใหม่"
+                        name="password_new_confirm"
+                        rules={[{ required: true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                </Form>
+            </Modal>
+
+
+            <Sidebar width={350} trigger={null} collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
                 <div style={{ margin: "15px 10px 15px 10px" }} >
                     <section>
                         <Logo />
                         {!collapsed ?
                             <NameUser>
-                                <div>{`${profile?.rank ?? ""} ${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`}</div>
+                                <div>
+                                    {`${profile?.rank ?? ""} ${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`}
+                                </div>
                                 <div>{profile?.position}</div>
+                                <ButtonEdit onClick={onClickEdit}>เปลี่ยนรหัส</ButtonEdit>
                             </NameUser>
                             : null
                         }
@@ -417,7 +521,7 @@ const SidebarLayoutComponents = () => {
                             {country ? <ToppicMenu list={topics as any} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
 
                             {itemsMenu.length > 0 ? (
-                               <WrapperMenuMenage />
+                                <WrapperMenuMenage />
                             ) : null}
                         </>
                     </div> : null}
@@ -515,7 +619,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttributes['data'][], index?: string }) => {
     const dispatch = useDispatch();
     const { toppic, country } = useSelector(({ toppic_menu }) => toppic_menu);
-    const [activeKey, setActiveKey] = useState('')
+    const [activeKey, setActiveKey] = useState<string[]>([])
 
     const onChange = (value: any) => {
         // console.log('value :>> ', value);
@@ -535,33 +639,39 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                 if (e.children.length > 0) {
                     const child1 = e.children.find((f: any) => f.id === toppic) as any
                     if (child1?.parent_id) {
-                        setActiveKey(child1.parent_id)
+                        setActiveKey([child1.parent_id])
                     }
                 }
             })
-        } else setActiveKey('')
-        
+        } else setActiveKey([])
+
     }, [toppic])
 
 
     const WrapperCollapse = useCallback(() => {
-        return( 
+        return (
             <>
-                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange}>
+                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange} defaultActiveKey={activeKey}>
                     {list.map((e: any, i) => {
-                        // console.log('first e :>>> ', e)
+
                         const is_last_node = e.children.filter((w: any) => w.last_node == true);
                         return (
-                            (is_last_node.length == 0) ?
-                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                    <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
-                                </PanelToppic>
-                                :
-                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                    {is_last_node.map((_e: any, _i: number) => (
-                                        <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
-                                    ))}
-                                </PanelToppic>
+                            e.last_node === true ?
+                                (
+                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                        <div key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${index ? `${index}.` : ""}${i + 1}.1 ${e.name}`}</div>
+                                    </PanelToppic>
+                                )
+                                : (is_last_node.length == 0) ?
+                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                        <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
+                                    </PanelToppic>
+                                    :
+                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                        {is_last_node.map((_e: any, _i: number) => (
+                                            <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
+                                        ))}
+                                    </PanelToppic>
                         )
                     })}
                 </CollapseToppic>

@@ -1,13 +1,14 @@
-import { Badge, Button, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, TreeSelect } from 'antd';
+import { Badge, Button, Card, Col, ConfigProvider, Form, Input, Modal, Popconfirm, Result, Row, Select, Space, Table, Tooltip, Tree, TreeSelect, Typography } from 'antd';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloseOutlined, DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PartitionOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { setBackground } from '@/redux/actions/configActions';
 import Layout from '@/components/layout'
 import { addInternationalRelationsTopicsService, getByIDInternationalRelationsTopicsService, internationalRelationsTopicAllsService, internationalRelationsTopicsService, searchInternationalRelationsTopicsService, updateInternationalRelationsTopicsService } from '@/services/internationalRelationsTopics';
 import ModalFooter from '@/components/shares/ModalFooter';
 import trimDataString from '@/libs/trimFormDataString';
+import { FormInstance } from 'antd/lib';
 
 //#region -> styled
 const Title = styled("h1")`
@@ -43,6 +44,17 @@ const TableSearch = styled(Table)`
         text-align: center !important;
     }
 `
+
+const TreeDisabled = styled(Tree)`
+    .ant-tree-treenode-disabled .ant-tree-node-content-wrapper {
+        color: rgb(0 0 0) !important;
+        cursor: auto !important;
+    }
+`
+const SpaceForm = styled(Space)`
+    align-items: start !important;
+`
+
 //#endregion
 
 const InternationalRelationsTopics = () => {
@@ -57,6 +69,12 @@ const InternationalRelationsTopics = () => {
         getAllTopics()
         searchData("")
     }, [])
+
+    const loadMasterData = () => {
+        getAllTopics()
+    }
+
+
 
     const searchData = async (search?: string) => {
         try {
@@ -77,7 +95,9 @@ const InternationalRelationsTopics = () => {
             if (res.data?.data) {
                 const setData = (arr: any) => {
                     arr.forEach((e: any) => {
+                        e.key = e.id;
                         e.value = e.id;
+                        e.label = e.name;
                         e.title = e.name;
                         setData(e.children)
                     });
@@ -121,20 +141,17 @@ const InternationalRelationsTopics = () => {
                     <Manage onClick={() => addEditViewModal("view", obj.id)}><EyeOutlined /></Manage>
                 </Tooltip>
 
+                <Tooltip title={`แก้ไขข้อมูล`}>
+                    <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
+                </Tooltip>
 
-                {obj.username !== "superadmin" ? <>
-                    <Tooltip title={`แก้ไขข้อมูล`}>
-                        <Manage onClick={() => addEditViewModal("edit", obj.id)}><EditOutlined /></Manage>
-                    </Tooltip>
-
+                {!(obj.international?.length > 0) ?
                     <Tooltip title={`ลบข้อมูล`}>
                         <Popconfirm placement="top" title={"ยืนยันการลบข้อมูล"} onConfirm={() => delData(obj.id)} okText="ตกลง" cancelText="ยกเลิก">
                             <Manage><DeleteOutlined /></Manage>
                         </Popconfirm>
-                    </Tooltip></>
+                    </Tooltip>
                     : null}
-
-
             </>,
         },
     ];
@@ -145,6 +162,7 @@ const InternationalRelationsTopics = () => {
 
     /** Modal */
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalTreeOpen, setIsModalTreeOpen] = useState(false);
     const [mode, setIsMode] = useState("add");
     const [dataId, setIsDataId] = useState("");
     const [form] = Form.useForm();
@@ -154,6 +172,21 @@ const InternationalRelationsTopics = () => {
         if (id) {
             setIsDataId(id)
             const callback: any = await getByIDInternationalRelationsTopicsService(id);
+
+            /* new */
+            if (callback.data) {
+                callback.data.guide_line_specific_field?.forEach((e: any) => {
+                    const _value: any = []
+                    e.value.forEach((value: any, index: number) => {
+                        _value.push({
+                            value,
+                            detail: e.detail ? e.detail[index] ?? null : null
+                        })
+                    });
+                    e.value = _value
+                });
+            }
+
             form.setFieldsValue(callback.data)
         }
         setIsModalOpen(true);
@@ -170,6 +203,7 @@ const InternationalRelationsTopics = () => {
                 content: 'บันทึกสำเร็จ',
             });
             handleCancel()
+            loadMasterData()
             searchData(formSearch.getFieldValue("search"))
         } catch (error) {
             modal.error({
@@ -192,7 +226,18 @@ const InternationalRelationsTopics = () => {
 
     const onFinish = async (value: any) => {
         try {
-            // console.log('value :>> ', value);
+
+            /* new */
+            value.guide_line_specific_field.forEach((e: any) => {
+                const _value: any = [], _detail: any = [];
+                e.value?.forEach((i: any) => {
+                    _value.push(i.value)
+                    _detail.push(i.detail)
+                });
+                e.value = _value;
+                e.detail = _detail;
+            });
+
             let isError = false, textError = null;
             if (mode == "add") {
                 const callback: any = await addInternationalRelationsTopicsService(value);
@@ -216,8 +261,10 @@ const InternationalRelationsTopics = () => {
                     await getAllTopics()
                 }
                 handleCancel()
+                loadMasterData()
             }
         } catch (error) {
+            console.log('error :>> ', error);
             modal.error({
                 centered: true,
                 content: "มีบางอย่างพิดพลาด",
@@ -250,6 +297,7 @@ const InternationalRelationsTopics = () => {
                         <Form.Item>
                             <ButtonSearch onClick={() => formSearch.submit()}>ค้นหา</ButtonSearch>
                             <ButtonSearch onClick={() => setIsModalOpen(true)}><PlusCircleOutlined /> เพิ่ม</ButtonSearch>
+                            <ButtonSearch onClick={() => setIsModalTreeOpen(true)}><PartitionOutlined /> Tree</ButtonSearch>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -264,6 +312,20 @@ const InternationalRelationsTopics = () => {
 
                 <Modal
                     width={700}
+                    title={``}
+                    open={isModalTreeOpen}
+                    onCancel={() => setIsModalTreeOpen(!isModalTreeOpen)}
+                    footer={<div />}
+                >
+
+                    <TreeDisabled
+                        showLine
+                        treeData={topics}
+                        disabled
+                    />
+                </Modal>
+                <Modal
+                    width={800}
                     title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
                     open={isModalOpen}
                     onCancel={handleCancel}
@@ -302,7 +364,9 @@ const InternationalRelationsTopics = () => {
                             <Input disabled={mode == "view" ? true : false} style={{ width: "85%" }} />
                         </Form.Item>
 
-                        <TitleText>Specific</TitleText>
+
+                        <Specifics form={form} />
+                        {/* <TitleText>Specific</TitleText>
 
                         <Form.List name="guide_line_specific_field">
                             {(fields, { add, remove }) => (
@@ -351,13 +415,109 @@ const InternationalRelationsTopics = () => {
 
                                 </div>
                             )}
-                        </Form.List>
+                        </Form.List> */}
 
                     </Form>
                 </Modal>
                 {contextHolder}
             </>
         </Layout >
+    )
+}
+
+const Specifics = ({ form }: { form: FormInstance<any> }) => {
+
+    const demo = {
+        "parent_id": "03181e63-f06f-4dce-a8e8-f318ec959109",
+        "name": "ความร่วมมือระดับประเทศ",
+        "guide_line_specific_field": [
+            {
+                "groups": "ระดับประเทศ",
+                "value": [
+                    "การข่าว",
+                    "การเมือง"
+                ]
+            }
+        ]
+    }
+    return (
+        <>
+            <TitleText>Specific</TitleText>
+            <Form.List name="guide_line_specific_field">
+                {(fields, { add, remove }) => (
+                    <div style={{ display: 'flex', rowGap: 16, flexDirection: 'column', paddingTop: 10 }}>
+                        {fields.map((field) => (
+                            <Card
+                                size="small"
+                                title={`Groups ${field.name + 1}`}
+                                key={field.key}
+                                extra={
+                                    <CloseOutlined
+                                        onClick={() => {
+                                            remove(field.name);
+                                        }}
+                                    />
+                                }
+                            >
+                                <Form.Item label="Groups" name={[field.name, 'groups']} rules={[{ required: true, message: 'Missing groups name' }]}>
+                                    <Input />
+                                </Form.Item>
+
+                                {/* Nest Form.List */}
+                                <Form.Item label="Value">
+                                    <Form.List name={[field.name, 'value']}>
+                                        {(subFields, subOpt) => (
+                                            <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
+                                                {subFields.map((subField) => (
+                                                    <SpaceForm key={subField.key}>
+                                                        <Form.Item noStyle name={[subField.name, "value"]}>
+                                                            <Input />
+                                                        </Form.Item>
+                                                        <Form.Item noStyle name={[subField.name, "detail"]}>
+                                                            <Input.TextArea />
+                                                        </Form.Item>
+                                                        <CloseOutlined
+                                                            onClick={() => {
+                                                                subOpt.remove(subField.name);
+                                                            }}
+                                                        />
+                                                    </SpaceForm>
+                                                ))}
+                                                <Button type="dashed" onClick={() => subOpt.add()} block>
+                                                    + Add Value
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </Form.List>
+                                </Form.Item>
+                            </Card>
+                        ))}
+
+                        <Button type="dashed" onClick={() => add()} block>
+                            + Add Group
+                        </Button>
+                    </div>
+                )}
+            </Form.List>
+
+            {/* View
+            <Form.Item noStyle shouldUpdate>
+                {() => (
+                    <Typography>
+                        <pre style={{ fontSize: 16 }}>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
+                    </Typography>
+                )}
+            </Form.Item>
+
+            True
+            <Form.Item noStyle shouldUpdate>
+                {() => (
+                    <Typography>
+                        <pre style={{ fontSize: 16 }}>{JSON.stringify(demo, null, 2)}</pre>
+                    </Typography>
+                )}
+            </Form.Item> */}
+        </>
     )
 }
 
