@@ -118,7 +118,7 @@ const InternationalRelationsTopics = () => {
     openModal: false,
     type: undefined,
   })
-  const slider = useRef<{ next: () => void; prev: () => void }>(null)
+  const slider = useRef<any>(null)
 
   const [dataSource, setDataSource] =
     useState<TallFieldInternationalRelationsdatas['data'][]>()
@@ -1269,7 +1269,7 @@ const InternationalRelationsTopics = () => {
         }
       >
         {selectMenageRow.type == 'img' ? (
-          <Carousel effect='fade'>
+          <Carousel effect='fade' ref={slider}>
             {selectMenageRow.items.map((item, index) => {
               return (
                 <Fragment key={index}>
