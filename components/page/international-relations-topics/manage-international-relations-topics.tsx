@@ -13,7 +13,7 @@ import React, { useState, Fragment } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import { useRouter } from 'next/router'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import { isArray, isPlainObject } from 'lodash'
 import FormUpload from '@/components/shares/FormUpload'
@@ -73,15 +73,16 @@ const ManageInternationalRelationsTopics = (
   const [form] = Form.useForm<Tforminternational>()
 
   const onFinishFailed = () => {
-    message.warning("กรอกข้อมูลให้ครบถ้วน")
+    message.warning('กรอกข้อมูลให้ครบถ้วน')
   }
 
   const onFinish = async () => {
     const data: any = form.getFieldValue(undefined)
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
+    const createValuesReasonImageHeader: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
-    const id = idAdd;
+    const id = idAdd
 
     if (isPlainObject(data.specific_field)) {
       for (const [key1, values] of Object.entries(
@@ -91,12 +92,12 @@ const ManageInternationalRelationsTopics = (
         const fields = Object.entries(values as unknown as never)
 
         for (let index = 0; index < fields.length; index++) {
-          const element = fields[index] as any;
-          let upload: any = undefined;
+          const element = fields[index] as any
+          let upload: any = undefined
 
           if (element[1].upload) {
-            const _u = element[1].upload;
-            upload = {};
+            const _u = element[1].upload
+            upload = {}
             if (isArray(_u.image)) {
               upload.image = _u.image.map((e: any) => {
                 return {
@@ -128,11 +129,19 @@ const ManageInternationalRelationsTopics = (
       }
     }
 
-    let fileUploadedImg: any
-    let fileUploadedDoc: any
+    let fileUploadedImg: any, fileUploadedDoc: any, fileheaderImg: any
+
     if (data.image_documents) {
       fileUploadedImg = await internalUploadPublicService({
         formData: data.image_documents,
+        country_id: router.query.country as string,
+        ticpid_id: router.query.toppic as string,
+        dir: id,
+      })
+    }
+    if (data.image_documents_header) {
+      fileheaderImg = await internalUploadPublicService({
+        formData: data.image_documents_header,
         country_id: router.query.country as string,
         ticpid_id: router.query.toppic as string,
         dir: id,
@@ -169,13 +178,19 @@ const ManageInternationalRelationsTopics = (
       }
     }
 
+    if (fileheaderImg) {
+      const image_doc_header = data.image_documents_header[0]
+      const url = fileUploadedImg.data[0]
+      createValuesReasonImageHeader.push({
+        url,
+        name: image_doc_header.name,
+      })
+    }
+
     const event_date_start = dayjs(data.event_date[0]) as unknown as string
     const event_date_end = dayjs(data.event_date[1]) as unknown as string
 
-    const modalRequst: Omit<
-      Tforminternational,
-      'event_date' | 'field_id'
-    > = {
+    const modalRequst: Omit<Tforminternational, 'event_date' | 'field_id'> = {
       id,
       event_date_start,
       event_date_end,
@@ -187,7 +202,10 @@ const ManageInternationalRelationsTopics = (
       leader_name_foreign: data.leader_name_foreign,
       specific_field: createReason,
       file_documents: createValuesReasonFile,
-      image_documents: createValuesReasonImage,
+      image_documents: {
+        img_haader: createValuesReasonImageHeader,
+        img_doc: createValuesReasonImage,
+      },
       ir_topic_breadcrumb: null,
     }
 
@@ -212,16 +230,22 @@ const ManageInternationalRelationsTopics = (
       <SubTitle>
         {mode != 'add' &&
           `พบข้อมูล :
-          ${toppic_obj.guide_line_specific_field
-            ? toppic_obj.guide_line_specific_field[0].value.length
-            : 0
+          ${
+            toppic_obj.guide_line_specific_field
+              ? toppic_obj.guide_line_specific_field[0].value.length
+              : 0
           }{' '}
           รายการ`}
       </SubTitle>
 
       <SubTitle style={{ paddingTop: 20 }}>ข้อมูลทั่วไป</SubTitle>
       <Line />
-      <Form form={form} layout='vertical' onFinish={onFinish} onFinishFailed={onFinishFailed}>
+      <Form
+        form={form}
+        layout='vertical'
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+      >
         <Row gutter={[16, 0]}>
           <Col xs={24} md={12} span={12}>
             <Form.Item
@@ -280,46 +304,55 @@ const ManageInternationalRelationsTopics = (
             />
           </Col>
         </Row>
-        {toppic_obj?.guide_line_specific_field?.map((e: SpecificFieldType, index: number) => {
-          return (
-            <Fragment key={e.groups + index}>
-              <SubTitle>{e.groups}</SubTitle>
-              <Line />
+        {toppic_obj?.guide_line_specific_field?.map(
+          (e: SpecificFieldType, index: number) => {
+            return (
+              <Fragment key={e.groups + index}>
+                <SubTitle>{e.groups}</SubTitle>
+                <Line />
 
-              <Row gutter={[16, 0]}>
-                {e.value.map((item: string, index: number) => {
-                  return (
-                    <Col xs={24} md={12} span={12} key={item + index}>
-                      <Form.Item
-                        name={['specific_field', e.groups, item, 'value']}
-                        label={
-                          <FormUploadInput
-                            label={item}
-                            keys={item + index}
-                            id={item}
-                            form={form}
-                            name={['specific_field', e.groups, item, 'upload']}
-                            dir={idAdd}
-                            mode={mode}
-                            detail={e.detail?.[index]}
-                          />
-                        }
-                      >
-                        <Input.TextArea autoSize />
-                      </Form.Item>
-                    </Col>
-                  )
-                })}
-              </Row>
-            </Fragment>
-          )
-        }
+                <Row gutter={[16, 0]}>
+                  {e.value.map((item: string, index: number) => {
+                    return (
+                      <Col xs={24} md={12} span={12} key={item + index}>
+                        <Form.Item
+                          name={['specific_field', e.groups, item, 'value']}
+                          label={
+                            <FormUploadInput
+                              label={item}
+                              keys={item + index}
+                              id={item}
+                              form={form}
+                              name={[
+                                'specific_field',
+                                e.groups,
+                                item,
+                                'upload',
+                              ]}
+                              dir={idAdd}
+                              mode={mode}
+                              detail={e.detail?.[index]}
+                            />
+                          }
+                        >
+                          <Input.TextArea autoSize />
+                        </Form.Item>
+                      </Col>
+                    )
+                  })}
+                </Row>
+              </Fragment>
+            )
+          },
         )}
         <Space>
-          <Button type='primary' onClick={() => {
-            trimDataString(form)
-            form.submit()
-          }}>
+          <Button
+            type='primary'
+            onClick={() => {
+              trimDataString(form)
+              form.submit()
+            }}
+          >
             บันทึก
           </Button>
           <Button

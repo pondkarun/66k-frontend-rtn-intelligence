@@ -28,27 +28,29 @@ export default async (data: DocConfigT, file_name?: string) => {
     const createImageParagraph = []
 
     if (_data.image_documents) {
-      if (typeof _data.image_documents[0] !== 'undefined') {
-        const getImage = await (
-          await fetch(_data.image_documents[0].url)
-        ).arrayBuffer()
-        createImageParagraph.push(
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: {
-              before: 200,
-            },
-            children: [
-              new ImageRun({
-                data: getImage,
-                transformation: {
-                  width: 200,
-                  height: 200,
-                },
-              }),
-            ],
-          }),
-        )
+      if (typeof _data.image_documents !== 'undefined') {
+        if (_data.image_documents.img_haader) {
+          const getImage = await (
+            await fetch(_data.image_documents.img_haader[0].url)
+          ).arrayBuffer()
+          createImageParagraph.push(
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              spacing: {
+                before: 200,
+              },
+              children: [
+                new ImageRun({
+                  data: getImage,
+                  transformation: {
+                    width: 200,
+                    height: 200,
+                  },
+                }),
+              ],
+            }),
+          )
+        }
       }
     }
     mergeCommonToppic.push(

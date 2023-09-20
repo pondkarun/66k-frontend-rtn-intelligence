@@ -102,7 +102,10 @@ const InternationalRelationsTopics = () => {
   const [internationalId, setInternationalId] = useState('')
   const [renderFiles, setRenderFiles] = useState<{
     docs: TdocumentsOption
-    img: TdocumentsOption
+    img: {
+      header: TdocumentsOption
+      img: TdocumentsOption
+    }
   }>()
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
@@ -228,16 +231,17 @@ const InternationalRelationsTopics = () => {
 
       const mapDocs: TdocumentsOption = []
       const mapImage: TdocumentsOption = []
+      const mapImageHeader: TdocumentsOption = []
 
       if (typeof responseFiles !== 'undefined') {
-        if (responseDatas.data.file_documents)
+        if (responseDatas.data.file_documents) {
           for (let z = 0; z < responseDatas.data.file_documents.length; z++) {
             const fileDocument = responseDatas.data.file_documents[z]
             const docs = responseFiles.data.find((_url: string) => {
-              console.log(
-                'responseDatas.data.file_documents :>> ',
-                responseDatas.data.file_documents,
-              )
+              // console.log(
+              //   'responseDatas.data.file_documents :>> ',
+              //   responseDatas.data.file_documents,
+              // )
               // console.log('_url :>> ', _url)
               const splitSlach = _url.split('/')
               const pathName = splitSlach[splitSlach.length - 1]
@@ -246,10 +250,15 @@ const InternationalRelationsTopics = () => {
             // console.log('docs :>> ', docs)
             mapDocs.push({ ...fileDocument, url: docs as string })
           }
+        }
 
-        if (responseDatas.data.image_documents)
-          for (let z = 0; z < responseDatas.data.image_documents.length; z++) {
-            const fileImage = responseDatas.data.image_documents[z]
+        if (responseDatas.data.image_documents.img_doc) {
+          for (
+            let z = 0;
+            z < responseDatas.data.image_documents.img_doc.length;
+            z++
+          ) {
+            const fileImage = responseDatas.data.image_documents.img_doc[z]
             const img = responseFiles.data.find((_url: string) => {
               const splitSlach = _url.split('/')
               const pathName = splitSlach[splitSlach.length - 1]
@@ -257,6 +266,17 @@ const InternationalRelationsTopics = () => {
             })
             mapImage.push({ ...fileImage, url: img as string })
           }
+        }
+
+        if (responseDatas.data.image_documents.img_haader) {
+          const fileImage = responseDatas.data.image_documents.img_haader[0]
+          const img = responseFiles.data.find((_url: string) => {
+            const splitSlach = _url.split('/')
+            const pathName = splitSlach[splitSlach.length - 1]
+            return pathName === fileImage.name
+          })
+          mapImageHeader.push({ ...fileImage, url: img as string })
+        }
       }
 
       const model_main: { [k: string]: unknown } = {}
@@ -280,7 +300,10 @@ const InternationalRelationsTopics = () => {
       setSpecifics(responseDatas.data.specific_field)
       setRenderFiles({
         docs: mapDocs,
-        img: mapImage,
+        img: {
+          header: mapImageHeader,
+          img: mapImage,
+        },
       })
 
       formInternational.setFieldsValue({
@@ -292,7 +315,8 @@ const InternationalRelationsTopics = () => {
         ],
         specific_field: model_main,
         file_documents: mapDocs,
-        image_documents: mapImage,
+        file_image: mapImage,
+        file_image_header: mapImageHeader,
       } as any)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -392,12 +416,17 @@ const InternationalRelationsTopics = () => {
                         </EventContentField>
                       </Tooltip>
                     )}
-                    {record.image_documents?.length > 0 && (
+                    {record.image_documents?.img_doc?.length > 0 ||
+                    record.image_documents?.img_haader?.length > 0 ? (
                       <Tooltip>
                         <EventContentField
                           onClick={() => {
+                            const mergeData = [
+                              ...record.image_documents.img_haader,
+                              ...record.image_documents.img_doc,
+                            ]
                             setSelectMenageRow({
-                              items: record.image_documents,
+                              items: mergeData,
                               openModal: true,
                               type: 'img',
                             })
@@ -406,9 +435,9 @@ const InternationalRelationsTopics = () => {
                           <ImageBackgroundIcon />
                         </EventContentField>
                       </Tooltip>
+                    ) : (
+                      <></>
                     )}
-                    {record.file_documents.length === 0 &&
-                      record.image_documents.length === 0 && <></>}
                   </FileTableContentField>
                 </>
               )
@@ -546,6 +575,11 @@ const InternationalRelationsTopics = () => {
                                 href={item.url}
                                 target='_blank'
                                 rel='noreferrer'
+                                style={{
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                }}
                               >
                                 {item.name}
                               </a>
@@ -563,12 +597,17 @@ const InternationalRelationsTopics = () => {
                         </EventContentField>
                       </Tooltip>
                     )}
-                    {record.image_documents?.length > 0 && (
+                    {record.image_documents?.img_doc?.length > 0 ||
+                    record.image_documents?.img_haader?.length > 0 ? (
                       <Tooltip>
                         <EventContentField
                           onClick={() => {
+                            const mergeData = [
+                              ...record.image_documents.img_haader,
+                              ...record.image_documents.img_doc,
+                            ]
                             setSelectMenageRow({
-                              items: record.image_documents,
+                              items: mergeData,
                               openModal: true,
                               type: 'img',
                             })
@@ -577,9 +616,11 @@ const InternationalRelationsTopics = () => {
                           <ImageBackgroundIcon />
                         </EventContentField>
                       </Tooltip>
+                    ) : (
+                      <></>
                     )}
-                    {record.file_documents.length === 0 &&
-                      record.image_documents.length === 0 && <></>}
+                    {/* {record.file_documents.length === 0 &&
+                      record.image_documents.length === 0 && <></>} */}
                   </FileTableContentField>
                 </>
               )
@@ -654,9 +695,12 @@ const InternationalRelationsTopics = () => {
   }
 
   const onFinishInternational = async () => {
-    const itemsForm = formInternational.getFieldsValue()
+    const itemsForm = formInternational.getFieldValue(
+      undefined,
+    ) as Tforminternational
     const createReason: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
+    const createValuesReasonImageHeader: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
 
     if (itemsForm.specific_field) {
@@ -737,11 +781,11 @@ const InternationalRelationsTopics = () => {
     //   }
     // }
 
-    let fileUploadedImg: any
-    let fileUploadedDoc: any
-    if (itemsForm.image_documents) {
+    let fileUploadedImg: any, fileUploadedDoc: any, fileheaderImg: any
+
+    if (itemsForm.file_image) {
       fileUploadedImg = await internalUploadPublicService({
-        formData: itemsForm.image_documents,
+        formData: itemsForm.file_image,
         country_id: router.query.country as string,
         ticpid_id: toppicId,
         dir: internationalId,
@@ -752,6 +796,15 @@ const InternationalRelationsTopics = () => {
         formData: itemsForm.file_documents,
         country_id: router.query.country as string,
         ticpid_id: toppicId,
+        dir: internationalId,
+      })
+    }
+
+    if (itemsForm.file_image_header) {
+      fileheaderImg = await internalUploadPublicService({
+        formData: itemsForm.file_image_header,
+        country_id: router.query.country as string,
+        ticpid_id: router.query.toppic as string,
         dir: internationalId,
       })
     }
@@ -768,16 +821,26 @@ const InternationalRelationsTopics = () => {
         }
       }
 
-    if (typeof itemsForm.image_documents !== 'undefined')
-      if (itemsForm.image_documents.length > 0) {
-        for (let z = 0; z < itemsForm.image_documents.length; z++) {
-          const image_document = itemsForm.image_documents[z]
+    if (typeof itemsForm.file_image !== 'undefined')
+      if (itemsForm.file_image.length > 0) {
+        for (let z = 0; z < itemsForm.file_image.length; z++) {
+          const image_document = itemsForm.file_image[z]
           const urlFile = fileUploadedImg.data[z]
           createValuesReasonImage.push({
             url: image_document.url ? image_document.url : urlFile,
             name: image_document.name,
           })
         }
+      }
+
+    if (typeof itemsForm.file_image_header !== 'undefined')
+      if (itemsForm.file_image_header.length > 0) {
+        const image_document_header = itemsForm.file_image_header[0]
+        const urlFile = fileheaderImg.data[0]
+        createValuesReasonImageHeader.push({
+          url: image_document_header.url ? image_document_header.url : urlFile,
+          name: image_document_header.name,
+        })
       }
 
     const event_date_start = dayjs(itemsForm.event_date[0]).add(
@@ -803,7 +866,10 @@ const InternationalRelationsTopics = () => {
       leader_name_foreign: itemsForm.leader_name_foreign,
       specific_field: createReason,
       file_documents: createValuesReasonFile,
-      image_documents: createValuesReasonImage,
+      image_documents: {
+        img_doc: createValuesReasonImage,
+        img_haader: createValuesReasonImageHeader,
+      },
       ir_topic_breadcrumb: null,
     }
 
@@ -1072,11 +1138,16 @@ const InternationalRelationsTopics = () => {
                 disabled={mode === EmodeOption.VIEW}
                 form={formInternational}
                 type='image'
-                name='image_documents'
+                name='file_image'
                 acceptFile='.jpg,.png,.svg,.webp'
                 randerList={
                   typeof renderFiles !== 'undefined'
-                    ? renderFiles.img
+                    ? renderFiles.img.img
+                    : undefined
+                }
+                randerListHeader={
+                  typeof renderFiles !== 'undefined'
+                    ? renderFiles.img.header
                     : undefined
                 }
                 ticpidId={toppicId}
@@ -1199,35 +1270,37 @@ const InternationalRelationsTopics = () => {
       >
         {selectMenageRow.type == 'img' ? (
           <Carousel effect='fade'>
-            {selectMenageRow.items.map((item, index) => (
-              <Fragment key={index}>
-                <img
-                  alt={item.name}
-                  style={{
-                    width: '100%',
-                    height: '700px',
-                  }}
-                  src={item.url}
-                />
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Button
-                    onClick={() => slider.current?.prev()}
-                    type='text'
-                    icon={<LeftOutlined />}
+            {selectMenageRow.items.map((item, index) => {
+              return (
+                <Fragment key={index}>
+                  <img
+                    alt={item.name}
+                    style={{
+                      width: '100%',
+                      height: '700px',
+                    }}
+                    src={item.url}
                   />
-                  <Button
-                    onClick={() => slider.current?.next()}
-                    type='text'
-                    icon={<RightOutlined />}
-                  />
-                </div>
-              </Fragment>
-            ))}
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <Button
+                      onClick={() => slider.current?.prev()}
+                      type='text'
+                      icon={<LeftOutlined />}
+                    />
+                    <Button
+                      onClick={() => slider.current?.next()}
+                      type='text'
+                      icon={<RightOutlined />}
+                    />
+                  </div>
+                </Fragment>
+              )
+            })}
           </Carousel>
         ) : (
           <></>
