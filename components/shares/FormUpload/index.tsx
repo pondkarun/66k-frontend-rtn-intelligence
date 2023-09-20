@@ -6,7 +6,15 @@ import {
   UploadOutlined,
 } from '@ant-design/icons'
 import { Button, Carousel, Col, Form, Modal, Row, Upload, message } from 'antd'
-import { Fragment, Key, Ref, useEffect, useRef, useState } from 'react'
+import {
+  Fragment,
+  Key,
+  Ref,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { RcFile, UploadChangeParam } from 'antd/lib/upload'
 import { useRouter } from 'next/router'
 import getBase64 from '@/libs/getBase64'
@@ -28,6 +36,7 @@ export type FormUploadType = {
   name: any
   acceptFile?: string
   randerList?: TdocumentsOption
+  randerListHeader?: TdocumentsOption
   ticpidId?: string
   disabled?: boolean
   dir?: string
@@ -39,6 +48,7 @@ const FormUpload = ({
   name,
   acceptFile,
   randerList,
+  randerListHeader,
   ticpidId,
   disabled,
   dir,
@@ -47,13 +57,14 @@ const FormUpload = ({
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewImage, setPreviewImage] = useState('')
   const [previewTitle, setPreviewTitle] = useState('')
+  const [isViewHeader, setIsViewHeader] = useState(false)
   const [fileType, setFileType] = useState<string | undefined>()
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
   })
 
-  const slider = useRef<{ next: () => void, prev: () => void }>(null)
+  const slider = useRef<{ next: () => void; prev: () => void }>(null)
 
   const router = useRouter()
   const params = router.query
@@ -153,10 +164,11 @@ const FormUpload = ({
       a.target = '_blank'
       a.click()
     } else if (type === 'file' && file.preview) {
-      const blob = new Blob([file.originFileObj as any], { type: 'application/pdf' })
+      const blob = new Blob([file.originFileObj as any], {
+        type: 'application/pdf',
+      })
       const urlBlob = URL.createObjectURL(blob)
       window.open(urlBlob, '_blank')
-
     } else setPreviewOpen(true)
 
     setPreviewTitle(
@@ -190,16 +202,77 @@ const FormUpload = ({
     if (typeof randerList !== 'undefined') {
       setFile(randerList)
     }
-  }, [randerList])
+    if (typeof randerListHeader !== 'undefined') {
+      setImageUrl(randerListHeader)
+      if (type === 'image') {
+        form.setFieldValue('file_image_header', randerListHeader)
+      }
+    }
+  }, [randerList, randerListHeader])
 
   useEffect(() => {
     checkWindowSize()
   }, [])
 
+  const [imageUrl, setImageUrl] = useState<any>([])
+
+  const handleChange: UploadProps['onChange'] = async (
+    info: UploadChangeParam<UploadFile>,
+  ) => {
+    const isLimit = beforeUploadValidateSize(info, type)
+    if (isLimit) {
+      info.file.status = 'done'
+      setImageUrl([...info.fileList])
+      form.setFieldValue('file_image_header', info.fileList)
+    } else {
+      info.file.status = 'error'
+      setImageUrl([])
+    }
+  }
+
+  const ContentShowImage = (props: any) => {
+    const { items } = props
+    return (
+      <>
+        <Carousel effect='fade' ref={slider as any}>
+          {items.map(
+            (list: {
+              uid: Key
+              name: string
+              url: string
+              preview?: string
+            }) => (
+              <Fragment key={list.uid}>
+                <img
+                  alt={list.name}
+                  style={{ width: '100%', height: '700px' }}
+                  src={list.url ? list.url : list.preview}
+                />
+              </Fragment>
+            ),
+          )}
+        </Carousel>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Button
+            onClick={() => slider.current?.prev()}
+            type='text'
+            icon={<LeftOutlined />}
+          />
+          <Button
+            onClick={() => slider.current?.next()}
+            type='text'
+            icon={<RightOutlined />}
+          />
+        </div>
+      </>
+    )
+  }
+
   return (
     <div>
-      <label>{`อัปโหลดไฟล์${type == 'image' ? "รูปภาพ" : "เอกสาร"} ${type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-        }`}</label>
+      <label>{`อัปโหลดไฟล์${type == 'image' ? 'รูปภาพ' : 'เอกสาร'} ${
+        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
+      }`}</label>
       {!disabled && (
         <Form.Item name={name}>
           <Dragger {...propsDragger}>
@@ -219,7 +292,11 @@ const FormUpload = ({
         {!disabled && (
           <>
             <Col xs={10} span={12}>
-              {type == 'image' ? <h3>อัปโหลดรูปภาพ</h3> : <h3>อัปโหลดไฟล์เอกสาร</h3>}
+              {type == 'image' ? (
+                <h3>อัปโหลดรูปภาพ</h3>
+              ) : (
+                <h3>อัปโหลดไฟล์เอกสาร</h3>
+              )}
             </Col>
             <Col xs={14} span={12} style={{ textAlign: 'end' }}>
               <Form.Item name={name}>
@@ -234,45 +311,47 @@ const FormUpload = ({
         )}
         <Col span={24}>
           {type == 'image' ? (
-            <Upload
-              disabled={disabled}
-              {...propsUpload}
-              listType={'picture-card'}
-            />
+            <div style={{ display: 'inline-flex' }}>
+              <Upload
+                className='custom-upload'
+                name={`file_image_header`}
+                listType='picture-card'
+                accept={acceptFile}
+                action='/api/upload'
+                onChange={handleChange}
+                fileList={imageUrl}
+                onPreview={(e) => handlePreview(e)}
+              >
+                {imageUrl.length === 0 ? (
+                  <div style={{ display: 'inline-flex', columnGap: 4 }}>
+                    <PlusOutlined />
+                    <span>Upload</span>
+                  </div>
+                ) : null}
+              </Upload>
+              <Upload
+                disabled={disabled}
+                {...propsUpload}
+                listType={'picture-card'}
+              />
+            </div>
           ) : (
             <Upload disabled={disabled} {...propsUpload} listType={'text'} />
           )}
-          <Modal
-            open={previewOpen}
-            title={null}
-            footer={null}
-            width={700}
-            onCancel={() => setPreviewOpen(false)}
-          >
-            {file.length > 0 ? (
-              <>
-                <Carousel effect='fade' ref={slider as any}>
-                  {file.map((list: { uid: Key; name: string; url: string, preview?: string }) => (
-                    <Fragment key={list.uid}>
-                      <img
-                        alt={list.name}
-                        style={{ width: '100%', height: '700px' }}
-                        src={list.url ? list.url : list.preview}
-                      />
-                    </Fragment>
-                  ))}
-                </Carousel>
-                <div
-                  style={{ display: 'flex', justifyContent: 'space-between' }}
-                >
-                  <Button onClick={() => slider.current?.prev()} type='text' icon={<LeftOutlined />} />
-                  <Button onClick={() => slider.current?.next()} type='text' icon={<RightOutlined />} />
-                </div>
-              </>
-            ) : null}
-          </Modal>
         </Col>
       </Row>
+
+      <Modal
+        open={previewOpen}
+        title={null}
+        footer={null}
+        width={700}
+        onCancel={() => setPreviewOpen(false)}
+      >
+        {imageUrl.length > 0 || file.length > 0 ? (
+          <ContentShowImage items={[...imageUrl, ...file]} />
+        ) : null}
+      </Modal>
     </div>
   )
 }

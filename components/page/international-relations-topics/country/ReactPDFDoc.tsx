@@ -49,6 +49,12 @@ const styles = StyleSheet.create({
   textToppic: {
     textAlign: 'center',
   },
+  word: {
+    display: 'flex',
+    flexDirection: 'row',
+    // flexGrow: 1
+    flexWrap: 'wrap',
+  },
 })
 
 interface ReactPDFDocProps {
@@ -77,7 +83,7 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
         )
         return (
           <Fragment key={item.id}>
-            <Page size='A4' style={styles.body} key={item.id}>
+            <Page size='A4' style={styles.body} key={item.id} wrap>
               <View
                 style={{
                   display: 'flex',
@@ -95,22 +101,21 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                   {item.leader_name_foreign}
                 </Text>
               </View>
-              {typeof item.image_documents !== 'undefined' ? (
-                item.image_documents.length > 0 ? (
-                  item.image_documents[0].url !== '' ? (
-                    <View
-                      style={{
-                        display: 'flex',
-                        alignSelf: 'center',
-                        padding: '20px 20px',
-                      }}
-                    >
-                      <Image
-                        src={item.image_documents[0].url}
-                        style={styles.image}
-                      />
-                    </View>
-                  ) : null
+              {typeof item.image_documents !== 'undefined' &&
+              typeof item.image_documents.img_haader !== 'undefined' ? (
+                item.image_documents.img_haader[0].url !== '' ? (
+                  <View
+                    style={{
+                      display: 'flex',
+                      alignSelf: 'center',
+                      padding: '20px 20px',
+                    }}
+                  >
+                    <Image
+                      src={item.image_documents.img_haader[0].url}
+                      style={styles.image}
+                    />
+                  </View>
                 ) : null
               ) : null}
               <View style={styles.separator} />
@@ -131,25 +136,23 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                         <View
                           style={{
                             display: 'flex',
-                            flexWrap: 'nowrap',
+                            flexWrap: 'wrap',
                             flexDirection: 'row',
                           }}
                         >
-                          <Fragment key={index}>
-                            <View
-                              style={{
-                                flex: '1 0 80px',
-                                fontWeight: 'semibold',
-                              }}
-                            >
-                              <Text>{`${subreason.name} :`}</Text>
-                            </View>
-                            <View
-                              style={{ flex: '1 0 260px', paddingBottom: 10 }}
-                            >
-                              <Text>{subreason.value}</Text>
-                            </View>
-                          </Fragment>
+                          <View
+                            style={{
+                              flex: '1 0 80px',
+                              fontWeight: 'semibold',
+                            }}
+                          >
+                            <Text>{`${subreason.name} :`}</Text>
+                          </View>
+                          <View
+                            style={{ flex: '1 0 260px', paddingBottom: 10 }}
+                          >
+                            <Text>{subreason.value}</Text>
+                          </View>
                         </View>
                       </Fragment>
                     ))}
