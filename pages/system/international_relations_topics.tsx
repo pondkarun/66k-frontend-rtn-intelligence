@@ -97,8 +97,8 @@ const InternationalRelationsTopics = () => {
                     arr.forEach((e: any) => {
                         e.key = e.id;
                         e.value = e.id;
-                        e.label = e.name;
-                        e.title = e.name;
+                        e.label = e.name + " " + `${e.last_node ? "(T)" : "(F)"}`;
+                        e.title = e.name + " " + `${e.last_node ? "(T)" : "(F)"}`;
                         setData(e.children)
                     });
                 }
