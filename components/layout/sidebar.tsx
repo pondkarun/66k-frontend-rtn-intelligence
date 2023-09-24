@@ -180,6 +180,21 @@ const ButtonEdit = styled("div")`
     text-decoration: underline;
 `
 
+const DivPanelToppic = styled("div")`
+    padding: 10px 0px 10px 10px;
+    color: #fff;
+    border-bottom: 1px solid #fff;
+    cursor: pointer;
+    &:hover { 
+        color: ${primary_color};
+        border-bottom: 1px solid ${primary_color};
+    }
+    &.active { 
+        color: ${primary_color};
+        border-bottom: 1px solid ${primary_color};
+    }
+`
+
 const MenuSidebar = styled(Menu)`
     color: #fff;
     background: #ffffff00;
@@ -560,6 +575,10 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
 
     const onClick = (id: string) => {
         dispatch(setSelectCountry(id))
+        dispatch(setSelectToppic(''))
+        dispatch(setActionFormInput(''))
+        hideModal()
+        Router.push(`/`);
     };
 
     return (
@@ -648,38 +667,56 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     }, [toppic])
 
 
-    const WrapperCollapse = useCallback(() => {
-        return (
-            <>
-                <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange} defaultActiveKey={activeKey}>
-                    {list.map((e: any, i) => {
 
-                        const is_last_node = e.children.filter((w: any) => w.last_node == true);
-                        return (
-                            e.last_node === true ?
-                                (
-                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                        <div key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${index ? `${index}.` : ""}${i + 1}.1 ${e.name}`}</div>
-                                    </PanelToppic>
-                                )
-                                : (is_last_node.length == 0) ?
-                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                        <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
-                                    </PanelToppic>
-                                    :
-                                    <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
-                                        {is_last_node.map((_e: any, _i: number) => (
-                                            <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
-                                        ))}
-                                    </PanelToppic>
-                        )
-                    })}
-                </CollapseToppic>
-            </>
-        )
-    }, [activeKey])
+    return (
+        <>
+            <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange} defaultActiveKey={activeKey}>
+                {list.map((e: any, i) => {
 
-    return <WrapperCollapse />
+                    const is_last_node = e.children.filter((w: any) => w.last_node == true);
+                    // console.log('is_last_node :>> ', is_last_node);
+                    return (
+                        // e.last_node === true ?
+                        //     (
+                        //         <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                        //             <div key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${index ? `${index}.` : ""}${i + 1}.1 ${e.name}`}</div>
+                        //         </PanelToppic>
+                        //     )
+                        //     : (is_last_node.length == 0) ?
+                        //         <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                        //             <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
+                        //         </PanelToppic>
+                        //         :
+                        //         <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                        //             {is_last_node.map((_e: any, _i: number) => (
+                        //                 <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1} ${_e.name}`}</div>
+                        //             ))}
+                        //         </PanelToppic>
+
+                        e.last_node === true ?
+                            index ?
+                                <div key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${`${index}.`}${i + 1}. ${e.name}`}</div> :
+                                <>
+                                    <DivPanelToppic key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${i + 1}. ${e.name}`}</DivPanelToppic>
+                                </>
+                            :
+                            e.children.length > 0 ?
+                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                    <ToppicMenu list={e.children} index={`${index ? `${index}.` : ""}${i + 1}`} />
+                                </PanelToppic>
+                                :
+                                <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
+                                    {is_last_node.map((_e: any, _i: number) => (
+                                        <div key={_e.id} className={`toppic ${_e.id == toppic ? 'active' : ""}`} onClick={() => onClick(_e.id)}>{`${index ? `${index}.` : ""}${i + 1}.${_i + 1}. ${_e.name}`}</div>
+                                    ))}
+                                </PanelToppic>
+
+                    )
+
+                })}
+            </CollapseToppic>
+        </>
+    )
 }
 //#endregion
 

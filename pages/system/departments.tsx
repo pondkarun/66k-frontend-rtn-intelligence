@@ -28,7 +28,6 @@ const Departments = () => {
     const init = () => {
         dispatch(setBackground("#fff"));
         getAllTopics()
-        getAllDepartment()
         searchData("")
     }
 
@@ -47,17 +46,22 @@ const Departments = () => {
         }
     }
 
-    const getAllDepartment = async () => {
+    const getAllDepartment = async (id?: string) => {
         try {
             const res: any = await getAllDepartmentsListService();
             let data: any = [];
             if (res.data?.data) {
-                const setData = (arr: any) => {
+                const setData = (arr: any[]) => {
+                    if (id) {
+                        const index = arr.findIndex(w => w.id == id)
+                        if (index != -1) arr.splice(index, 1);
+                    }
                     arr.forEach((e: any) => {
                         e.key = e.id;
                         e.value = e.id;
                         e.label = e.name;
                         e.title = e.name;
+                        e.disable = true;
                         setData(e.children)
                     });
                 }
@@ -95,6 +99,13 @@ const Departments = () => {
 
     const columns: any = [
         {
+            title: 'หน่วยงานแม่',
+            dataIndex: 'parent',
+            key: 'parent',
+            width: 150,
+            render: (text: any, obj: any) => <>{text ? text.name : "-"}</>,
+        },
+        {
             title: 'หน่วยงาน',
             dataIndex: 'name',
             key: 'name',
@@ -105,13 +116,6 @@ const Departments = () => {
             dataIndex: 'initials',
             key: 'initials',
             width: 150,
-        },
-        {
-            title: 'หน่วยงานแม่',
-            dataIndex: 'parent',
-            key: 'parent',
-            width: 200,
-            render: (text: any, obj: any) => <>{text ? text.name : "-"}</>,
         },
         {
             title: 'Permission หัวข้อ',
@@ -165,9 +169,12 @@ const Departments = () => {
         setIsMode(mode)
         if (id) {
             setIsDataId(id)
+            await getAllDepartment(id)
             const callback: any = await getByIDDepartmentsService(id);
             callback.data.data.permission_ir_topics = callback.data.data.permission_ir_topics ?? []
             form.setFieldsValue(callback.data.data)
+        } else {
+            await getAllDepartment()
         }
         setIsModalOpen(true);
     }
@@ -212,9 +219,15 @@ const Departments = () => {
         init()
     };
 
-    const onFinish = async (value: any) => {
+    const onFinish = async (_value: any) => {
         try {
             // console.log('value :>> ', value);
+
+            const value = {
+                ..._value,
+                parent_id: _value.parent_id ?? null,
+                permission_ir_topics: _value.permission_ir_topics ?? [],
+            }
             setLoading(true)
             let isError = false, textError = null;
             if (mode == "add") {
@@ -299,7 +312,10 @@ const Departments = () => {
                     <Col xs={24} md={12} span={6}>
                         <Form.Item>
                             <ButtonSearch loading={loading} onClick={() => formSearch.submit()}>ค้นหา</ButtonSearch>
-                            <ButtonSearch onClick={() => setIsModalOpen(true)}><PlusCircleOutlined /> เพิ่ม</ButtonSearch>
+                            <ButtonSearch onClick={() => {
+                                setIsModalOpen(true)
+                                getAllDepartment()
+                            }}><PlusCircleOutlined /> เพิ่ม</ButtonSearch>
                             <ButtonSearch onClick={() => setIsModalTreeOpen(true)}><PartitionOutlined /> Tree</ButtonSearch>
                         </Form.Item>
                     </Col>
@@ -356,7 +372,7 @@ const Departments = () => {
                                 treeDefaultExpandAll
                                 treeData={departmentsAll}
                                 filterTreeNode={(input: any, option: any) => (option?.title ?? '').includes(input)}
-                                disabled={mode == "view"}
+                                disabled={mode == "view" ? true : false}
                             />
                         </Form.Item>
 
@@ -383,7 +399,7 @@ const Departments = () => {
                             name="permission_ir_topics"
                             style={{ paddingTop: 20 }}
                         >
-                            <TreeSelect {...tProps} />
+                            <TreeSelect {...tProps} disabled={mode == "view" ? true : false} />
                         </Form.Item>
 
                     </Form>

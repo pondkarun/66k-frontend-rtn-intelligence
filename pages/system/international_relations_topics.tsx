@@ -97,8 +97,8 @@ const InternationalRelationsTopics = () => {
                     arr.forEach((e: any) => {
                         e.key = e.id;
                         e.value = e.id;
-                        e.label = e.name;
-                        e.title = e.name;
+                        e.label = e.name + " " + `${e.last_node ? "(T)" : "(F)"}`;
+                        e.title = e.name + " " + `${e.last_node ? "(T)" : "(F)"}`;
                         setData(e.children)
                     });
                 }
@@ -110,6 +110,13 @@ const InternationalRelationsTopics = () => {
     }
 
     const columns: any = [
+        {
+            title: 'หัวข้อแม่',
+            dataIndex: 'parent',
+            key: 'parent',
+            width: 200,
+            render: (text: any, obj: any) => <>{text ? text.name : "-"}</>,
+        },
         {
             title: 'หัวข้อ',
             dataIndex: 'name',
@@ -125,11 +132,11 @@ const InternationalRelationsTopics = () => {
             render: (text: any, obj: any) => <Badge color={!text ? "red" : "green"} />,
         },
         {
-            title: 'หัวข้อแม่',
-            dataIndex: 'parent',
-            key: 'parent',
-            width: 200,
-            render: (text: any, obj: any) => <>{text ? text.name : "-"}</>,
+            title: 'เรียงลำดับ',
+            dataIndex: 'sort',
+            key: 'sort',
+            width: 80,
+            align: 'center',
         },
         {
             title: 'จัดการ',
@@ -226,9 +233,8 @@ const InternationalRelationsTopics = () => {
 
     const onFinish = async (value: any) => {
         try {
-
             /* new */
-            value.guide_line_specific_field.forEach((e: any) => {
+            value.guide_line_specific_field?.forEach((e: any) => {
                 const _value: any = [], _detail: any = [];
                 e.value?.forEach((i: any) => {
                     _value.push(i.value)
@@ -352,7 +358,7 @@ const InternationalRelationsTopics = () => {
                                 treeDefaultExpandAll
                                 treeData={topics}
                                 filterTreeNode={(input: any, option: any) => (option?.title ?? '').includes(input)}
-                                disabled={mode != "add" ? true : false}
+                                disabled={mode == "view" ? true : false}
                             />
                         </Form.Item>
 
@@ -364,8 +370,15 @@ const InternationalRelationsTopics = () => {
                             <Input disabled={mode == "view" ? true : false} style={{ width: "85%" }} />
                         </Form.Item>
 
+                        <Form.Item
+                            label="เรียงลำดับ"
+                            name="sort"
+                        >
+                            <Input type='number' disabled={mode == "view" ? true : false} style={{ width: "85%" }} />
+                        </Form.Item>
 
-                        <Specifics form={form} />
+
+                        <Specifics form={form} mode={mode} />
                         {/* <TitleText>Specific</TitleText>
 
                         <Form.List name="guide_line_specific_field">
@@ -425,7 +438,7 @@ const InternationalRelationsTopics = () => {
     )
 }
 
-const Specifics = ({ form }: { form: FormInstance<any> }) => {
+const Specifics = ({ form, mode }: { form: FormInstance<any>; mode?: string }) => {
 
     const demo = {
         "parent_id": "03181e63-f06f-4dce-a8e8-f318ec959109",
@@ -452,15 +465,19 @@ const Specifics = ({ form }: { form: FormInstance<any> }) => {
                                 title={`Groups ${field.name + 1}`}
                                 key={field.key}
                                 extra={
-                                    <CloseOutlined
+                                    mode != "view" ? <CloseOutlined
                                         onClick={() => {
                                             remove(field.name);
                                         }}
-                                    />
+                                    /> : null
                                 }
                             >
                                 <Form.Item label="Groups" name={[field.name, 'groups']} rules={[{ required: true, message: 'Missing groups name' }]}>
-                                    <Input />
+                                    <Input disabled={mode == "view" ? true : false} />
+                                </Form.Item>
+
+                                <Form.Item label="Suggestion" name={[field.name, 'suggestion']}>
+                                    <Input.TextArea disabled={mode == "view" ? true : false} />
                                 </Form.Item>
 
                                 {/* Nest Form.List */}
@@ -471,31 +488,39 @@ const Specifics = ({ form }: { form: FormInstance<any> }) => {
                                                 {subFields.map((subField) => (
                                                     <SpaceForm key={subField.key}>
                                                         <Form.Item noStyle name={[subField.name, "value"]}>
-                                                            <Input />
+                                                            <Input disabled={mode == "view" ? true : false} style={{ width: 300 }} />
                                                         </Form.Item>
-                                                        <Form.Item noStyle name={[subField.name, "detail"]}>
+
+                                                        {/* <Form.Item noStyle name={[subField.name, "detail"]}>
                                                             <Input.TextArea />
-                                                        </Form.Item>
-                                                        <CloseOutlined
-                                                            onClick={() => {
-                                                                subOpt.remove(subField.name);
-                                                            }}
-                                                        />
+                                                        </Form.Item> */}
+
+                                                        {mode != "view" ?
+                                                            <CloseOutlined
+                                                                onClick={() => {
+                                                                    subOpt.remove(subField.name);
+                                                                }}
+                                                            />
+                                                            : null}
+
                                                     </SpaceForm>
                                                 ))}
-                                                <Button type="dashed" onClick={() => subOpt.add()} block>
-                                                    + Add Value
-                                                </Button>
+                                                {mode != "view" ?
+                                                    <Button type="dashed" onClick={() => subOpt.add()} block>
+                                                        + Add Value
+                                                    </Button>
+                                                    : null}
                                             </div>
                                         )}
                                     </Form.List>
                                 </Form.Item>
                             </Card>
                         ))}
-
-                        <Button type="dashed" onClick={() => add()} block>
-                            + Add Group
-                        </Button>
+                        {mode != "view" ?
+                            <Button type="dashed" onClick={() => add()} block>
+                                + Add Group
+                            </Button>
+                            : null}
                     </div>
                 )}
             </Form.List>
