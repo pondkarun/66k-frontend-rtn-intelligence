@@ -88,12 +88,16 @@ const InternationalRelationsTopics = () => {
         }
     }
 
-    const getAllTopics = async () => {
+    const getAllTopics = async (id?: string) => {
         try {
             const res: any = await internationalRelationsTopicAllsService();
             let data: any = [];
             if (res.data?.data) {
                 const setData = (arr: any) => {
+                    if (id) {
+                        const index = arr.findIndex((w: any) => w.id == id)
+                        if (index != -1) arr.splice(index, 1);
+                    }
                     arr.forEach((e: any) => {
                         e.key = e.id;
                         e.value = e.id;
@@ -193,8 +197,10 @@ const InternationalRelationsTopics = () => {
                     e.value = _value
                 });
             }
-
+            getAllTopics(id)
             form.setFieldsValue(callback.data)
+        } else {
+            getAllTopics()
         }
         setIsModalOpen(true);
     }
@@ -231,9 +237,13 @@ const InternationalRelationsTopics = () => {
         form.resetFields()
     };
 
-    const onFinish = async (value: any) => {
+    const onFinish = async (_value: any) => {
         try {
             /* new */
+            const value = {
+                ..._value,
+                parent_id: _value.parent_id ?? null,
+            }
             value.guide_line_specific_field?.forEach((e: any) => {
                 const _value: any = [], _detail: any = [];
                 e.value?.forEach((i: any) => {
