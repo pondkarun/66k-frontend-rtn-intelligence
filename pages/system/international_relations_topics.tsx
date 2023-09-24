@@ -111,6 +111,13 @@ const InternationalRelationsTopics = () => {
 
     const columns: any = [
         {
+            title: 'หัวข้อแม่',
+            dataIndex: 'parent',
+            key: 'parent',
+            width: 200,
+            render: (text: any, obj: any) => <>{text ? text.name : "-"}</>,
+        },
+        {
             title: 'หัวข้อ',
             dataIndex: 'name',
             key: 'name',
@@ -125,11 +132,11 @@ const InternationalRelationsTopics = () => {
             render: (text: any, obj: any) => <Badge color={!text ? "red" : "green"} />,
         },
         {
-            title: 'หัวข้อแม่',
-            dataIndex: 'parent',
-            key: 'parent',
-            width: 200,
-            render: (text: any, obj: any) => <>{text ? text.name : "-"}</>,
+            title: 'เรียงลำดับ',
+            dataIndex: 'sort',
+            key: 'sort',
+            width: 80,
+            align: 'center',
         },
         {
             title: 'จัดการ',
@@ -352,7 +359,7 @@ const InternationalRelationsTopics = () => {
                                 treeDefaultExpandAll
                                 treeData={topics}
                                 filterTreeNode={(input: any, option: any) => (option?.title ?? '').includes(input)}
-                                disabled={mode != "add" ? true : false}
+                                // disabled={mode != "add" ? true : false}
                             />
                         </Form.Item>
 
@@ -362,6 +369,13 @@ const InternationalRelationsTopics = () => {
                             rules={[{ required: true }]}
                         >
                             <Input disabled={mode == "view" ? true : false} style={{ width: "85%" }} />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="เรียงลำดับ"
+                            name="sort"
+                        >
+                            <Input type='number' disabled={mode == "view" ? true : false} style={{ width: "85%" }} />
                         </Form.Item>
 
 
