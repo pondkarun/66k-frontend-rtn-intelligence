@@ -180,6 +180,21 @@ const ButtonEdit = styled("div")`
     text-decoration: underline;
 `
 
+const DivPanelToppic = styled("div")`
+    padding: 10px 0px 10px 10px;
+    color: #fff;
+    border-bottom: 1px solid #fff;
+    cursor: pointer;
+    &:hover { 
+        color: ${primary_color};
+        border-bottom: 1px solid ${primary_color};
+    }
+    &.active { 
+        color: ${primary_color};
+        border-bottom: 1px solid ${primary_color};
+    }
+`
+
 const MenuSidebar = styled(Menu)`
     color: #fff;
     background: #ffffff00;
@@ -563,7 +578,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
         dispatch(setSelectToppic(''))
         dispatch(setActionFormInput(''))
         hideModal()
-        Router.push(`/`); 
+        Router.push(`/`);
     };
 
     return (
@@ -679,7 +694,11 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
                         //         </PanelToppic>
 
                         e.last_node === true ?
-                            <div key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${index ? `${index}.` : ""}${i + 1}. ${e.name}`}</div>
+                            index ?
+                                <div key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${`${index}.`}${i + 1}. ${e.name}`}</div> :
+                                <>
+                                    <DivPanelToppic key={e.id} className={`toppic ${e.id == toppic ? 'active' : ""}`} onClick={() => onClick(e.id)}>{`${i + 1}. ${e.name}`}</DivPanelToppic>
+                                </>
                             :
                             e.children.length > 0 ?
                                 <PanelToppic header={`${index ? `${index}.` : ""}${i + 1}. ${e.name}`} key={e.id}>
