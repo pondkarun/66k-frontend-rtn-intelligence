@@ -5,6 +5,7 @@ import {
   DatePicker,
   Form,
   Input,
+  Modal,
   Row,
   Space,
   message,
@@ -26,10 +27,12 @@ import { TMapReason } from '@/interface/international_relations_topics.interface
 import { setActionFormInput } from '@/redux/actions/commonAction'
 import { internalUploadPublicService } from '@/services/upload'
 import trimDataString from '@/libs/trimFormDataString'
-import FormUploadInput from './country/FormUploadInput'
+import FormUploadInput, { Icon } from './country/FormUploadInput'
+import { InfoCircleOutlined } from '@ant-design/icons'
 
 type SpecificFieldType = {
   groups: string
+  suggestion?: string
   value: string[]
   detail?: string[]
 }
@@ -65,8 +68,9 @@ const ManageInternationalRelationsTopics = (
   const { mode } = props
   const router = useRouter()
   const [idAdd, setIdAdd] = useState(uuidv4())
-
+  const [isModalOpenInfo, setIsModalOpenInfo] = useState(false)
   const [finalSubmit, setFinalSubmit] = useState(false)
+  const [suggestion, setSuggestion] = useState<string>("")
 
   const dispatch = useDispatch()
   const { toppic_obj } = useSelector(({ toppic_menu }) => toppic_menu)
@@ -230,10 +234,9 @@ const ManageInternationalRelationsTopics = (
       <SubTitle>
         {mode != 'add' &&
           `พบข้อมูล :
-          ${
-            toppic_obj.guide_line_specific_field
-              ? toppic_obj.guide_line_specific_field[0].value.length
-              : 0
+          ${toppic_obj.guide_line_specific_field
+            ? toppic_obj.guide_line_specific_field[0].value.length
+            : 0
           }{' '}
           รายการ`}
       </SubTitle>
@@ -304,11 +307,29 @@ const ManageInternationalRelationsTopics = (
             />
           </Col>
         </Row>
+
+        <Modal open={isModalOpenInfo} title="Information Suggestion" onCancel={() => setIsModalOpenInfo(false)} footer={<></>}>
+          <div style={{ whiteSpace: "pre-line" }}>
+            {suggestion}
+          </div>
+        </Modal>
+
         {toppic_obj?.guide_line_specific_field?.map(
           (e: SpecificFieldType, index: number) => {
             return (
               <Fragment key={e.groups + index}>
-                <SubTitle>{e.groups}</SubTitle>
+                <SubTitle>{e.groups} {e.suggestion ? <Icon
+                  onClick={() => {
+                    setIsModalOpenInfo(!isModalOpenInfo)
+                    setSuggestion(e.suggestion ?? "")
+                  }}
+                >
+                  <Badge>
+                    <InfoCircleOutlined />
+                  </Badge>
+                </Icon> : null}
+                </SubTitle>
+
                 <Line />
 
                 <Row gutter={[16, 0]}>
@@ -331,7 +352,7 @@ const ManageInternationalRelationsTopics = (
                               ]}
                               dir={idAdd}
                               mode={mode}
-                              detail={e.detail?.[index]}
+                            // detail={e.detail?.[index]}
                             />
                           }
                         >
@@ -363,7 +384,7 @@ const ManageInternationalRelationsTopics = (
             ยกเลิก
           </Button>
         </Space>
-      </Form>
+      </Form >
     </>
   )
 }
