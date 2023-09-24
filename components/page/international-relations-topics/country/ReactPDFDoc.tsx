@@ -92,30 +92,32 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                 }}
               >
                 <Text style={styles.textToppic}>{item.event_name}</Text>
-                <Text style={styles.textToppic}>{item.event_venue}</Text>
+                <Text style={styles.textToppic}>{item.event_venue === '-' ? '' : item.event_venue}</Text>
                 <Text
                   style={styles.textToppic}
                 >{`${start_date} - ${start_end}`}</Text>
-                <Text style={styles.textToppic}>{item.leader_name_thai}</Text>
+                <Text style={styles.textToppic}>{item.leader_name_thai  === '-' ? '' : item.leader_name_thai}</Text>
                 <Text style={styles.textToppic}>
-                  {item.leader_name_foreign}
+                  {item.leader_name_foreign === '-' ? '' : item.leader_name_foreign}
                 </Text>
               </View>
               {typeof item.image_documents !== 'undefined' &&
               typeof item.image_documents.img_haader !== 'undefined' ? (
-                item.image_documents.img_haader[0].url !== '' ? (
-                  <View
-                    style={{
-                      display: 'flex',
-                      alignSelf: 'center',
-                      padding: '20px 20px',
-                    }}
-                  >
-                    <Image
-                      src={item.image_documents.img_haader[0].url}
-                      style={styles.image}
-                    />
-                  </View>
+                typeof item.image_documents.img_haader[0] !== 'undefined' ? (
+                  item.image_documents.img_haader[0].url !== '' ? (
+                    <View
+                      style={{
+                        display: 'flex',
+                        alignSelf: 'center',
+                        padding: '20px 20px',
+                      }}
+                    >
+                      <Image
+                        src={item.image_documents.img_haader[0].url}
+                        style={styles.image}
+                      />
+                    </View>
+                  ) : null
                 ) : null
               ) : null}
               <View style={styles.separator} />

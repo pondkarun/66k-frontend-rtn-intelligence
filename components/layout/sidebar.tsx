@@ -2,7 +2,7 @@ import { Badge, Button, Col, Collapse, Form, Input, Layout, Menu, Modal, Row } f
 import { useSelector, useDispatch } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
 import styled from "styled-components";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { AppstoreOutlined, DownOutlined, EditFilled, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
 import { isArray } from 'lodash';
 import { primary_color } from '@/pages/_app';
@@ -17,6 +17,8 @@ import { changePasswordService } from '@/services/auth';
 import { changePasswordInterface } from '@/interface/auth.interface';
 const { Sider } = Layout;
 
+
+type MenuItem = Required<MenuProps>['items'][number];
 
 //#region -> styled
 const H1 = styled("h1")`
@@ -269,6 +271,8 @@ const SidebarLayoutComponents = () => {
     });
     const [modal, contextHolder] = Modal.useModal();
 
+    const router = useRouter()
+
     useEffect(() => {
         dispatch(setBackground("#111730"));
         checkWindowSize();
@@ -294,17 +298,17 @@ const SidebarLayoutComponents = () => {
 
     const onClick = (id: string) => {
         dispatch(setSelectCountry(id))
-        if (Router.pathname !== '/') {
-            if (Router.pathname.split('/').length >= 3) {
+        if (router.pathname !== '/') {
+            if (router.pathname.split('/').length >= 3) {
                 // dispatch(setSelectCountry(''))
                 dispatch(setSelectToppic(''))
                 dispatch(setActionFormInput(''))
-                return Router.push('/')
+                return router.push('/')
             }
-            Router.replace(`/international-relations-topics/${id}`);
+            router.replace(`/international-relations-topics/${id}`);
         }
         if (toppic) {
-            Router.push(`/international-relations-topics/${id}/${toppic}`);
+            router.push(`/international-relations-topics/${id}/${toppic}`);
         }
     }
 
@@ -317,7 +321,8 @@ const SidebarLayoutComponents = () => {
 
     /** menu */
     const [currentMenu, setCurrentMenu] = useState('mail');
-    const [currentMenuID, setCurrentMenuID] = useState('');
+    const [currentMenuID, setCurrentMenuID] = useState(['']);
+    const [defaultKeyMenu, setDefaultKeyMenu] = useState(['']);
     const [itemsMenu, setItemsMenu] = useState<any[]>([]);
 
     useEffect(() => {
@@ -342,9 +347,16 @@ const SidebarLayoutComponents = () => {
                 menuItem.push(model)
             })
         }
+       
         // console.log('menuItem :>> ', menuItem);
+        const getIDchildren = menuItem[0]?.children.find((e: any) => e.path.split('/')[2] === router.pathname.split('/')[2])
+        if (getIDchildren) setCurrentMenuID([getIDchildren.key])
+        else setCurrentMenuID([])
+        
         setItemsMenu(menuItem)
-        setCurrentMenu(menuItem.key)
+        if (router.pathname.split('/')[1] === 'system') setDefaultKeyMenu(['daad77d8-04d5-48e8-8f83-c20b170a92dd'])
+        else setDefaultKeyMenu([])
+        
     }, [menus])
 
     const onClickMenu: MenuProps['onClick'] = (e) => {
@@ -358,7 +370,7 @@ const SidebarLayoutComponents = () => {
                 // console.log('findChildren', findChildren)
                 setCurrentMenuID(findChildren.key)
                 if (findChildren?.path) {
-                    Router.push(findChildren.path);
+                    router.push(findChildren.path);
                 }
             }
         }
@@ -366,16 +378,42 @@ const SidebarLayoutComponents = () => {
     }
 
     const WrapperMenuMenage = useCallback(() => {
+
+        function getItem(
+            label: React.ReactNode,
+            key: React.Key,
+            icon?: React.ReactNode,
+            children?: MenuItem[],
+            type?: 'group',
+          ): MenuItem {
+            return {
+              key,
+              icon,
+              children,
+              label,
+              type,
+            } as MenuItem;
+          }
+
+          const items: MenuProps['items'] = itemsMenu.map((data) => {
+            return getItem(data.label, data.key, undefined, data.children.map((_data: any) => getItem(_data.label, _data.key)))
+          })
+
         return (
             <>
                 <H1 style={{ paddingTop: 20 }}>เมนู</H1>
-                <Menu className='ant-customize-menu' theme="dark" defaultOpenKeys={[`${currentMenu}`]} defaultSelectedKeys={[`${currentMenu}`]} selectedKeys={[`${currentMenuID}`]} expandIcon={(props) => (
-                    // eslint-disable-next-line react/prop-types
-                    props.isOpen ? <DownOutlined /> : <RightOutlined />
-                )} onClick={onClickMenu} items={itemsMenu} mode="inline" />
+                <Menu
+                    className='ant-customize-menu'
+                    theme="dark"
+                    onClick={onClickMenu}
+                    defaultSelectedKeys={currentMenuID}
+                    defaultOpenKeys={defaultKeyMenu}
+                    mode="inline"
+                    items={items}
+                />
             </>
         )
-    }, [currentMenu, itemsMenu])
+    }, [currentMenu, itemsMenu, defaultKeyMenu])
 
 
     /* Edit User */
@@ -555,6 +593,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
     const [memberฉountries, setMemberฉountries] = useState<any[]>([]);
     const [observerฉountries, setObserverCountries] = useState<any[]>([]);
     const { country } = useSelector(({ toppic_menu }) => toppic_menu);
+    const router = useRouter()
 
     useEffect(() => {
         if (countries) {
@@ -578,7 +617,7 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
         dispatch(setSelectToppic(''))
         dispatch(setActionFormInput(''))
         hideModal()
-        Router.push(`/`);
+        router.push(`/`);
     };
 
     return (
@@ -639,6 +678,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     const dispatch = useDispatch();
     const { toppic, country } = useSelector(({ toppic_menu }) => toppic_menu);
     const [activeKey, setActiveKey] = useState<string[]>([])
+    const router = useRouter()
 
     const onChange = (value: any) => {
         // console.log('value :>> ', value);
@@ -648,7 +688,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
         dispatch(setActionFormInput(''))
         dispatch(setSelectToppic(id))
         dispatch(setSelectCountry(country))
-        Router.push(`/international-relations-topics/${country}/${id}`);
+        router.push(`/international-relations-topics/${country}/${id}`);
     }
 
     useEffect(() => {
