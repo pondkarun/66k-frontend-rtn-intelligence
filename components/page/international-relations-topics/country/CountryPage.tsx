@@ -270,12 +270,14 @@ const InternationalRelationsTopics = () => {
 
         if (responseDatas.data.image_documents.img_haader) {
           const fileImage = responseDatas.data.image_documents.img_haader[0]
-          const img = responseFiles.data.find((_url: string) => {
-            const splitSlach = _url.split('/')
-            const pathName = splitSlach[splitSlach.length - 1]
-            return pathName === fileImage.name
-          })
-          mapImageHeader.push({ ...fileImage, url: img as string })
+          if (fileImage) {
+            const img = responseFiles.data.find((_url: string) => {
+              const splitSlach = _url.split('/')
+              const pathName = splitSlach[splitSlach.length - 1]
+              return pathName === fileImage.name
+            })
+            mapImageHeader.push({ ...fileImage, url: img as string })
+          }
         }
       }
 
