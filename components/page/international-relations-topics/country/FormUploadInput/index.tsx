@@ -118,7 +118,7 @@ const ContainerBox = styled.div`
   flex-direction: row;
   column-gap: 0.5rem;
 `
-const Icon = styled.span`
+export const Icon = styled.span`
   cursor: pointer;
   .ant-badge-count {
     top: 17px;
