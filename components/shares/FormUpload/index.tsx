@@ -97,8 +97,6 @@ const FormUpload = ({
     onChange: async (info) => {
       // console.log('info :>> ', info);
       const isLimit = beforeUploadValidateSize(info, type)
-      if (isLimit) {
-        const isLimit = beforeUploadValidateSize(info, type)
         if (isLimit) {
           info.file.status = 'done'
           setFile([...file, ...info.fileList])
@@ -106,7 +104,6 @@ const FormUpload = ({
           info.file.status = 'error'
           setFile([...file, ...info.fileList])
         }
-      }
     },
     fileList: [],
     onDrop(e) {
@@ -119,7 +116,6 @@ const FormUpload = ({
     action: '/api/upload',
     accept: acceptFile,
     onChange: async (info) => {
-      // console.log('propsButton :>> ', info)
       const isLimit = beforeUploadValidateSize(info, type)
       if (isLimit) {
         info.file.status = 'done'
@@ -219,14 +215,19 @@ const FormUpload = ({
   const handleChange: UploadProps['onChange'] = async (
     info: UploadChangeParam<UploadFile>,
   ) => {
-    const isLimit = beforeUploadValidateSize(info, type)
-    if (isLimit) {
-      info.file.status = 'done'
-      setImageUrl([...info.fileList])
-      form.setFieldValue('file_image_header', info.fileList)
+    if (info.fileList.length > 0) {
+      const isLimit = beforeUploadValidateSize(info, type)
+      if (isLimit) {
+        info.file.status = 'done'
+        setImageUrl([...info.fileList])
+        form.setFieldValue('file_image_header', info.fileList)
+      } else {
+        info.file.status = 'error'
+        setImageUrl([])
+      }
     } else {
-      info.file.status = 'error'
-      setImageUrl([])
+      setImageUrl([...info.fileList])
+      form.setFieldValue('file_image_header', [])
     }
   }
 
@@ -313,6 +314,7 @@ const FormUpload = ({
           {type == 'image' ? (
             <div style={{ display: 'inline-flex' }}>
               <Upload
+                disabled={disabled}
                 className='custom-upload'
                 name={`file_image_header`}
                 listType='picture-card'
@@ -323,9 +325,9 @@ const FormUpload = ({
                 onPreview={(e) => handlePreview(e)}
               >
                 {imageUrl.length === 0 ? (
-                  <div style={{ display: 'inline-flex', columnGap: 4 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <PlusOutlined />
-                    <span>Upload</span>
+                    <span>อัปโหลดรูปปก</span>
                   </div>
                 ) : null}
               </Upload>

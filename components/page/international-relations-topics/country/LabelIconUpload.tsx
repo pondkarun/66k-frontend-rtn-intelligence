@@ -49,9 +49,9 @@ const LabelIconUpload = ({ label, form, name }: IconUploadType) => {
       })
     }
 
-    console.log(' formUpload.getFieldValue :>> ', formUpload.getFieldValue())
+    // console.log(' formUpload.getFieldValue :>> ', formUpload.getFieldValue())
     const _nameForm = formUpload.getFieldValue(`${type}-${nameForm}`)
-    console.log('_nameForm :>> ', _nameForm, `${type}-${nameForm}`)
+    // console.log('_nameForm :>> ', _nameForm, `${type}-${nameForm}`)
     const setData = { ...formName }
     // console.log('setData :>> ', setData);
 

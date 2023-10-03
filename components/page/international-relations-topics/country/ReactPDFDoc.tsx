@@ -55,6 +55,9 @@ const styles = StyleSheet.create({
     // flexGrow: 1
     flexWrap: 'wrap',
   },
+  text: {
+    fontSize: 14,
+  },
 })
 
 interface ReactPDFDocProps {
@@ -153,7 +156,7 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                           <View
                             style={{ flex: '1 0 260px', paddingBottom: 10 }}
                           >
-                            <Text>{subreason.value}</Text>
+                            <Text style={styles.text}>{subreason.value}</Text>
                           </View>
                         </View>
                       </Fragment>
