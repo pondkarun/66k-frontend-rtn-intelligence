@@ -621,8 +621,6 @@ const InternationalRelationsTopics = () => {
                     ) : (
                       <></>
                     )}
-                    {/* {record.file_documents.length === 0 &&
-                      record.image_documents.length === 0 && <></>} */}
                   </FileTableContentField>
                 </>
               )
@@ -838,7 +836,8 @@ const InternationalRelationsTopics = () => {
     if (typeof itemsForm.file_image_header !== 'undefined')
       if (itemsForm.file_image_header.length > 0) {
         const image_document_header = itemsForm.file_image_header[0]
-        const urlFile = fileheaderImg.data[0]
+        const urlFile = fileheaderImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_document_header.name)
+
         createValuesReasonImageHeader.push({
           url: image_document_header.url ? image_document_header.url : urlFile,
           name: image_document_header.name,
@@ -877,14 +876,12 @@ const InternationalRelationsTopics = () => {
 
     try {
       await editInternationalDatasService(modalRequst, internationalId)
-    } catch (error) {
-      message.error('เกิดข้อผิดพลาดบางอย่าง')
-      return
-    } finally {
       message.success('แก้ไขข้อมูลสำเร็จ')
       formInternational.resetFields()
       setIsModalOpen(!isModalOpen)
       randerQueryCountryApi()
+    } catch (error) {
+      message.error('เกิดข้อผิดพลาดบางอย่าง')
     }
   }
 
@@ -952,6 +949,22 @@ const InternationalRelationsTopics = () => {
       }
     }
   }
+
+  // const generatePDF = () => {
+  //   console.log('first')
+  //   const docDefinition: TDocumentDefinitions = {
+  //     content: [
+  //       {
+  //         text: "สวัสดี นี่คือ PDF ที่ใช้ฟอนต์ Thai Sarabun",
+  //       },
+  //     ],
+  //     defaultStyle: {
+  //       font: 'thaiSarabun'
+  //     }
+  //   }
+  
+  //   pdfMake.createPdf(docDefinition).download("sample.pdf")
+  // }
 
   return (
     <>

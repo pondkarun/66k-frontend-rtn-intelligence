@@ -143,9 +143,9 @@ const ManageInternationalRelationsTopics = (
         dir: id,
       })
     }
-    if (data.image_documents_header) {
+    if (data.file_image_header) {
       fileheaderImg = await internalUploadPublicService({
-        formData: data.image_documents_header,
+        formData: data.file_image_header,
         country_id: router.query.country as string,
         ticpid_id: router.query.toppic as string,
         dir: id,
@@ -174,7 +174,8 @@ const ManageInternationalRelationsTopics = (
     if (fileUploadedImg) {
       for (let z = 0; z < data.image_documents.length; z++) {
         const image_document = data.image_documents[z]
-        const url = fileUploadedImg.data[z]
+        const url = fileUploadedImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_document.name)
+        console.log('url', url)
         createValuesReasonImage.push({
           url,
           name: image_document.name,
@@ -183,12 +184,15 @@ const ManageInternationalRelationsTopics = (
     }
 
     if (fileheaderImg) {
-      const image_doc_header = data.image_documents_header[0]
-      const url = fileUploadedImg.data[0]
-      createValuesReasonImageHeader.push({
-        url,
-        name: image_doc_header.name,
-      })
+      const image_doc_header = data.file_image_header[0]
+      if (image_doc_header) {
+        const url = fileUploadedImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_doc_header.name)
+        createValuesReasonImageHeader.push({
+          url,
+          name: image_doc_header.name,
+        })
+      }
+      
     }
 
     const event_date_start = dayjs(data.event_date[0]) as unknown as string
@@ -215,14 +219,12 @@ const ManageInternationalRelationsTopics = (
 
     try {
       await addInternationalDataRelationsTopicsService(modalRequst)
-    } catch (error) {
-      message.error('เกิดข้อผิดพลาดบางอย่าง')
-      return
-    } finally {
       form.resetFields()
       setFinalSubmit(!finalSubmit)
       message.success('เพิ่มข้อมูลสำเร็จ')
       dispatch(setActionFormInput(''))
+    } catch (error) {
+      message.error('เกิดข้อผิดพลาดบางอย่าง')
     }
   }
 
