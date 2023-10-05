@@ -950,22 +950,6 @@ const InternationalRelationsTopics = () => {
     }
   }
 
-  // const generatePDF = () => {
-  //   console.log('first')
-  //   const docDefinition: TDocumentDefinitions = {
-  //     content: [
-  //       {
-  //         text: "สวัสดี นี่คือ PDF ที่ใช้ฟอนต์ Thai Sarabun",
-  //       },
-  //     ],
-  //     defaultStyle: {
-  //       font: 'thaiSarabun'
-  //     }
-  //   }
-  
-  //   pdfMake.createPdf(docDefinition).download("sample.pdf")
-  // }
-
   return (
     <>
       <Title>ค้นหาข้อมูล</Title>
