@@ -33,9 +33,9 @@ const styles = StyleSheet.create({
   body: {
     paddingTop: 35,
     paddingBottom: 65,
-    paddingHorizontal: 35,
+    paddingHorizontal: 20,
     fontFamily: 'Sarabun',
-    fontSize: 14,
+    fontSize: 12,
   },
   image: {
     width: 120,
@@ -49,14 +49,17 @@ const styles = StyleSheet.create({
   textToppic: {
     textAlign: 'center',
   },
-  word: {
-    display: 'flex',
+  section: {
     flexDirection: 'row',
-    // flexGrow: 1
-    flexWrap: 'wrap',
+    flexGrow: 1,
+    marginBottom: 10,
   },
-  text: {
-    fontSize: 14,
+  column1: {
+    fontWeight: 'semibold',
+    width: '25%',
+  },
+  column2: {
+    width: '75%',
   },
 })
 
@@ -95,13 +98,19 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                 }}
               >
                 <Text style={styles.textToppic}>{item.event_name}</Text>
-                <Text style={styles.textToppic}>{item.event_venue === '-' ? '' : item.event_venue}</Text>
+                <Text style={styles.textToppic}>
+                  {item.event_venue === '-' ? '' : item.event_venue}
+                </Text>
                 <Text
                   style={styles.textToppic}
                 >{`${start_date} - ${start_end}`}</Text>
-                <Text style={styles.textToppic}>{item.leader_name_thai  === '-' ? '' : item.leader_name_thai}</Text>
                 <Text style={styles.textToppic}>
-                  {item.leader_name_foreign === '-' ? '' : item.leader_name_foreign}
+                  {item.leader_name_thai === '-' ? '' : item.leader_name_thai}
+                </Text>
+                <Text style={styles.textToppic}>
+                  {item.leader_name_foreign === '-'
+                    ? ''
+                    : item.leader_name_foreign}
                 </Text>
               </View>
               {typeof item.image_documents !== 'undefined' &&
@@ -128,35 +137,21 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                 <Fragment key={index}>
                   <View
                     style={{
-                      display: 'flex',
                       flexDirection: 'column',
-                      rowGap: 4,
+                      marginBottom: 5,
                     }}
                   >
                     <Text
-                      style={{ fontWeight: 'semibold', paddingBottom: 10 }}
+                      style={{ fontWeight: 'semibold', marginBottom: 10 }}
                     >{`${index + 1}.${specific.topic_reason_name}`}</Text>
                     {specific.sub_reason_name.map((subreason, index) => (
                       <Fragment key={index}>
-                        <View
-                          style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            flexDirection: 'row',
-                          }}
-                        >
-                          <View
-                            style={{
-                              flex: '1 0 80px',
-                              fontWeight: 'semibold',
-                            }}
-                          >
+                        <View style={styles.section}>
+                          <View style={styles.column1}>
                             <Text>{`${subreason.name} :`}</Text>
                           </View>
-                          <View
-                            style={{ flex: '1 0 260px', paddingBottom: 10 }}
-                          >
-                            <Text style={styles.text}>{subreason.value}</Text>
+                          <View style={styles.column2}>
+                            <Text>{subreason.value}</Text>
                           </View>
                         </View>
                       </Fragment>
