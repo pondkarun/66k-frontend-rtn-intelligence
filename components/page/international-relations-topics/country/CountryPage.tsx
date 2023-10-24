@@ -57,6 +57,7 @@ import {
 } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
+import ReportPage from '@/components/page/report'
 import { setActionFormInput } from '@/redux/actions/commonAction'
 import ModalFooter from '@/components/shares/ModalFooter'
 import trimDataString from '@/libs/trimFormDataString'
@@ -905,15 +906,18 @@ const InternationalRelationsTopics = () => {
       }
     }
 
-    return <ReactPDFDoc items={seletedData} />
+    // return <ReactPDFDoc items={seletedData} />
+    return <ReportPage items={seletedData} />
   }, [dataSource, selectedRowKeys])
 
   const PDFonload = () => (
-    <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
-      {({ loading }) => (
-        <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
-      )}
-    </PDFDownloadLink>
+    <>
+    </>
+    // <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
+    //   {({ loading }) => (
+    //     <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
+    //   )}
+    // </PDFDownloadLink>
   )
 
   const handleExportxlxs = async () => {
@@ -1246,11 +1250,12 @@ const InternationalRelationsTopics = () => {
         }
         closeIcon={false}
       >
-        {selectedRowKeys.length > 0 ? (
+        {/* {selectedRowKeys.length > 0 ? (
           <PDFViewer style={{ width: '100%' }} height={600}>
             <RenderPDF />
           </PDFViewer>
-        ) : null}
+        ) : null} */}
+         <RenderPDF />
       </Modal>
 
       {/* viewModal */}
