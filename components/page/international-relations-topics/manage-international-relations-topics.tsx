@@ -295,7 +295,7 @@ const ManageInternationalRelationsTopics = (
               form={form}
               type='file'
               name='file_documents'
-              acceptFile='.pdf,.xlsx,.doc,.ptt'
+              acceptFile='.pdf,.xlsx,.docx,.ptt'
               dir={idAdd}
             />
           </Col>

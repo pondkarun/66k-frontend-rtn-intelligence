@@ -107,7 +107,7 @@ const FormUpload = ({
     },
     fileList: [],
     onDrop(e) {
-      console.log('Dropped files', e.dataTransfer.files)
+      // console.log('Dropped files', e.dataTransfer.files)
     },
   }
   const propsButton: UploadProps = {
@@ -242,15 +242,17 @@ const FormUpload = ({
               name: string
               url: string
               preview?: string
-            }) => (
-              <Fragment key={list.uid}>
-                <img
-                  alt={list.name}
-                  style={{ width: '100%', height: '700px' }}
-                  src={list.url ? list.url : list.preview}
-                />
-              </Fragment>
-            ),
+            }) => {
+              return (
+                <Fragment key={list.uid}>
+                  <img
+                    alt={list.name}
+                    style={{ width: '100%', height: '700px' }}
+                    src={list.url ? list.url : list.preview}
+                  />
+                </Fragment>
+              )
+            }
           )}
         </Carousel>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>

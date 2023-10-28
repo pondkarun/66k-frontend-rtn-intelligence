@@ -114,7 +114,7 @@ const MatterImgupload = ({
       handlePreview(e)
     },
     onDrop(e) {
-      console.log('Dropped files', e.dataTransfer.files)
+      // console.log('Dropped files', e.dataTransfer.files)
     },
   }
 

@@ -1211,7 +1211,6 @@ const InternationalRelationsTopics = () => {
       <Modal
         open={isopenExport}
         width={800}
-        onCancel={() => setIsOpenExport(false)}
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>{'ข้อมูลพื้นฐานประเทศ'}</span>
@@ -1245,6 +1244,7 @@ const InternationalRelationsTopics = () => {
           </div>
         }
         closeIcon={false}
+        footer={<ModalFooter mode={'view'} onOk={() => setIsOpenExport(false)} onCancel={() => setIsOpenExport(false)} />}
       >
         {selectedRowKeys.length > 0 ? (
           <PDFViewer style={{ width: '100%' }} height={600}>

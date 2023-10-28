@@ -53,7 +53,7 @@ const MatterDocsUpload = ({
     },
     fileList: [],
     onDrop(e) {
-      console.log('Dropped files', e.dataTransfer.files)
+      // console.log('Dropped files', e.dataTransfer.files)
     },
   }
   const propsButton: UploadProps = {
