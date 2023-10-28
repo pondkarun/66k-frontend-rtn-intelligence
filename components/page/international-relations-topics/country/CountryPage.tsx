@@ -57,6 +57,7 @@ import {
 } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
+import ReportPage from '@/components/page/report'
 import { setActionFormInput } from '@/redux/actions/commonAction'
 import ModalFooter from '@/components/shares/ModalFooter'
 import trimDataString from '@/libs/trimFormDataString'
@@ -340,352 +341,352 @@ const InternationalRelationsTopics = () => {
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> =
     path.country && path.toppic
       ? [
-          {
-            key: 'event_date',
-            title: 'ห้วงเวลา',
-            render: (_value, record) => {
-              const start_date = new Date(
-                record.event_date_start,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
-              const start_end = new Date(
-                record.event_date_end,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
+        {
+          key: 'event_date',
+          title: 'ห้วงเวลา',
+          render: (_value, record) => {
+            const start_date = new Date(
+              record.event_date_start,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
+            const start_end = new Date(
+              record.event_date_end,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
 
-              return `${start_date} - ${start_end}`
-            },
-            width: 200,
-            align: 'center',
+            return `${start_date} - ${start_end}`
           },
-          {
-            key: 'event_name',
-            title: 'ชื่อกิจกรรม',
-            dataIndex: 'event_name',
-            render: (value) => value,
-            width: 300,
-          },
-          {
-            key: 'event_venue',
-            title: 'สถานที่จัดกิจกรรม',
-            dataIndex: 'event_venue',
-            render: (value) => value ?? '-',
-            width: 200,
-          },
-          {
-            key: 'file-record',
-            title: 'ไฟล์แนบ',
-            render: (_value, record: any) => {
-              return (
-                <>
-                  <FileTableContentField>
-                    {record.file_documents?.length > 0 && (
-                      <Tooltip
-                        trigger='click'
-                        title={record.file_documents.map(
-                          (item: any, index: Key) => (
-                            <div
-                              key={index}
-                              style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                              }}
-                            >
-                              <a
-                                href={item.url}
-                                target='_blank'
-                                rel='noreferrer'
-                              >
-                                {item.name}
-                              </a>
-                            </div>
-                          ),
-                        )}
-                        overlayInnerStyle={{
-                          backgroundColor: '#fff',
-                          minWidth: 100,
-                        }}
-                        arrow={false}
-                      >
-                        <EventContentField>
-                          <DocumentIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    )}
-                    {record.image_documents?.img_doc?.length > 0 ||
-                    record.image_documents?.img_haader?.length > 0 ? (
-                      <Tooltip>
-                        <EventContentField
-                          onClick={() => {
-                            const mergeData = [
-                              ...record.image_documents.img_haader,
-                              ...record.image_documents.img_doc,
-                            ]
-                            setSelectMenageRow({
-                              items: mergeData,
-                              openModal: true,
-                              type: 'img',
-                            })
-                          }}
-                        >
-                          <ImageBackgroundIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    ) : (
-                      <></>
-                    )}
-                  </FileTableContentField>
-                </>
-              )
-            },
-            width: 100,
-            align: 'center',
-          },
-          {
-            key: 'created_by',
-            title: 'ชื่อผู้แก้ไข',
-            dataIndex: 'created_by',
-            render: (value) => value ?? '-',
-            width: 100,
-          },
-          {
-            key: 'created_at',
-            title: 'แก้ไขล่าสุด',
-            dataIndex: 'created_date',
-            render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
-            width: 100,
-          },
-          {
-            key: 'maneage',
-            title: 'จัดการ',
-            width: 100,
-            align: 'center',
-            render: (_value, record) => {
-              return (
+          width: 200,
+          align: 'center',
+        },
+        {
+          key: 'event_name',
+          title: 'ชื่อกิจกรรม',
+          dataIndex: 'event_name',
+          render: (value) => value,
+          width: 300,
+        },
+        {
+          key: 'event_venue',
+          title: 'สถานที่จัดกิจกรรม',
+          dataIndex: 'event_venue',
+          render: (value) => value ?? '-',
+          width: 200,
+        },
+        {
+          key: 'file-record',
+          title: 'ไฟล์แนบ',
+          render: (_value, record: any) => {
+            return (
+              <>
                 <FileTableContentField>
-                  <Tooltip title={`ดูข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.VIEW)
-                      }
-                    >
-                      <EyeOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`แก้ไขข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.EDIT)
-                      }
-                    >
-                      <EditOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`ลบข้อมูล`}>
-                    <Popconfirm
-                      placement='top'
-                      title={'ยืนยันการลบข้อมูล'}
-                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                      okText='ตกลง'
-                      cancelText='ยกเลิก'
+                  {record.file_documents?.length > 0 && (
+                    <Tooltip
+                      trigger='click'
+                      title={record.file_documents.map(
+                        (item: any, index: Key) => (
+                          <div
+                            key={index}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                            }}
+                          >
+                            <a
+                              href={item.url}
+                              target='_blank'
+                              rel='noreferrer'
+                            >
+                              {item.name}
+                            </a>
+                          </div>
+                        ),
+                      )}
+                      overlayInnerStyle={{
+                        backgroundColor: '#fff',
+                        minWidth: 100,
+                      }}
+                      arrow={false}
                     >
                       <EventContentField>
-                        <DeleteOutlined />
+                        <DocumentIcon />
                       </EventContentField>
-                    </Popconfirm>
-                  </Tooltip>
+                    </Tooltip>
+                  )}
+                  {record.image_documents?.img_doc?.length > 0 ||
+                    record.image_documents?.img_haader?.length > 0 ? (
+                    <Tooltip>
+                      <EventContentField
+                        onClick={() => {
+                          const mergeData = [
+                            ...record.image_documents.img_haader,
+                            ...record.image_documents.img_doc,
+                          ]
+                          setSelectMenageRow({
+                            items: mergeData,
+                            openModal: true,
+                            type: 'img',
+                          })
+                        }}
+                      >
+                        <ImageBackgroundIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  ) : (
+                    <></>
+                  )}
                 </FileTableContentField>
-              )
-            },
+              </>
+            )
           },
-        ]
+          width: 100,
+          align: 'center',
+        },
+        {
+          key: 'created_by',
+          title: 'ชื่อผู้แก้ไข',
+          dataIndex: 'created_by',
+          render: (value) => value ?? '-',
+          width: 100,
+        },
+        {
+          key: 'created_at',
+          title: 'แก้ไขล่าสุด',
+          dataIndex: 'created_date',
+          render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
+          width: 100,
+        },
+        {
+          key: 'maneage',
+          title: 'จัดการ',
+          width: 100,
+          align: 'center',
+          render: (_value, record) => {
+            return (
+              <FileTableContentField>
+                <Tooltip title={`ดูข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.VIEW)
+                    }
+                  >
+                    <EyeOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`แก้ไขข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.EDIT)
+                    }
+                  >
+                    <EditOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`ลบข้อมูล`}>
+                  <Popconfirm
+                    placement='top'
+                    title={'ยืนยันการลบข้อมูล'}
+                    onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                    okText='ตกลง'
+                    cancelText='ยกเลิก'
+                  >
+                    <EventContentField>
+                      <DeleteOutlined />
+                    </EventContentField>
+                  </Popconfirm>
+                </Tooltip>
+              </FileTableContentField>
+            )
+          },
+        },
+      ]
       : [
-          {
-            key: 'ir_topic',
-            title: 'หัวข้อ',
-            render: (_value, record) => {
-              return (
-                <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
-              )
-            },
-            width: 180,
+        {
+          key: 'ir_topic',
+          title: 'หัวข้อ',
+          render: (_value, record) => {
+            return (
+              <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
+            )
           },
-          {
-            key: 'event_date',
-            title: 'ห้วงเวลา',
-            render: (_value, record) => {
-              const start_date = new Date(
-                record.event_date_start,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
-              const start_end = new Date(
-                record.event_date_end,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
+          width: 180,
+        },
+        {
+          key: 'event_date',
+          title: 'ห้วงเวลา',
+          render: (_value, record) => {
+            const start_date = new Date(
+              record.event_date_start,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
+            const start_end = new Date(
+              record.event_date_end,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
 
-              return `${start_date} - ${start_end}`
-            },
-            width: 180,
-            align: 'center',
+            return `${start_date} - ${start_end}`
           },
-          {
-            key: 'event_name',
-            title: 'ชื่อกิจกรรม',
-            dataIndex: 'event_name',
-            render: (value) => value,
-            width: 300,
-          },
-          {
-            key: 'event_venue',
-            title: 'สถานที่จัดกิจกรรม',
-            dataIndex: 'event_venue',
-            render: (value) => value ?? '-',
-            width: 180,
-          },
-          {
-            key: 'file-record',
-            title: 'ไฟล์แนบ',
-            render: (_value, record: any) => {
-              return (
-                <>
-                  <FileTableContentField>
-                    {record.file_documents?.length > 0 && (
-                      <Tooltip
-                        trigger='click'
-                        title={record.file_documents.map(
-                          (item: any, index: Key) => (
-                            <div
-                              key={index}
+          width: 180,
+          align: 'center',
+        },
+        {
+          key: 'event_name',
+          title: 'ชื่อกิจกรรม',
+          dataIndex: 'event_name',
+          render: (value) => value,
+          width: 300,
+        },
+        {
+          key: 'event_venue',
+          title: 'สถานที่จัดกิจกรรม',
+          dataIndex: 'event_venue',
+          render: (value) => value ?? '-',
+          width: 180,
+        },
+        {
+          key: 'file-record',
+          title: 'ไฟล์แนบ',
+          render: (_value, record: any) => {
+            return (
+              <>
+                <FileTableContentField>
+                  {record.file_documents?.length > 0 && (
+                    <Tooltip
+                      trigger='click'
+                      title={record.file_documents.map(
+                        (item: any, index: Key) => (
+                          <div
+                            key={index}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                            }}
+                          >
+                            <a
+                              href={item.url}
+                              target='_blank'
+                              rel='noreferrer'
                               style={{
-                                display: 'flex',
-                                flexDirection: 'column',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
                               }}
                             >
-                              <a
-                                href={item.url}
-                                target='_blank'
-                                rel='noreferrer'
-                                style={{
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                {item.name}
-                              </a>
-                            </div>
-                          ),
-                        )}
-                        overlayInnerStyle={{
-                          backgroundColor: '#fff',
-                          minWidth: 100,
-                        }}
-                        arrow={false}
-                      >
-                        <EventContentField>
-                          <DocumentIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    )}
-                    {record.image_documents?.img_doc?.length > 0 ||
-                    record.image_documents?.img_haader?.length > 0 ? (
-                      <Tooltip>
-                        <EventContentField
-                          onClick={() => {
-                            const mergeData = [
-                              ...record.image_documents.img_haader,
-                              ...record.image_documents.img_doc,
-                            ]
-                            setSelectMenageRow({
-                              items: mergeData,
-                              openModal: true,
-                              type: 'img',
-                            })
-                          }}
-                        >
-                          <ImageBackgroundIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    ) : (
-                      <></>
-                    )}
-                  </FileTableContentField>
-                </>
-              )
-            },
-            width: 100,
-            align: 'center',
-          },
-          {
-            key: 'created_by',
-            title: 'ชื่อผู้แก้ไข',
-            dataIndex: 'created_by',
-            render: (value) => value ?? '-',
-            width: 180,
-          },
-          {
-            key: 'created_at',
-            title: 'แก้ไขล่าสุด',
-            dataIndex: 'created_date',
-            render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
-            width: 180,
-          },
-          {
-            key: 'maneage',
-            title: 'จัดการ',
-            width: 100,
-            align: 'center',
-            render: (_value, record) => {
-              return (
-                <FileTableContentField>
-                  <Tooltip title={`ดูข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.VIEW)
-                      }
-                    >
-                      <EyeOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`แก้ไขข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.EDIT)
-                      }
-                    >
-                      <EditOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`ลบข้อมูล`}>
-                    <Popconfirm
-                      placement='top'
-                      title={'ยืนยันการลบข้อมูล'}
-                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                      okText='ตกลง'
-                      cancelText='ยกเลิก'
+                              {item.name}
+                            </a>
+                          </div>
+                        ),
+                      )}
+                      overlayInnerStyle={{
+                        backgroundColor: '#fff',
+                        minWidth: 100,
+                      }}
+                      arrow={false}
                     >
                       <EventContentField>
-                        <DeleteOutlined />
+                        <DocumentIcon />
                       </EventContentField>
-                    </Popconfirm>
-                  </Tooltip>
+                    </Tooltip>
+                  )}
+                  {record.image_documents?.img_doc?.length > 0 ||
+                    record.image_documents?.img_haader?.length > 0 ? (
+                    <Tooltip>
+                      <EventContentField
+                        onClick={() => {
+                          const mergeData = [
+                            ...record.image_documents.img_haader,
+                            ...record.image_documents.img_doc,
+                          ]
+                          setSelectMenageRow({
+                            items: mergeData,
+                            openModal: true,
+                            type: 'img',
+                          })
+                        }}
+                      >
+                        <ImageBackgroundIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  ) : (
+                    <></>
+                  )}
                 </FileTableContentField>
-              )
-            },
+              </>
+            )
           },
-        ]
+          width: 100,
+          align: 'center',
+        },
+        {
+          key: 'created_by',
+          title: 'ชื่อผู้แก้ไข',
+          dataIndex: 'created_by',
+          render: (value) => value ?? '-',
+          width: 180,
+        },
+        {
+          key: 'created_at',
+          title: 'แก้ไขล่าสุด',
+          dataIndex: 'created_date',
+          render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
+          width: 180,
+        },
+        {
+          key: 'maneage',
+          title: 'จัดการ',
+          width: 100,
+          align: 'center',
+          render: (_value, record) => {
+            return (
+              <FileTableContentField>
+                <Tooltip title={`ดูข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.VIEW)
+                    }
+                  >
+                    <EyeOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`แก้ไขข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.EDIT)
+                    }
+                  >
+                    <EditOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`ลบข้อมูล`}>
+                  <Popconfirm
+                    placement='top'
+                    title={'ยืนยันการลบข้อมูล'}
+                    onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                    okText='ตกลง'
+                    cancelText='ยกเลิก'
+                  >
+                    <EventContentField>
+                      <DeleteOutlined />
+                    </EventContentField>
+                  </Popconfirm>
+                </Tooltip>
+              </FileTableContentField>
+            )
+          },
+        },
+      ]
 
   const onFinish = () => {
     const data = form.getFieldsValue()
@@ -905,15 +906,18 @@ const InternationalRelationsTopics = () => {
       }
     }
 
-    return <ReactPDFDoc items={seletedData} />
+    // return <ReactPDFDoc items={seletedData} />
+    return <ReportPage items={seletedData} hidePrint />
   }, [dataSource, selectedRowKeys])
 
   const PDFonload = () => (
-    <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
-      {({ loading }) => (
-        <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
-      )}
-    </PDFDownloadLink>
+    <>
+    </>
+    // <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
+    //   {({ loading }) => (
+    //     <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
+    //   )}
+    // </PDFDownloadLink>
   )
 
   const handleExportxlxs = async () => {
@@ -1223,12 +1227,20 @@ const InternationalRelationsTopics = () => {
               }}
             >
               <span>Download</span>
-              <BtnMain
+              {/* <BtnMain
                 bgColor='#9a2020'
                 disabled={selectedRowKeys.length === 0}
                 onClick={PDFonload}
               >
                 <PDFonload />
+              </BtnMain> */}
+
+              <BtnMain
+                bgColor='#9a2020'
+                disabled={selectedRowKeys.length === 0}
+                onClick={() => open(`/report?items=${selectedRowKeys.toString()}`, "target")}
+              >
+                PDF
               </BtnMain>
               <BtnMain onClick={handleDocxExport}>
                 <span>Word</span>
@@ -1245,12 +1257,14 @@ const InternationalRelationsTopics = () => {
         }
         closeIcon={false}
         footer={<ModalFooter mode={'view'} onOk={() => setIsOpenExport(false)} onCancel={() => setIsOpenExport(false)} />}
+        bodyStyle={{ maxHeight: 600, overflowY: "auto" }}
       >
-        {selectedRowKeys.length > 0 ? (
+        {/* {selectedRowKeys.length > 0 ? (
           <PDFViewer style={{ width: '100%' }} height={600}>
             <RenderPDF />
           </PDFViewer>
-        ) : null}
+        ) : null} */}
+        <RenderPDF />
       </Modal>
 
       {/* viewModal */}
@@ -1332,7 +1346,7 @@ const Line = styled.div`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const BtnMain = styled(Button)<{ bgColor?: string }>`
+const BtnMain = styled(Button) <{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
