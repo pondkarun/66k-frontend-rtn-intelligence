@@ -15,19 +15,30 @@ Font.register({
   family: 'Sarabun',
   fonts: [
     {
-      src: '/fonts/sarabun/Sarabun-Regular.ttf',
+      src: '/fonts/satabun_psk/THSarabun.ttf',
     },
     {
-      src: '/fonts/sarabun/Sarabun-Medium.ttf',
-    },
-    {
-      src: '/fonts/sarabun/Sarabun-SemiBold.ttf',
-    },
-    {
-      src: '/fonts/sarabun/Sarabun-Bold.ttf',
+      src: '/fonts/satabun_psk/THSarabun-Bold.ttf',
     },
   ],
 })
+// Font.register({
+//   family: 'Sarabun',
+//   fonts: [
+//     {
+//       src: '/fonts/sarabun/Sarabun-Regular.ttf',
+//     },
+//     {
+//       src: '/fonts/sarabun/Sarabun-Medium.ttf',
+//     },
+//     {
+//       src: '/fonts/sarabun/Sarabun-SemiBold.ttf',
+//     },
+//     {
+//       src: '/fonts/sarabun/Sarabun-Bold.ttf',
+//     },
+//   ],
+// })
 
 const styles = StyleSheet.create({
   body: {
@@ -35,7 +46,7 @@ const styles = StyleSheet.create({
     paddingBottom: 65,
     paddingHorizontal: 20,
     fontFamily: 'Sarabun',
-    fontSize: 12,
+    fontSize: 16,
   },
   image: {
     width: 120,
@@ -94,8 +105,7 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  rowGap: 14,
-                }}
+                  rowGap: 1                }}
               >
                 <Text style={styles.textToppic}>{item.event_name}</Text>
                 <Text style={styles.textToppic}>
@@ -114,7 +124,7 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                 </Text>
               </View>
               {typeof item.image_documents !== 'undefined' &&
-              typeof item.image_documents.img_haader !== 'undefined' ? (
+                typeof item.image_documents.img_haader !== 'undefined' ? (
                 typeof item.image_documents.img_haader[0] !== 'undefined' ? (
                   item.image_documents.img_haader[0].url !== '' ? (
                     <View
@@ -142,8 +152,13 @@ const ReactPDFDoc = ({ items }: Readonly<ReactPDFDocProps>) => {
                     }}
                   >
                     <Text
-                      style={{ fontWeight: 'semibold', marginBottom: 10 }}
-                    >{`${index + 1}.${specific.topic_reason_name}`}</Text>
+                      style={{
+                        fontWeight: 'semibold',
+                        marginBottom: 10,
+                      }}
+                    >
+                      {`${index + 1}.${specific.topic_reason_name}`}
+                    </Text>
                     {specific.sub_reason_name.map((subreason, index) => (
                       <Fragment key={index}>
                         <View style={styles.section}>

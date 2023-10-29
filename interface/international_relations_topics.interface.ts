@@ -17,5 +17,5 @@ export interface international_relations_topicsAttributes {
 
 export type TMapReason = {
   topic_reason_name: string
-  sub_reason_name: Array<{ name: string; value: string }>
+  sub_reason_name: Array<{ name: string; value: string, [k: string]: unknown }>
 }[]

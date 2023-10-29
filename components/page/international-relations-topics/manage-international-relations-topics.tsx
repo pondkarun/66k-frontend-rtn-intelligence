@@ -96,24 +96,68 @@ const ManageInternationalRelationsTopics = (
         const fields = Object.entries(values as unknown as never)
 
         for (let index = 0; index < fields.length; index++) {
+          const imgMap = [],
+            filemap = []
           const element = fields[index] as any
           let upload: any = undefined
-
           if (element[1].upload) {
             const _u = element[1].upload
             upload = {}
             if (isArray(_u.image)) {
-              upload.image = _u.image.map((e: any) => {
+              for (let o = 0; o < _u.image.length; o++) {
+                const imgPath: any = _u.image[o]
+                const responseImage = await internalUploadPublicService({
+                  formData: imgPath,
+                  country_id: router.query.country as string,
+                  ticpid_id: router.query.toppic as string,
+                  dir: id,
+                })
+                if (responseImage.message === 'OK') {
+                  const urlPath = responseImage.data as string[]
+                  const urlFile = urlPath.find(
+                    (_url: string) =>
+                      _url.split('/')[_url.split('/').length - 1] ===
+                      imgPath.name,
+                  )
+                  imgMap.push({
+                    name: imgPath.name,
+                    url: urlFile,
+                  })
+                }
+              }
+              upload.image = imgMap.map((e: any) => {
                 return {
-                  url: '',
+                  url: e.url,
                   name: e.name,
                 }
               })
             }
+
             if (isArray(_u.file)) {
-              upload.file = _u.file.map((e: any) => {
+              for (let o = 0; o < _u.file.length; o++) {
+                const filePath: any = _u.file[o]
+                const responseImage = await internalUploadPublicService({
+                  formData: filePath,
+                  country_id: router.query.country as string,
+                  ticpid_id: router.query.toppic as string,
+                  dir: id,
+                })
+                if (responseImage.message === 'OK') {
+                  const urlPath = responseImage.data as string[]
+                  const urlFile = urlPath.find(
+                    (_url: string) =>
+                      _url.split('/')[_url.split('/').length - 1] ===
+                      filePath.name,
+                  )
+                  filemap.push({
+                    name: filePath.name,
+                    url: urlFile,
+                  })
+                }
+              }
+              upload.file = filemap.map((e: any) => {
                 return {
-                  url: '',
+                  url: e.url,
                   name: e.name,
                 }
               })
@@ -175,7 +219,6 @@ const ManageInternationalRelationsTopics = (
       for (let z = 0; z < data.image_documents.length; z++) {
         const image_document = data.image_documents[z]
         const url = fileUploadedImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_document.name)
-        console.log('url', url)
         createValuesReasonImage.push({
           url,
           name: image_document.name,
@@ -295,7 +338,7 @@ const ManageInternationalRelationsTopics = (
               form={form}
               type='file'
               name='file_documents'
-              acceptFile='.pdf,.xlsx,.doc,.ptt'
+              acceptFile='.pdf,.xlsx,.docx,.ptt'
               dir={idAdd}
             />
           </Col>
