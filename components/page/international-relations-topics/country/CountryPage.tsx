@@ -216,14 +216,8 @@ const InternationalRelationsTopics = () => {
           // let path_image = ``, path_file = ``;
           e.sub_reason_name?.forEach((x: any) => {
             if (isPlainObject(x.upload)) {
-              x.upload?.image?.forEach(
-                (y: any) =>
-                  (y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/image/${y.name}`),
-              )
-              x.upload?.file?.forEach(
-                (y: any) =>
-                  (y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/file/${y.name}`),
-              )
+              x.upload?.image?.map((y: any) => y)
+              x.upload?.file?.map((y: any) => y)
             }
           })
         })
@@ -457,7 +451,7 @@ const InternationalRelationsTopics = () => {
           {
             key: 'created_at',
             title: 'แก้ไขล่าสุด',
-            dataIndex: 'created_date',
+            dataIndex: 'updated_date',
             render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
             width: 100,
           },
@@ -638,7 +632,7 @@ const InternationalRelationsTopics = () => {
           {
             key: 'created_at',
             title: 'แก้ไขล่าสุด',
-            dataIndex: 'created_date',
+            dataIndex: 'updated_date',
             render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
             width: 180,
           },
@@ -711,23 +705,68 @@ const InternationalRelationsTopics = () => {
         const fields = Object.entries(values as unknown as never)
 
         for (let index = 0; index < fields.length; index++) {
+          const imgMap = [],
+            filemap = []
           const element = fields[index] as any
           let upload: any = undefined
           if (element[1].upload) {
             const _u = element[1].upload
             upload = {}
             if (isArray(_u.image)) {
-              upload.image = _u.image.map((e: any) => {
+              for (let o = 0; o < _u.image.length; o++) {
+                const imgPath: any = _u.image[o]
+                const responseImage = await internalUploadPublicService({
+                  formData: imgPath,
+                  country_id: router.query.country as string,
+                  ticpid_id: toppicId,
+                  dir: internationalId,
+                })
+                if (responseImage.message === 'OK') {
+                  const urlPath = responseImage.data as string[]
+                  const urlFile = urlPath.find(
+                    (_url: string) =>
+                      _url.split('/')[_url.split('/').length - 1] ===
+                      imgPath.name,
+                  )
+                  imgMap.push({
+                    name: imgPath.name,
+                    url: urlFile,
+                  })
+                }
+              }
+              upload.image = imgMap.map((e: any) => {
                 return {
-                  url: '',
+                  url: e.url,
                   name: e.name,
                 }
               })
             }
+
             if (isArray(_u.file)) {
-              upload.file = _u.file.map((e: any) => {
+              for (let o = 0; o < _u.file.length; o++) {
+                const filePath: any = _u.file[o]
+                const responseImage = await internalUploadPublicService({
+                  formData: filePath,
+                  country_id: router.query.country as string,
+                  ticpid_id: toppicId,
+                  dir: internationalId,
+                })
+                if (responseImage.message === 'OK') {
+                  const urlPath = responseImage.data as string[]
+                  const urlFile = urlPath.find(
+                    (_url: string) =>
+                      _url.split('/')[_url.split('/').length - 1] ===
+                      filePath.name,
+                  )
+                  filemap.push({
+                    name: filePath.name,
+                    url: urlFile,
+                  })
+                }
+              }
+              upload.file = filemap.map((e: any) => {
                 return {
-                  url: '',
+                  url: e.url,
                   name: e.name,
                 }
               })
@@ -836,7 +875,11 @@ const InternationalRelationsTopics = () => {
     if (typeof itemsForm.file_image_header !== 'undefined')
       if (itemsForm.file_image_header.length > 0) {
         const image_document_header = itemsForm.file_image_header[0]
-        const urlFile = fileheaderImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_document_header.name)
+        const urlFile = fileheaderImg.data.find(
+          (_url: string) =>
+            _url.split('/')[_url.split('/').length - 1] ===
+            image_document_header.name,
+        )
 
         createValuesReasonImageHeader.push({
           url: image_document_header.url ? image_document_header.url : urlFile,
@@ -877,7 +920,7 @@ const InternationalRelationsTopics = () => {
     try {
       await editInternationalDatasService(modalRequst, internationalId)
       message.success('แก้ไขข้อมูลสำเร็จ')
-      formInternational.resetFields()
+      // formInternational.resetFields()
       setIsModalOpen(!isModalOpen)
       randerQueryCountryApi()
     } catch (error) {
@@ -1244,7 +1287,13 @@ const InternationalRelationsTopics = () => {
           </div>
         }
         closeIcon={false}
-        footer={<ModalFooter mode={'view'} onOk={() => setIsOpenExport(false)} onCancel={() => setIsOpenExport(false)} />}
+        footer={
+          <ModalFooter
+            mode={'view'}
+            onOk={() => setIsOpenExport(false)}
+            onCancel={() => setIsOpenExport(false)}
+          />
+        }
       >
         {selectedRowKeys.length > 0 ? (
           <PDFViewer style={{ width: '100%' }} height={600}>
