@@ -147,13 +147,19 @@ const InternationalRelationsTopics = () => {
 
   const randerQueryCountryApi = async (_search?: string) => {
     try {
-      if (path.country) {
+      const data = await getAllCountryInternationalDataRelationsTopicsServices({
+        country_id: path.country,
+        search: _search,
+      })
+      if (path.country && path.toppic) {
         setIsLoading(true)
-        const data =
-          await getAllCountryInternationalDataRelationsTopicsServices({
-            country_id: path.country,
-            search: _search,
-          })
+        const datatype =
+          data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
+        const _datatype = datatype.filter((g) => g.ir_topic_id === path.toppic)
+        setDataSource(_datatype)
+        setIsLoading(false)
+      } else {
+        setIsLoading(true)
         const datatype =
           data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
         setDataSource(datatype)
