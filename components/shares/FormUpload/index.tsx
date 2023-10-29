@@ -12,6 +12,7 @@ import {
   Ref,
   SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -97,13 +98,13 @@ const FormUpload = ({
     onChange: async (info) => {
       // console.log('info :>> ', info);
       const isLimit = beforeUploadValidateSize(info, type)
-        if (isLimit) {
-          info.file.status = 'done'
-          setFile([...file, ...info.fileList])
-        } else {
-          info.file.status = 'error'
-          setFile([...file, ...info.fileList])
-        }
+      if (isLimit) {
+        info.file.status = 'done'
+        setFile([...file, ...info.fileList])
+      } else {
+        info.file.status = 'error'
+        setFile([...file, ...info.fileList])
+      }
     },
     fileList: [],
     onDrop(e) {
@@ -233,6 +234,9 @@ const FormUpload = ({
 
   const ContentShowImage = (props: any) => {
     const { items } = props
+    useMemo(() => {
+      items.forEach((element: any) => handlePreview(element))
+    }, [items])
     return (
       <>
         <Carousel effect='fade' ref={slider as any}>
@@ -252,7 +256,7 @@ const FormUpload = ({
                   />
                 </Fragment>
               )
-            }
+            },
           )}
         </Carousel>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -327,7 +331,13 @@ const FormUpload = ({
                 onPreview={(e) => handlePreview(e)}
               >
                 {imageUrl.length === 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                    }}
+                  >
                     <PlusOutlined />
                     <span>อัปโหลดรูปปก</span>
                   </div>
