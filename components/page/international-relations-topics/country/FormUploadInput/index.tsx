@@ -97,6 +97,7 @@ const FormUploadInput = (props: FormUploadInputProps) => {
             acceptFile={type == "file" ? '.pdf,.xlsx,.doc,.ptt' : ".jpg,.png,.svg,.webp"}
             dir={dirPath ? `${dirPath}${type}` : undefined}
             disabled={mode == "view" ? true : false}
+            hideCover
           />
         </Modal>
 

@@ -41,6 +41,7 @@ export type FormUploadType = {
   ticpidId?: string
   disabled?: boolean
   dir?: string
+  hideCover?: boolean
 }
 
 const FormUpload = ({
@@ -53,6 +54,7 @@ const FormUpload = ({
   ticpidId,
   disabled,
   dir,
+  hideCover
 }: FormUploadType) => {
   const [file, setFileData] = useState<any>([])
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -277,9 +279,8 @@ const FormUpload = ({
 
   return (
     <div>
-      <label>{`อัปโหลดไฟล์${type == 'image' ? 'รูปภาพ' : 'เอกสาร'} ${
-        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-      }`}</label>
+      <label>{`อัปโหลดไฟล์${type == 'image' ? 'รูปภาพ' : 'เอกสาร'} ${type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
+        }`}</label>
       {!disabled && (
         <Form.Item name={name}>
           <Dragger {...propsDragger}>
@@ -319,30 +320,31 @@ const FormUpload = ({
         <Col span={24}>
           {type == 'image' ? (
             <div style={{ display: 'inline-flex' }}>
-              <Upload
-                disabled={disabled}
-                className='custom-upload'
-                name={`file_image_header`}
-                listType='picture-card'
-                accept={acceptFile}
-                action='/api/upload'
-                onChange={handleChange}
-                fileList={imageUrl}
-                onPreview={(e) => handlePreview(e)}
-              >
-                {imageUrl.length === 0 ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <PlusOutlined />
-                    <span>อัปโหลดรูปปก</span>
-                  </div>
-                ) : null}
-              </Upload>
+              {!hideCover ?
+                <Upload
+                  disabled={disabled}
+                  className='custom-upload'
+                  name={`file_image_header`}
+                  listType='picture-card'
+                  accept={acceptFile}
+                  action='/api/upload'
+                  onChange={handleChange}
+                  fileList={imageUrl}
+                  onPreview={(e) => handlePreview(e)}
+                >
+                  {imageUrl.length === 0 ? (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <PlusOutlined />
+                      <span>อัปโหลดรูปปก</span>
+                    </div>
+                  ) : null}
+                </Upload> : null}
               <Upload
                 disabled={disabled}
                 {...propsUpload}

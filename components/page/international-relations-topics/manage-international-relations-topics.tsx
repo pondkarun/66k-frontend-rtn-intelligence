@@ -229,7 +229,8 @@ const ManageInternationalRelationsTopics = (
     if (fileheaderImg) {
       const image_doc_header = data.file_image_header[0]
       if (image_doc_header) {
-        const url = fileUploadedImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_doc_header.name)
+        // const url = fileUploadedImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_doc_header.name)
+        const url = fileheaderImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_doc_header.name)
         createValuesReasonImageHeader.push({
           url,
           name: image_doc_header.name,
