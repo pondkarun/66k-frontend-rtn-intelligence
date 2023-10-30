@@ -83,97 +83,127 @@ const ManageInternationalRelationsTopics = (
   const onFinish = async () => {
     const data: any = form.getFieldValue(undefined)
     const createReason: TMapReason = []
+    let produceResult: TMapReason = []
     const createValuesReasonImage: TdocumentsOption = []
     const createValuesReasonImageHeader: TdocumentsOption = []
     const createValuesReasonFile: TdocumentsOption = []
     const id = idAdd
 
-    if (isPlainObject(data.specific_field)) {
-      for (const [key1, values] of Object.entries(
-        data.specific_field as unknown as never,
-      )) {
-        const subReason = []
-        const fields = Object.entries(values as unknown as never)
-
-        for (let index = 0; index < fields.length; index++) {
-          const imgMap = [],
-            filemap = []
-          const element = fields[index] as any
-          let upload: any = undefined
-          if (element[1].upload) {
-            const _u = element[1].upload
-            upload = {}
-            if (isArray(_u.image)) {
-              for (let o = 0; o < _u.image.length; o++) {
-                const imgPath: any = _u.image[o]
-                const responseImage = await internalUploadPublicService({
-                  formData: imgPath,
-                  country_id: router.query.country as string,
-                  ticpid_id: router.query.toppic as string,
-                  dir: id,
-                })
-                if (responseImage.message === 'OK') {
-                  const urlPath = responseImage.data as string[]
-                  const urlFile = urlPath.find(
-                    (_url: string) =>
-                      _url.split('/')[_url.split('/').length - 1] ===
-                      imgPath.name,
-                  )
-                  imgMap.push({
-                    name: imgPath.name,
-                    url: urlFile,
-                  })
-                }
-              }
-              upload.image = imgMap.map((e: any) => {
-                return {
-                  url: e.url,
-                  name: e.name,
-                }
-              })
-            }
-
-            if (isArray(_u.file)) {
-              for (let o = 0; o < _u.file.length; o++) {
-                const filePath: any = _u.file[o]
-                const responseImage = await internalUploadPublicService({
-                  formData: filePath,
-                  country_id: router.query.country as string,
-                  ticpid_id: router.query.toppic as string,
-                  dir: id,
-                })
-                if (responseImage.message === 'OK') {
-                  const urlPath = responseImage.data as string[]
-                  const urlFile = urlPath.find(
-                    (_url: string) =>
-                      _url.split('/')[_url.split('/').length - 1] ===
-                      filePath.name,
-                  )
-                  filemap.push({
-                    name: filePath.name,
-                    url: urlFile,
-                  })
-                }
-              }
-              upload.file = filemap.map((e: any) => {
-                return {
-                  url: e.url,
-                  name: e.name,
-                }
-              })
-            }
+    if (toppic_obj.guide_line_specific_field) {
+      if (toppic_obj.guide_line_specific_field.length > 0) {
+        for (let g = 0; g < toppic_obj.guide_line_specific_field.length; g++) {
+          const specific_field = toppic_obj.guide_line_specific_field[g] as {
+            value: string[]
+            groups: string
           }
-          subReason.push({
-            name: element[0],
-            value: element[1].value,
-            upload,
+          createReason.push({
+            topic_reason_name: specific_field.groups,
+            sub_reason_name: specific_field.value.map((val) => ({
+              name: val,
+              value: '',
+            })),
           })
         }
+      }
+    }
 
-        createReason.push({
-          topic_reason_name: key1,
-          sub_reason_name: subReason,
+    if (createReason.length > 0) {
+      const subReason: { name: any; value: any; upload: any }[] = []
+      if (isPlainObject(data.specific_field)) {
+        for (const [key1, values] of Object.entries(
+          data.specific_field as unknown as never,
+        )) {
+          const fields = Object.entries(values as unknown as never)
+
+          for (let index = 0; index < fields.length; index++) {
+            const imgMap = [],
+              filemap = []
+            const element = fields[index] as any
+            let upload: any = undefined
+            if (element[1].upload) {
+              const _u = element[1].upload
+              upload = {}
+              if (isArray(_u.image)) {
+                for (let o = 0; o < _u.image.length; o++) {
+                  const imgPath: any = _u.image[o]
+                  const responseImage = await internalUploadPublicService({
+                    formData: imgPath,
+                    country_id: router.query.country as string,
+                    ticpid_id: router.query.toppic as string,
+                    dir: id,
+                  })
+                  if (responseImage.message === 'OK') {
+                    const urlPath = responseImage.data as string[]
+                    const urlFile = urlPath.find(
+                      (_url: string) =>
+                        _url.split('/')[_url.split('/').length - 1] ===
+                        imgPath.name,
+                    )
+                    imgMap.push({
+                      name: imgPath.name,
+                      url: urlFile,
+                    })
+                  }
+                }
+                upload.image = imgMap.map((e: any) => {
+                  return {
+                    url: e.url,
+                    name: e.name,
+                  }
+                })
+              }
+
+              if (isArray(_u.file)) {
+                for (let o = 0; o < _u.file.length; o++) {
+                  const filePath: any = _u.file[o]
+                  const responseImage = await internalUploadPublicService({
+                    formData: filePath,
+                    country_id: router.query.country as string,
+                    ticpid_id: router.query.toppic as string,
+                    dir: id,
+                  })
+                  if (responseImage.message === 'OK') {
+                    const urlPath = responseImage.data as string[]
+                    const urlFile = urlPath.find(
+                      (_url: string) =>
+                        _url.split('/')[_url.split('/').length - 1] ===
+                        filePath.name,
+                    )
+                    filemap.push({
+                      name: filePath.name,
+                      url: urlFile,
+                    })
+                  }
+                }
+                upload.file = filemap.map((e: any) => {
+                  return {
+                    url: e.url,
+                    name: e.name,
+                  }
+                })
+              }
+            }
+            subReason.push({
+              name: element[0],
+              value: element[1].value,
+              upload,
+            })
+          }
+        }
+        const mapData = createReason.map((rea) => {
+          return {
+            ...rea,
+            sub_reason_name: rea.sub_reason_name?.map((val) => {
+              return {
+                ...val,
+                value:
+                  subReason.find((reason) => reason.name === val.name)?.value ??
+                  '',
+              }
+            }),
+          }
         })
+        produceResult = mapData
       }
     }
 
@@ -236,7 +266,6 @@ const ManageInternationalRelationsTopics = (
           name: image_doc_header.name,
         })
       }
-      
     }
 
     const event_date_start = dayjs(data.event_date[0]) as unknown as string
@@ -252,7 +281,7 @@ const ManageInternationalRelationsTopics = (
       event_venue: data.event_venue,
       leader_name_thai: data.leader_name_thai,
       leader_name_foreign: data.leader_name_foreign,
-      specific_field: createReason,
+      specific_field: produceResult.length === 0 ? createReason : produceResult,
       file_documents: createValuesReasonFile,
       image_documents: {
         img_haader: createValuesReasonImageHeader,
@@ -398,7 +427,7 @@ const ManageInternationalRelationsTopics = (
                               ]}
                               dir={idAdd}
                               mode={mode}
-                            // detail={e.detail?.[index]}
+                              // detail={e.detail?.[index]}
                             />
                           }
                         >
@@ -430,7 +459,7 @@ const ManageInternationalRelationsTopics = (
             ยกเลิก
           </Button>
         </Space>
-      </Form >
+      </Form>
     </>
   )
 }
