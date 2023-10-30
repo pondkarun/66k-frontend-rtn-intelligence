@@ -54,11 +54,11 @@ const Report = ({ items, hidePrint }: Readonly<ReactPDFDocProps>) => {
             <>
               <div className={`${index != 0 ? "pagebreak" : ""}`}>
                 <div style={{ textAlign: "center", paddingBottom: 20 }}>
-                  <h2><b>{item.event_name}</b></h2>
-                  <h2><b>{item.event_venue === '-' ? '' : item.event_venue}</b></h2>
-                  <h2><b>{`${start_date} - ${start_end}`}</b></h2>
-                  <h2><b>{item.leader_name_thai === '-' ? '' : item.leader_name_thai}</b></h2>
-                  <h2><b>{item.leader_name_foreign === '-' ? '' : item.leader_name_foreign}</b></h2>
+                  <h3><b>{item.event_name}</b></h3>
+                  <h3><b>{item.event_venue === '-' ? '' : item.event_venue}</b></h3>
+                  <h3><b>{`${start_date} - ${start_end}`}</b></h3>
+                  <h3><b>{item.leader_name_thai === '-' ? '' : item.leader_name_thai}</b></h3>
+                  <h3><b>{item.leader_name_foreign === '-' ? '' : item.leader_name_foreign}</b></h3>
                   {typeof item.image_documents !== 'undefined' &&
                     typeof item.image_documents.img_haader !== 'undefined' ? (
                     typeof item.image_documents.img_haader?.[0] !== 'undefined' ? (
@@ -97,8 +97,9 @@ const Report = ({ items, hidePrint }: Readonly<ReactPDFDocProps>) => {
                           <Col span={4}>
                             <b>{`${subreason.name} :`}</b>
                           </Col>
-                          <Col span={20} style={{ textAlign: "justify", textJustify: "inter-word", }}>
-                            {subreason.value}
+                          <Col span={20}>
+                            {/* {subreason.value} */}
+                            <div style={{ whiteSpace: "pre-wrap", textAlign: "justify", textJustify: "inter-word", }} dangerouslySetInnerHTML={{ __html: subreason.value }} />
                           </Col>
                         </Row>
                       </div>
