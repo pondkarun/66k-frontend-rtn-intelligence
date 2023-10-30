@@ -166,7 +166,7 @@ const LoginPage = () => {
         setIsError({
           username: {
             validateStatus: 'error',
-            help: 'กรุณรกรอกชื่อผู้ใช้งาน!',
+            help: 'กรุณากรอกชื่อผู้ใช้งาน!',
           },
           password: {
             validateStatus: 'error',
@@ -177,7 +177,7 @@ const LoginPage = () => {
         setIsError({
           username: {
             validateStatus: 'error',
-            help: 'กรุณรกรอกชื่อผู้ใช้งาน!',
+            help: 'กรุณากรอกชื่อผู้ใช้งาน!',
           },
         })
       } else if (!password) {

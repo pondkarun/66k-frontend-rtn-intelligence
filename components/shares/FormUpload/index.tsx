@@ -12,6 +12,7 @@ import {
   Ref,
   SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -40,6 +41,7 @@ export type FormUploadType = {
   ticpidId?: string
   disabled?: boolean
   dir?: string
+  hideCover?: boolean
 }
 
 const FormUpload = ({
@@ -52,6 +54,7 @@ const FormUpload = ({
   ticpidId,
   disabled,
   dir,
+  hideCover
 }: FormUploadType) => {
   const [file, setFileData] = useState<any>([])
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -97,17 +100,17 @@ const FormUpload = ({
     onChange: async (info) => {
       // console.log('info :>> ', info);
       const isLimit = beforeUploadValidateSize(info, type)
-        if (isLimit) {
-          info.file.status = 'done'
-          setFile([...file, ...info.fileList])
-        } else {
-          info.file.status = 'error'
-          setFile([...file, ...info.fileList])
-        }
+      if (isLimit) {
+        info.file.status = 'done'
+        setFile([...file, ...info.fileList])
+      } else {
+        info.file.status = 'error'
+        setFile([...file, ...info.fileList])
+      }
     },
     fileList: [],
     onDrop(e) {
-      console.log('Dropped files', e.dataTransfer.files)
+      // console.log('Dropped files', e.dataTransfer.files)
     },
   }
   const propsButton: UploadProps = {
@@ -233,6 +236,9 @@ const FormUpload = ({
 
   const ContentShowImage = (props: any) => {
     const { items } = props
+    useMemo(() => {
+      items.forEach((element: any) => handlePreview(element))
+    }, [items])
     return (
       <>
         <Carousel effect='fade' ref={slider as any}>
@@ -242,15 +248,17 @@ const FormUpload = ({
               name: string
               url: string
               preview?: string
-            }) => (
-              <Fragment key={list.uid}>
-                <img
-                  alt={list.name}
-                  style={{ width: '100%', height: '700px' }}
-                  src={list.url ? list.url : list.preview}
-                />
-              </Fragment>
-            ),
+            }) => {
+              return (
+                <Fragment key={list.uid}>
+                  <img
+                    alt={list.name}
+                    style={{ width: '100%', height: '700px' }}
+                    src={list.url ? list.url : list.preview}
+                  />
+                </Fragment>
+              )
+            },
           )}
         </Carousel>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -271,9 +279,8 @@ const FormUpload = ({
 
   return (
     <div>
-      <label>{`อัปโหลดไฟล์${type == 'image' ? 'รูปภาพ' : 'เอกสาร'} ${
-        type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
-      }`}</label>
+      <label>{`อัปโหลดไฟล์${type == 'image' ? 'รูปภาพ' : 'เอกสาร'} ${type == 'file' ? '(xlsx, docx, ptt, pdf)' : '(jpg, png, svg)'
+        }`}</label>
       {!disabled && (
         <Form.Item name={name}>
           <Dragger {...propsDragger}>
@@ -313,24 +320,31 @@ const FormUpload = ({
         <Col span={24}>
           {type == 'image' ? (
             <div style={{ display: 'inline-flex' }}>
-              <Upload
-                disabled={disabled}
-                className='custom-upload'
-                name={`file_image_header`}
-                listType='picture-card'
-                accept={acceptFile}
-                action='/api/upload'
-                onChange={handleChange}
-                fileList={imageUrl}
-                onPreview={(e) => handlePreview(e)}
-              >
-                {imageUrl.length === 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <PlusOutlined />
-                    <span>อัปโหลดรูปปก</span>
-                  </div>
-                ) : null}
-              </Upload>
+              {!hideCover ?
+                <Upload
+                  disabled={disabled}
+                  className='custom-upload'
+                  name={`file_image_header`}
+                  listType='picture-card'
+                  accept={acceptFile}
+                  action='/api/upload'
+                  onChange={handleChange}
+                  fileList={imageUrl}
+                  onPreview={(e) => handlePreview(e)}
+                >
+                  {imageUrl.length === 0 ? (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <PlusOutlined />
+                      <span>อัปโหลดรูปปก</span>
+                    </div>
+                  ) : null}
+                </Upload> : null}
               <Upload
                 disabled={disabled}
                 {...propsUpload}

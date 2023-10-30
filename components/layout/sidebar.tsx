@@ -279,13 +279,6 @@ const SidebarLayoutComponents = () => {
         windowSize.width <= 740 ? dispatch(setCollapsed(true)) : (setCollapsed(false));
     }, [])
 
-    useEffect(() => {
-        if (country && toppic) {
-            dispatch(setBackground("#fff"));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [country, toppic])
-
     const Flag = styled("img")`
         width: 30px;
         ${collapsed ? `
@@ -685,7 +678,8 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     }
     const onClick = (id: string) => {
         // console.log('id :>> ', id);
-        dispatch(setActionFormInput(''))
+        // dispatch(setBackground("#111730"));
+        // dispatch(setActionFormInput(''))
         dispatch(setSelectToppic(id))
         dispatch(setSelectCountry(country))
         router.push(`/international-relations-topics/${country}/${id}`);

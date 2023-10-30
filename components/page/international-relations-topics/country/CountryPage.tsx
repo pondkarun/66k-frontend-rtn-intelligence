@@ -57,6 +57,7 @@ import {
 } from '@/services/upload'
 import FormUpload from '@/components/shares/FormUpload'
 import ReactPDFDoc from '@/components/page/international-relations-topics/country/ReactPDFDoc'
+import ReportPage from '@/components/page/report'
 import { setActionFormInput } from '@/redux/actions/commonAction'
 import ModalFooter from '@/components/shares/ModalFooter'
 import trimDataString from '@/libs/trimFormDataString'
@@ -146,13 +147,19 @@ const InternationalRelationsTopics = () => {
 
   const randerQueryCountryApi = async (_search?: string) => {
     try {
-      if (path.country) {
+      const data = await getAllCountryInternationalDataRelationsTopicsServices({
+        country_id: path.country,
+        search: _search,
+      })
+      if (path.country && path.toppic) {
         setIsLoading(true)
-        const data =
-          await getAllCountryInternationalDataRelationsTopicsServices({
-            country_id: path.country,
-            search: _search,
-          })
+        const datatype =
+          data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
+        const _datatype = datatype.filter((g) => g.ir_topic_id === path.toppic)
+        setDataSource(_datatype)
+        setIsLoading(false)
+      } else {
+        setIsLoading(true)
         const datatype =
           data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
         setDataSource(datatype)
@@ -216,14 +223,8 @@ const InternationalRelationsTopics = () => {
           // let path_image = ``, path_file = ``;
           e.sub_reason_name?.forEach((x: any) => {
             if (isPlainObject(x.upload)) {
-              x.upload?.image?.forEach(
-                (y: any) =>
-                  (y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/image/${y.name}`),
-              )
-              x.upload?.file?.forEach(
-                (y: any) =>
-                  (y.url = `${HOSTMAINUPLOADAPI}/public/${_record.country_id}/${_record.ir_topic_id}/specific_field/${e.topic_reason_name}/${x.name}/upload/file/${y.name}`),
-              )
+              x.upload?.image?.map((y: any) => y)
+              x.upload?.file?.map((y: any) => y)
             }
           })
         })
@@ -340,85 +341,85 @@ const InternationalRelationsTopics = () => {
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> =
     path.country && path.toppic
       ? [
-          {
-            key: 'event_date',
-            title: 'ห้วงเวลา',
-            render: (_value, record) => {
-              const start_date = new Date(
-                record.event_date_start,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
-              const start_end = new Date(
-                record.event_date_end,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
+        {
+          key: 'event_date',
+          title: 'ห้วงเวลา',
+          render: (_value, record) => {
+            const start_date = new Date(
+              record.event_date_start,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
+            const start_end = new Date(
+              record.event_date_end,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
 
-              return `${start_date} - ${start_end}`
-            },
-            width: 200,
-            align: 'center',
+            return `${start_date} - ${start_end}`
           },
-          {
-            key: 'event_name',
-            title: 'ชื่อกิจกรรม',
-            dataIndex: 'event_name',
-            render: (value) => value,
-            width: 300,
-          },
-          {
-            key: 'event_venue',
-            title: 'สถานที่จัดกิจกรรม',
-            dataIndex: 'event_venue',
-            render: (value) => value ?? '-',
-            width: 200,
-          },
-          {
-            key: 'file-record',
-            title: 'ไฟล์แนบ',
-            render: (_value, record: any) => {
-              return (
-                <>
-                  <FileTableContentField>
-                    {record.file_documents?.length > 0 && (
-                      <Tooltip
-                        trigger='click'
-                        title={record.file_documents.map(
-                          (item: any, index: Key) => (
-                            <div
-                              key={index}
-                              style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                              }}
+          width: 200,
+          align: 'center',
+        },
+        {
+          key: 'event_name',
+          title: 'ชื่อกิจกรรม',
+          dataIndex: 'event_name',
+          render: (value) => value,
+          width: 300,
+        },
+        {
+          key: 'event_venue',
+          title: 'สถานที่จัดกิจกรรม',
+          dataIndex: 'event_venue',
+          render: (value) => value ?? '-',
+          width: 200,
+        },
+        {
+          key: 'file-record',
+          title: 'ไฟล์แนบ',
+          render: (_value, record: any) => {
+            return (
+              <>
+                <FileTableContentField>
+                  {record.file_documents?.length > 0 && (
+                    <Tooltip
+                      trigger='click'
+                      title={record.file_documents.map(
+                        (item: any, index: Key) => (
+                          <div
+                            key={index}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                            }}
+                          >
+                            <a
+                              href={item.url}
+                              target='_blank'
+                              rel='noreferrer'
                             >
-                              <a
-                                href={item.url}
-                                target='_blank'
-                                rel='noreferrer'
-                              >
-                                {item.name}
-                              </a>
-                            </div>
-                          ),
-                        )}
-                        overlayInnerStyle={{
-                          backgroundColor: '#fff',
-                          minWidth: 100,
-                        }}
-                        arrow={false}
-                      >
-                        <EventContentField>
-                          <DocumentIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    )}
-                    {record.image_documents?.img_doc?.length > 0 ||
+                              {item.name}
+                            </a>
+                          </div>
+                        ),
+                      )}
+                      overlayInnerStyle={{
+                        backgroundColor: '#fff',
+                        minWidth: 100,
+                      }}
+                      arrow={false}
+                    >
+                      <EventContentField>
+                        <DocumentIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.image_documents?.img_doc?.length > 0 ||
                     record.image_documents?.img_haader?.length > 0 ? (
                       <Tooltip>
                         <EventContentField
@@ -506,100 +507,100 @@ const InternationalRelationsTopics = () => {
           },
         ]
       : [
-          {
-            key: 'ir_topic',
-            title: 'หัวข้อ',
-            render: (_value, record) => {
-              return (
-                <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
-              )
-            },
-            width: 180,
+        {
+          key: 'ir_topic',
+          title: 'หัวข้อ',
+          render: (_value, record) => {
+            return (
+              <span style={{ color: '#00408e' }}>{record.ir_topic.name}</span>
+            )
           },
-          {
-            key: 'event_date',
-            title: 'ห้วงเวลา',
-            render: (_value, record) => {
-              const start_date = new Date(
-                record.event_date_start,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
-              const start_end = new Date(
-                record.event_date_end,
-              ).toLocaleDateString('th-TH', {
-                year: '2-digit',
-                month: 'short',
-                day: 'numeric',
-              })
+          width: 180,
+        },
+        {
+          key: 'event_date',
+          title: 'ห้วงเวลา',
+          render: (_value, record) => {
+            const start_date = new Date(
+              record.event_date_start,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
+            const start_end = new Date(
+              record.event_date_end,
+            ).toLocaleDateString('th-TH', {
+              year: '2-digit',
+              month: 'short',
+              day: 'numeric',
+            })
 
-              return `${start_date} - ${start_end}`
-            },
-            width: 180,
-            align: 'center',
+            return `${start_date} - ${start_end}`
           },
-          {
-            key: 'event_name',
-            title: 'ชื่อกิจกรรม',
-            dataIndex: 'event_name',
-            render: (value) => value,
-            width: 300,
-          },
-          {
-            key: 'event_venue',
-            title: 'สถานที่จัดกิจกรรม',
-            dataIndex: 'event_venue',
-            render: (value) => value ?? '-',
-            width: 180,
-          },
-          {
-            key: 'file-record',
-            title: 'ไฟล์แนบ',
-            render: (_value, record: any) => {
-              return (
-                <>
-                  <FileTableContentField>
-                    {record.file_documents?.length > 0 && (
-                      <Tooltip
-                        trigger='click'
-                        title={record.file_documents.map(
-                          (item: any, index: Key) => (
-                            <div
-                              key={index}
+          width: 180,
+          align: 'center',
+        },
+        {
+          key: 'event_name',
+          title: 'ชื่อกิจกรรม',
+          dataIndex: 'event_name',
+          render: (value) => value,
+          width: 300,
+        },
+        {
+          key: 'event_venue',
+          title: 'สถานที่จัดกิจกรรม',
+          dataIndex: 'event_venue',
+          render: (value) => value ?? '-',
+          width: 180,
+        },
+        {
+          key: 'file-record',
+          title: 'ไฟล์แนบ',
+          render: (_value, record: any) => {
+            return (
+              <>
+                <FileTableContentField>
+                  {record.file_documents?.length > 0 && (
+                    <Tooltip
+                      trigger='click'
+                      title={record.file_documents.map(
+                        (item: any, index: Key) => (
+                          <div
+                            key={index}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                            }}
+                          >
+                            <a
+                              href={item.url}
+                              target='_blank'
+                              rel='noreferrer'
                               style={{
-                                display: 'flex',
-                                flexDirection: 'column',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
                               }}
                             >
-                              <a
-                                href={item.url}
-                                target='_blank'
-                                rel='noreferrer'
-                                style={{
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                {item.name}
-                              </a>
-                            </div>
-                          ),
-                        )}
-                        overlayInnerStyle={{
-                          backgroundColor: '#fff',
-                          minWidth: 100,
-                        }}
-                        arrow={false}
-                      >
-                        <EventContentField>
-                          <DocumentIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    )}
-                    {record.image_documents?.img_doc?.length > 0 ||
+                              {item.name}
+                            </a>
+                          </div>
+                        ),
+                      )}
+                      overlayInnerStyle={{
+                        backgroundColor: '#fff',
+                        minWidth: 100,
+                      }}
+                      arrow={false}
+                    >
+                      <EventContentField>
+                        <DocumentIcon />
+                      </EventContentField>
+                    </Tooltip>
+                  )}
+                  {record.image_documents?.img_doc?.length > 0 ||
                     record.image_documents?.img_haader?.length > 0 ? (
                       <Tooltip>
                         <EventContentField
@@ -711,23 +712,68 @@ const InternationalRelationsTopics = () => {
         const fields = Object.entries(values as unknown as never)
 
         for (let index = 0; index < fields.length; index++) {
+          const imgMap = [],
+            filemap = []
           const element = fields[index] as any
           let upload: any = undefined
           if (element[1].upload) {
             const _u = element[1].upload
             upload = {}
             if (isArray(_u.image)) {
-              upload.image = _u.image.map((e: any) => {
+              for (let o = 0; o < _u.image.length; o++) {
+                const imgPath: any = _u.image[o]
+                const responseImage = await internalUploadPublicService({
+                  formData: imgPath,
+                  country_id: router.query.country as string,
+                  ticpid_id: toppicId,
+                  dir: internationalId,
+                })
+                if (responseImage.message === 'OK') {
+                  const urlPath = responseImage.data as string[]
+                  const urlFile = urlPath.find(
+                    (_url: string) =>
+                      _url.split('/')[_url.split('/').length - 1] ===
+                      imgPath.name,
+                  )
+                  imgMap.push({
+                    name: imgPath.name,
+                    url: urlFile,
+                  })
+                }
+              }
+              upload.image = imgMap.map((e: any) => {
                 return {
-                  url: '',
+                  url: e.url,
                   name: e.name,
                 }
               })
             }
+
             if (isArray(_u.file)) {
-              upload.file = _u.file.map((e: any) => {
+              for (let o = 0; o < _u.file.length; o++) {
+                const filePath: any = _u.file[o]
+                const responseImage = await internalUploadPublicService({
+                  formData: filePath,
+                  country_id: router.query.country as string,
+                  ticpid_id: toppicId,
+                  dir: internationalId,
+                })
+                if (responseImage.message === 'OK') {
+                  const urlPath = responseImage.data as string[]
+                  const urlFile = urlPath.find(
+                    (_url: string) =>
+                      _url.split('/')[_url.split('/').length - 1] ===
+                      filePath.name,
+                  )
+                  filemap.push({
+                    name: filePath.name,
+                    url: urlFile,
+                  })
+                }
+              }
+              upload.file = filemap.map((e: any) => {
                 return {
-                  url: '',
+                  url: e.url,
                   name: e.name,
                 }
               })
@@ -836,7 +882,11 @@ const InternationalRelationsTopics = () => {
     if (typeof itemsForm.file_image_header !== 'undefined')
       if (itemsForm.file_image_header.length > 0) {
         const image_document_header = itemsForm.file_image_header[0]
-        const urlFile = fileheaderImg.data.find((_url: string) => _url.split('/')[_url.split('/').length - 1] === image_document_header.name)
+        const urlFile = fileheaderImg.data.find(
+          (_url: string) =>
+            _url.split('/')[_url.split('/').length - 1] ===
+            image_document_header.name,
+        )
 
         createValuesReasonImageHeader.push({
           url: image_document_header.url ? image_document_header.url : urlFile,
@@ -877,7 +927,7 @@ const InternationalRelationsTopics = () => {
     try {
       await editInternationalDatasService(modalRequst, internationalId)
       message.success('แก้ไขข้อมูลสำเร็จ')
-      formInternational.resetFields()
+      // formInternational.resetFields()
       setIsModalOpen(!isModalOpen)
       randerQueryCountryApi()
     } catch (error) {
@@ -905,15 +955,18 @@ const InternationalRelationsTopics = () => {
       }
     }
 
-    return <ReactPDFDoc items={seletedData} />
+    // return <ReactPDFDoc items={seletedData} />
+    return <ReportPage items={seletedData} hidePrint />
   }, [dataSource, selectedRowKeys])
 
   const PDFonload = () => (
-    <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
-      {({ loading }) => (
-        <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
-      )}
-    </PDFDownloadLink>
+    <>
+    </>
+    // <PDFDownloadLink document={<RenderPDF />} fileName='PDF-report.pdf'>
+    //   {({ loading }) => (
+    //     <span color='#fff'>{loading ? 'Loading...' : 'PDF'}</span>
+    //   )}
+    // </PDFDownloadLink>
   )
 
   const handleExportxlxs = async () => {
@@ -949,22 +1002,6 @@ const InternationalRelationsTopics = () => {
       }
     }
   }
-
-  // const generatePDF = () => {
-  //   console.log('first')
-  //   const docDefinition: TDocumentDefinitions = {
-  //     content: [
-  //       {
-  //         text: "สวัสดี นี่คือ PDF ที่ใช้ฟอนต์ Thai Sarabun",
-  //       },
-  //     ],
-  //     defaultStyle: {
-  //       font: 'thaiSarabun'
-  //     }
-  //   }
-  
-  //   pdfMake.createPdf(docDefinition).download("sample.pdf")
-  // }
 
   return (
     <>
@@ -1227,7 +1264,6 @@ const InternationalRelationsTopics = () => {
       <Modal
         open={isopenExport}
         width={800}
-        onCancel={() => setIsOpenExport(false)}
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>{'ข้อมูลพื้นฐานประเทศ'}</span>
@@ -1240,12 +1276,20 @@ const InternationalRelationsTopics = () => {
               }}
             >
               <span>Download</span>
-              <BtnMain
+              {/* <BtnMain
                 bgColor='#9a2020'
                 disabled={selectedRowKeys.length === 0}
                 onClick={PDFonload}
               >
                 <PDFonload />
+              </BtnMain> */}
+
+              <BtnMain
+                bgColor='#9a2020'
+                disabled={selectedRowKeys.length === 0}
+                onClick={() => open(`/report?items=${selectedRowKeys.toString()}`, "target")}
+              >
+                PDF
               </BtnMain>
               <BtnMain onClick={handleDocxExport}>
                 <span>Word</span>
@@ -1261,12 +1305,14 @@ const InternationalRelationsTopics = () => {
           </div>
         }
         closeIcon={false}
+        footer={<ModalFooter mode={'view'} onOk={() => setIsOpenExport(false)} onCancel={() => setIsOpenExport(false)} />}
       >
-        {selectedRowKeys.length > 0 ? (
+        {/* {selectedRowKeys.length > 0 ? (
           <PDFViewer style={{ width: '100%' }} height={600}>
             <RenderPDF />
           </PDFViewer>
-        ) : null}
+        ) : null} */}
+        <RenderPDF />
       </Modal>
 
       {/* viewModal */}
@@ -1348,7 +1394,7 @@ const Line = styled.div`
 const ContentCount = styled.span`
   font-size: 26px;
 `
-const BtnMain = styled(Button)<{ bgColor?: string }>`
+const BtnMain = styled(Button) <{ bgColor?: string }>`
   height: 38px;
   margin-left: 10px;
   width: 100px;
