@@ -236,7 +236,7 @@ const FormUpload = ({
 
   const ContentShowImage = (props: any) => {
     const { items } = props
-    useMemo(() => {
+    useEffect(() => {
       items.forEach((element: any) => handlePreview(element))
     }, [items])
     return (
