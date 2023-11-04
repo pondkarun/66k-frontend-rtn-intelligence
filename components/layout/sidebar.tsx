@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
 import styled from "styled-components";
 import { useRouter } from "next/router";
-import { AppstoreOutlined, DownOutlined, EditFilled, MailOutlined, RightOutlined, SettingOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { isArray } from 'lodash';
 import { primary_color } from '@/pages/_app';
 import { international_relations_topicsAttributes } from '@/interface/international_relations_topics.interface';
@@ -12,7 +12,6 @@ import { setBackground } from '@/redux/actions/configActions';
 import { setActionFormInput, setCollapsed } from '@/redux/actions/commonAction';
 import type { MenuProps } from 'antd';
 import ModalFooter from '../shares/ModalFooter';
-import { getByIdIdentityUsersService } from '@/services/identity_users';
 import { changePasswordService } from '@/services/auth';
 import { changePasswordInterface } from '@/interface/auth.interface';
 const { Sider } = Layout;
@@ -26,6 +25,10 @@ const H1 = styled("h1")`
 `
 const ColText = styled(Col)`
    color: ${primary_color};
+`
+const ColTextA = styled(Col)`
+   color: ${primary_color};
+   cursor: pointer;
 `
 
 const Sidebar = styled(Sider)`
@@ -270,13 +273,20 @@ const SidebarLayoutComponents = () => {
         height: typeof window !== 'undefined' ? window.innerHeight : 0,
     });
     const [modal, contextHolder] = Modal.useModal();
+    const [otherCountries, setOtherCountries] = useState(false)
 
     const router = useRouter()
 
     useEffect(() => {
         dispatch(setBackground("#111730"));
         checkWindowSize();
-        windowSize.width <= 740 ? dispatch(setCollapsed(true)) : (setCollapsed(false));
+        // windowSize.width <= 740 ? dispatch(setCollapsed(true)) : (setCollapsed(false));
+        if (windowSize.width <= 740) {
+            dispatch(setCollapsed(true))
+        } else {
+            setCollapsed(false)
+            setOtherCountries(true)
+        }
     }, [])
 
     const Flag = styled("img")`
@@ -340,16 +350,16 @@ const SidebarLayoutComponents = () => {
                 menuItem.push(model)
             })
         }
-       
+
         // console.log('menuItem :>> ', menuItem);
         const getIDchildren = menuItem[0]?.children.find((e: any) => e.path.split('/')[2] === router.pathname.split('/')[2])
         if (getIDchildren) setCurrentMenuID([getIDchildren.key])
         else setCurrentMenuID([])
-        
+
         setItemsMenu(menuItem)
         if (router.pathname.split('/')[1] === 'system') setDefaultKeyMenu(['daad77d8-04d5-48e8-8f83-c20b170a92dd'])
         else setDefaultKeyMenu([])
-        
+
     }, [menus])
 
     const onClickMenu: MenuProps['onClick'] = (e) => {
@@ -378,19 +388,19 @@ const SidebarLayoutComponents = () => {
             icon?: React.ReactNode,
             children?: MenuItem[],
             type?: 'group',
-          ): MenuItem {
+        ): MenuItem {
             return {
-              key,
-              icon,
-              children,
-              label,
-              type,
+                key,
+                icon,
+                children,
+                label,
+                type,
             } as MenuItem;
-          }
+        }
 
-          const items: MenuProps['items'] = itemsMenu.map((data) => {
+        const items: MenuProps['items'] = itemsMenu.map((data) => {
             return getItem(data.label, data.key, undefined, data.children.map((_data: any) => getItem(_data.label, _data.key)))
-          })
+        })
 
         return (
             <>
@@ -500,7 +510,7 @@ const SidebarLayoutComponents = () => {
             </Modal>
 
 
-            <Sidebar width={350} trigger={null} collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
+            <Sidebar width={otherCountries ? 350 : 300} trigger={null} collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={(value) => dispatch(setCollapsed(value))} >
                 <div style={{ margin: "15px 10px 15px 10px" }} >
                     <section>
                         <Logo />
@@ -522,13 +532,15 @@ const SidebarLayoutComponents = () => {
                         <H1>เลือกประเทศ</H1>
                         <>
                             <Row>
-                                <ColText span={8}>{findCountryGroup("อาเซียน")?.name}</ColText>
-                                <ColText span={8}>{findCountryGroup("อาเซียน+9")?.name}</ColText>
-                                <ColText span={8}>{findCountryGroup("อื่นๆ")?.name}</ColText>
+                                <ColText span={otherCountries ? 8 : 10}>{findCountryGroup("อาเซียน")?.name}</ColText>
+                                <ColText span={otherCountries ? 8 : 10}>{findCountryGroup("อาเซียน+9")?.name}</ColText>
+                                <ColTextA span={otherCountries ? 8 : 2} onClick={() => setOtherCountries(!otherCountries)}>
+                                    {findCountryGroup("อื่นๆ")?.name} {otherCountries ? <LeftOutlined /> : <RightOutlined />}
+                                </ColTextA>
                             </Row>
                             <Line />
                             <Row>
-                                <ColText span={8}>
+                                <ColText span={otherCountries ? 8 : 10}>
                                     {findCountryGroup("อาเซียน")?.countries.map((e: any) => (
                                         <MenuFlag key={e.id} id={e.id} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
@@ -538,7 +550,7 @@ const SidebarLayoutComponents = () => {
                                         </MenuFlag>
                                     ))}
                                 </ColText>
-                                <ColText span={8}>
+                                <ColText span={otherCountries ? 8 : 10}>
                                     {findCountryGroup("อาเซียน+9")?.countries.map((e: any) => (
                                         <MenuFlag key={e.id} id={e.id} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
                                             <Row>
@@ -548,17 +560,19 @@ const SidebarLayoutComponents = () => {
                                         </MenuFlag>
                                     ))}
                                 </ColText>
-                                <ColText span={8}>
-                                    {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
-                                        <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
-                                            <Row>
-                                                <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
-                                                <ColMenuFlag span={14} style={{ paddingTop: 5 }}><span>{e.initials_th}</span></ColMenuFlag>
-                                            </Row>
-                                        </MenuFlag>
-                                    ))}
-                                </ColText>
 
+                                {otherCountries ?
+                                    <ColText span={8}>
+                                        {findCountryGroup("อื่นๆ")?.countries.map((e: any, index: number) => (
+                                            <MenuFlag key={e.id} id={e.id} style={{ paddingBottom: 0 }} className={e.id == country ? 'active' : ""} onClick={() => onClick(e.id)}>
+                                                <Row>
+                                                    <ColMenuFlag span={8}><Flag width={40} src={e.icon_path} /></ColMenuFlag>
+                                                    <ColMenuFlag span={14} style={{ paddingTop: 5 }}><span>{e.initials_th}</span></ColMenuFlag>
+                                                </Row>
+                                            </MenuFlag>
+                                        ))}
+                                    </ColText>
+                                    : null}
                             </Row>
 
                             <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
