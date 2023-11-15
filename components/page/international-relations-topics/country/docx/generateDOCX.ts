@@ -12,6 +12,11 @@ import { TfieldInternationdata } from '@/interface/international_relations_datas
 /* eslint-disable import/no-anonymous-default-export */
 type DocConfigT = TfieldInternationdata[]
 
+const configParagraph = {
+  fontSize: 14,
+  fontFamily: 'Thai SarabunPSK'
+}
+
 export default async (data: DocConfigT, file_name?: string) => {
   let mergeCommonToppic: Paragraph[] = []
   let addToppicSpecifices: string[] = []
@@ -68,6 +73,8 @@ export default async (data: DocConfigT, file_name?: string) => {
           new TextRun({
             text: _data.event_name,
             allCaps: true,
+            font: configParagraph.fontFamily,
+            size: configParagraph.fontSize
           }),
         ],
       }),
@@ -80,6 +87,8 @@ export default async (data: DocConfigT, file_name?: string) => {
           new TextRun({
             text: _data.event_venue,
             allCaps: true,
+            font: configParagraph.fontFamily,
+            size: configParagraph.fontSize
           }),
         ],
       }),
@@ -92,6 +101,8 @@ export default async (data: DocConfigT, file_name?: string) => {
           new TextRun({
             text: _data.leader_name_thai,
             allCaps: true,
+            font: configParagraph.fontFamily,
+            size: configParagraph.fontSize
           }),
         ],
       }),
@@ -104,6 +115,8 @@ export default async (data: DocConfigT, file_name?: string) => {
           new TextRun({
             text: _data.leader_name_foreign,
             allCaps: true,
+            font: configParagraph.fontFamily,
+            size: configParagraph.fontSize
           }),
         ],
       }),
@@ -124,6 +137,8 @@ export default async (data: DocConfigT, file_name?: string) => {
                 new TextRun({
                   text: `${x + 1}.${keyname.topic_reason_name}`,
                   bold: true,
+                  font: configParagraph.fontFamily,
+            size: configParagraph.fontSize
                 }),
               ],
             }),
@@ -148,6 +163,8 @@ export default async (data: DocConfigT, file_name?: string) => {
                   new TextRun({
                     text: `${sub_reason.name}:  `,
                     bold: true,
+                    font: configParagraph.fontFamily,
+                    size: configParagraph.fontSize,
                   }),
                   new Paragraph({
                     spacing: {
@@ -157,6 +174,8 @@ export default async (data: DocConfigT, file_name?: string) => {
                     children: [
                       new TextRun({
                         text: sub_reason.value,
+                        font: configParagraph.fontFamily,
+                        size: configParagraph.fontSize,
                       }),
                     ],
                   }),
