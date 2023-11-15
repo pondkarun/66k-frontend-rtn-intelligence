@@ -12,9 +12,9 @@ import { TfieldInternationdata } from '@/interface/international_relations_datas
 /* eslint-disable import/no-anonymous-default-export */
 type DocConfigT = TfieldInternationdata[]
 
-const configParagraph = {
-  fontSize: 14,
-  fontFamily: 'Thai SarabunPSK'
+const configParagraph: any = {
+  fontSize: "16pt",
+  fontFamily: 'TH SarabunPSK'
 }
 
 export default async (data: DocConfigT, file_name?: string) => {
@@ -138,7 +138,7 @@ export default async (data: DocConfigT, file_name?: string) => {
                   text: `${x + 1}.${keyname.topic_reason_name}`,
                   bold: true,
                   font: configParagraph.fontFamily,
-            size: configParagraph.fontSize
+                  size: configParagraph.fontSize
                 }),
               ],
             }),
