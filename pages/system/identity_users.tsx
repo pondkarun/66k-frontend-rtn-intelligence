@@ -223,7 +223,7 @@ const IdentityUsers = () => {
             }, id)
             modal.success({
                 centered: true,
-                content: 'บันทึกสำเร็จ',
+                content: 'ลบข้อมูลสำเร็จ',
             });
             handleCancel()
             searchData(formSearch.getFieldValue("search"))

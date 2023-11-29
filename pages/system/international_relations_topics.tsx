@@ -213,7 +213,7 @@ const InternationalRelationsTopics = () => {
             }, id)
             modal.success({
                 centered: true,
-                content: 'บันทึกสำเร็จ',
+                content: 'ลบข้อมูลสำเร็จ',
             });
             handleCancel()
             loadMasterData()
@@ -238,54 +238,55 @@ const InternationalRelationsTopics = () => {
     };
 
     const onFinish = async (_value: any) => {
-        try {
-            /* new */
-            const value = {
-                ..._value,
-                parent_id: _value.parent_id ?? null,
-            }
-            value.guide_line_specific_field?.forEach((e: any) => {
-                const _value: any = [], _detail: any = [];
-                e.value?.forEach((i: any) => {
-                    _value.push(i.value)
-                    _detail.push(i.detail)
-                });
-                e.value = _value;
-                e.detail = _detail;
-            });
+        console.log('_value', _value)
+        // try {
+        //     /* new */
+        //     const value = {
+        //         ..._value,
+        //         parent_id: _value.parent_id ?? null,
+        //     }
+        //     value.guide_line_specific_field?.forEach((e: any) => {
+        //         const _value: any = [], _detail: any = [];
+        //         e.value?.forEach((i: any) => {
+        //             _value.push(i.value)
+        //             _detail.push(i.detail)
+        //         });
+        //         e.value = _value;
+        //         e.detail = _detail;
+        //     });
 
-            let isError = false, textError = null;
-            if (mode == "add") {
-                const callback: any = await addInternationalRelationsTopicsService(value);
-                isError = callback.data.error ? true : false;
-                textError = isError ? callback.data.error : null;
-            } else if (mode == "edit") {
-                await updateInternationalRelationsTopicsService(value, dataId)
-            }
-            if (isError) {
-                modal.error({
-                    centered: true,
-                    content: textError
-                });
-            } else {
-                if (mode != "view") {
-                    modal.success({
-                        centered: true,
-                        content: 'บันทึกสำเร็จ',
-                    });
-                    await searchData(formSearch.getFieldValue("search"))
-                    await getAllTopics()
-                }
-                handleCancel()
-                loadMasterData()
-            }
-        } catch (error) {
-            console.log('error :>> ', error);
-            modal.error({
-                centered: true,
-                content: "มีบางอย่างพิดพลาด",
-            });
-        }
+        //     let isError = false, textError = null;
+        //     if (mode == "add") {
+        //         const callback: any = await addInternationalRelationsTopicsService(value);
+        //         isError = callback.data.error ? true : false;
+        //         textError = isError ? callback.data.error : null;
+        //     } else if (mode == "edit") {
+        //         await updateInternationalRelationsTopicsService(value, dataId)
+        //     }
+        //     if (isError) {
+        //         modal.error({
+        //             centered: true,
+        //             content: textError
+        //         });
+        //     } else {
+        //         if (mode != "view") {
+        //             modal.success({
+        //                 centered: true,
+        //                 content: 'บันทึกสำเร็จ',
+        //             });
+        //             await searchData(formSearch.getFieldValue("search"))
+        //             await getAllTopics()
+        //         }
+        //         handleCancel()
+        //         loadMasterData()
+        //     }
+        // } catch (error) {
+        //     console.log('error :>> ', error);
+        //     modal.error({
+        //         centered: true,
+        //         content: "มีบางอย่างพิดพลาด",
+        //     });
+        // }
     }
 
     const onFinishFailed = (error: any) => {
@@ -342,7 +343,7 @@ const InternationalRelationsTopics = () => {
                 </Modal>
                 <Modal
                     width={800}
-                    title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลผู้ใช้งาน`}
+                    title={`${mode == "add" ? "เพิ่ม" : mode == "edit" ? "แก้ไข" : "ดู"}ข้อมูลความสัมพันธ์ระหว่างประเทศ`}
                     open={isModalOpen}
                     onCancel={handleCancel}
                     footer={<ModalFooter mode={mode} onOk={handleOk} onCancel={handleCancel} />}

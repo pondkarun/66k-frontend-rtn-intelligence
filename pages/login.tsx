@@ -51,8 +51,8 @@ const Card = styled.div`
 
   ${(props) => props.theme.breakpoints.sm.down} {
     background-image: url('/images/page/login/frame_vertical.png');
-    max-width: 400px;
-    min-width: 400px;
+    max-width: 380px;
+    min-width: 380px;
     height: 590px;
   }
 `

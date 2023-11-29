@@ -19,7 +19,7 @@ export const getAllCountryInternationalDataRelationsTopicsServices =
   async (payload: { country_id?: string; search?: string }) => {
     const response: AxiosResponse<TallFieldInternationalRelationsdatas> =
       await Api.get(
-        `/international_relations_dates/country/${payload.country_id || ''}${payload.search || ''
+        `/international_relations_dates/country/${payload.country_id || ''}?search=${payload.search || ''
         }`,
       )
     return response.data
@@ -29,7 +29,7 @@ export const getAllCountryTopicInternationalDataRelationsTopicsServices =
   async (payload: { country_id?: string; search?: string; topic_id?: string }) => {
     const response: AxiosResponse<TallFieldInternationalRelationsdatas> =
       await Api.get(
-        `/international_relations_dates/country/${payload.country_id || ''}/topic/${payload.topic_id}${payload.search || ''
+        `/international_relations_dates/country/${payload.country_id || ''}/topic/${payload.topic_id}?search=${payload.search || ''
         }`,
       )
     return response.data

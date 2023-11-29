@@ -9,10 +9,7 @@ import { Button, Carousel, Col, Form, Modal, Row, Upload, message } from 'antd'
 import {
   Fragment,
   Key,
-  Ref,
-  SetStateAction,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -67,7 +64,7 @@ const FormUpload = ({
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
   })
 
-  const slider = useRef<{ next: () => void; prev: () => void }>(null)
+  const slider = useRef<{ next: () => void; prev: () => void, goTo: (n: number) => void }>(null)
 
   const router = useRouter()
   const params = router.query
@@ -150,29 +147,37 @@ const FormUpload = ({
     },
   }
 
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as RcFile)
+  const handlePreview = async (_file: UploadFile) => {
+    if (!_file.url && !_file.preview) {
+      _file.preview = await getBase64(_file.originFileObj as RcFile)
     }
 
-    setFileType(file.type?.split('/')[1])
-    setPreviewImage(file.url || (file.preview as string))
-    if (type === 'file' && file.url) {
+    setFileType(_file.type?.split('/')[1])
+    setPreviewImage(_file.url || (_file.preview as string))
+    if (type === 'file' && _file.url) {
       const a = document.createElement('a')
-      a.href = file.url
+      a.href = _file.url
       a.target = '_blank'
       a.click()
-    } else if (type === 'file' && file.preview) {
-      const blob = new Blob([file.originFileObj as any], {
+    } else if (type === 'file' && _file.preview) {
+      const blob = new Blob([_file.originFileObj as any], {
         type: 'application/pdf',
       })
       const urlBlob = URL.createObjectURL(blob)
       window.open(urlBlob, '_blank')
-    } else setPreviewOpen(true)
-
-    setPreviewTitle(
-      file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1),
-    )
+    } else {
+      setPreviewTitle(
+        _file.name || _file.url!.substring(_file.url!.lastIndexOf('/') + 1),
+      )
+      setPreviewOpen(true)
+      // let num = 0
+      // const initInterval = setInterval(() => {
+      //   if (num === 2) clearInterval(initInterval)
+      //   const ds: number = file.findIndex((index: { name: string }) => index.name === _file.name)
+      //   slider.current?.goTo(ds)
+      //   num++
+      // }, 30)
+    }
   }
 
   const checkWindowSize = () => {
@@ -236,9 +241,13 @@ const FormUpload = ({
 
   const ContentShowImage = (props: any) => {
     const { items } = props
+    
     useEffect(() => {
-      items.forEach((element: any) => handlePreview(element))
-    }, [items])
+      items.forEach((element: UploadFile<any>) => {
+        handlePreview(element)
+      })
+    }, [])
+
     return (
       <>
         <Carousel effect='fade' ref={slider as any}>
@@ -252,9 +261,9 @@ const FormUpload = ({
               return (
                 <Fragment key={list.uid}>
                   <img
-                    alt={list.name}
-                    style={{ width: '100%', height: '700px' }}
-                    src={list.url ? list.url : list.preview}
+                    style={{ width: '100%', height: '100%', aspectRatio: 3/2}}
+                    src={list.url ? list.url : list?.preview as string } 
+                    alt={''}
                   />
                 </Fragment>
               )
@@ -361,7 +370,7 @@ const FormUpload = ({
         open={previewOpen}
         title={null}
         footer={null}
-        width={700}
+        width={1400}
         onCancel={() => setPreviewOpen(false)}
       >
         {imageUrl.length > 0 || file.length > 0 ? (

@@ -138,6 +138,7 @@ const InternationalRelationsTopics = () => {
           data.data as unknown as TallFieldInternationalRelationsdatas['data'][]
         setDataSource(datatype)
         setIsLoading(false)
+        setSelectedRowKeys([])
       }
     } catch (error) {
       message.error('มีบางอย่างผิดพลาด')
