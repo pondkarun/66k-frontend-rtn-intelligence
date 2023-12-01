@@ -1,13 +1,16 @@
-FROM node:18.16.0-alpine
-WORKDIR /app
+#FROM node:16.3.0-alpine
+FROM nginx:1.17.8-alpine
 
-COPY ./package.json .
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
 
-RUN npm install
+# Install app dependencies
+COPY ./out /usr/share/nginx/html
 
-COPY . .
+RUN rm /etc/nginx/conf.d/default.conf
 
-RUN npm run build
+COPY /nginx.conf /etc/nginx/conf.d
 
-CMD ["npm", "start"]
+EXPOSE 80
 
+CMD ["nginx", "-g", "daemon off;"]
