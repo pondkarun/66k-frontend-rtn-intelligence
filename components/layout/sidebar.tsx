@@ -131,7 +131,35 @@ const FlagIWGGroup = styled("div")`
     display: flex;
     flex-wrap: wrap;
 `
-
+const FlagIMGMC = styled("div")`
+    text-align: center;
+    padding: 15px;
+    &.active {
+        background: ${primary_color};
+        .text {
+            color: #fff;
+            font-size: 18px;
+        }
+    }
+    &:hover {
+        background: ${primary_color};
+        .text {
+            color: #fff;
+            font-size: 18px;
+        }
+    }
+    img {
+        width: 150px;
+    }
+    .text {
+        font-size: 16px;
+    }
+`
+const FlagIMGGroupMC = styled("div")`
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+`
 const ButtonIWG = styled(Button)`
     margin-top: 10px;
     background-color: #ffffff00;
@@ -527,7 +555,8 @@ const SidebarLayoutComponents = () => {
                     </section>
                     {!collapsed ? <div style={{
                         overflow: 'auto',
-                        maxHeight: '78vh',
+                        // maxHeight: '78vh',
+                        maxHeight: '83vh',
                     }}>
                         <H1>เลือกประเทศ</H1>
                         <>
@@ -576,6 +605,8 @@ const SidebarLayoutComponents = () => {
                             </Row>
 
                             <IonsWorkingGroups countries={findCountryGroup("IONS Working Groups")?.countries} />
+
+                            <MultilateralWorkingGroups countries={findCountryGroup("Multilateral Cooperations")?.countries} />
 
                             <H1 style={{ paddingTop: 20 }}>หัวข้อความสัมพันธ์ระหว่างประเทศ</H1>
                             {country ? <ToppicMenu list={topics as any} /> : <p style={{ textAlign: "center", color: "#fff" }}>- กรุณาเลือกประเทศ -</p>}
@@ -673,6 +704,76 @@ const IonsWorkingGroups = ({ countries }: { countries: any[] }) => {
                         </tr>
                     </tbody>
                 </table>
+            </ModalIWG>
+        </>
+    )
+}
+//#endregion
+
+//#region -> MultilateralWorkingGroups
+const MultilateralWorkingGroups = ({ countries }: { countries: any[] }) => {
+    const dispatch = useDispatch();
+    const [open, setOpen] = useState(false);
+    const [multilateralWorking, setMultilateralWorking] = useState<any[]>([]);
+    const [memberฉountries, setMemberฉountries] = useState<any[]>([]);
+    const [observerฉountries, setObserverCountries] = useState<any[]>([]);
+    const { country } = useSelector(({ toppic_menu }) => toppic_menu);
+    const router = useRouter()
+
+    useEffect(() => {
+        if (countries) {
+
+            console.log('countries :>> ', countries);
+            setMultilateralWorking(countries)
+            // 1 คือ สมาชิก 2 คือ ผู้สังเกตการณ์
+            // setMemberฉountries(countries.filter(w => w.status === 1))
+            // setObserverCountries(countries.filter(w => w.status === 2))
+        }
+    }, [countries])
+
+
+    const showModal = () => {
+        setOpen(true);
+    };
+
+    const hideModal = () => {
+        setOpen(false);
+    };
+
+    const onClick = (id: string) => {
+        dispatch(setSelectCountry(id))
+        dispatch(setSelectToppic(''))
+        dispatch(setActionFormInput(''))
+        hideModal()
+        router.push(`/`);
+    };
+
+    return (
+        <>
+            <ButtonIWG style={{ marginTop: 10 }} onClick={showModal}>Multilateral Cooperations</ButtonIWG>
+            <ModalIWG
+                bodyStyle={{
+                    maxHeight: 700,
+                    overflowY: "auto"
+                }}
+                width={"70vw"}
+                title={"Multilateral Cooperations"}
+                open={open}
+                onOk={hideModal}
+                onCancel={hideModal}
+                footer={null}
+            >
+                <p style={{ color: "#00408E" }}>PARTICIPATING NATIONS</p>
+
+                <FlagIMGGroupMC>
+                    {multilateralWorking.map((e: any) => (
+                        <FlagIMGMC key={e.icon_path} onClick={() => onClick(e.id)} className={e.id == country ? 'active' : ""}>
+                            <img src={e.icon_path} />
+                            <div className='text'>{e.initials_th}</div>
+                        </FlagIMGMC>
+                    ))}
+                </FlagIMGGroupMC>
+               
             </ModalIWG>
         </>
     )
