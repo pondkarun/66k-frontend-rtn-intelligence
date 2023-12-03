@@ -14,6 +14,8 @@ import type { MenuProps } from 'antd';
 import ModalFooter from '../shares/ModalFooter';
 import { changePasswordService } from '@/services/auth';
 import { changePasswordInterface } from '@/interface/auth.interface';
+import { getConfigAllService } from '@/services/getConfig';
+import { internationalRelationsTopicAllsService } from '@/services/internationalRelationsTopics';
 const { Sider } = Layout;
 
 
@@ -763,7 +765,7 @@ const MultilateralWorkingGroups = ({ countries }: { countries: any[] }) => {
                 onCancel={hideModal}
                 footer={null}
             >
-                <p style={{ color: "#00408E" }}>PARTICIPATING NATIONS</p>
+                {/* <p style={{ color: "#00408E" }}>PARTICIPATING NATIONS</p> */}
 
                 <FlagIMGGroupMC>
                     {multilateralWorking.map((e: any) => (
@@ -773,7 +775,7 @@ const MultilateralWorkingGroups = ({ countries }: { countries: any[] }) => {
                         </FlagIMGMC>
                     ))}
                 </FlagIMGGroupMC>
-               
+
             </ModalIWG>
         </>
     )
@@ -786,6 +788,7 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
     const dispatch = useDispatch();
     const { toppic, country } = useSelector(({ toppic_menu }) => toppic_menu);
     const [activeKey, setActiveKey] = useState<string[]>([])
+    const [listTemp, setListTemp] = useState<any>(undefined)
     const router = useRouter()
 
     const onChange = (value: any) => {
@@ -815,12 +818,59 @@ const ToppicMenu = ({ list, index }: { list: international_relations_topicsAttri
 
     }, [toppic])
 
+    useEffect(() => {
+        if (country) {
+            getConfigAllService().then(async ({ data }) => {
+                const configAll = data.data;
+
+                const find_id_multilateral_cooperations = configAll.find((e: any) => e.value == "id_multilateral_cooperations");
+                const find_value_international_relations_topics = configAll.find((e: any) => e.value == "value_international_relations_topics");
+
+                if (find_id_multilateral_cooperations && find_value_international_relations_topics) {
+                    const detail_mc = find_id_multilateral_cooperations.detail.split(",");
+                    const detail_topics = find_value_international_relations_topics.detail.split(",");
+                    const res_data_arr: any = [];
+
+                    const find_detail_mc = detail_mc.find((w: any) => w == country);
+                    if (find_detail_mc) {
+                        const res = await internationalRelationsTopicAllsService();
+                        const international_arr: any[] = res.data.data;
+
+                        international_arr.forEach(e => {
+                            const find = detail_topics.find((w: string) => w == e.id);
+                            if (find) {
+                                res_data_arr.push(e)
+                            }
+                        })
+                        if (res_data_arr.length > 0)
+                            setListTemp(res_data_arr)
+                    } else {
+                        console.log('detail_topics :>> ', detail_topics);
+                        list.forEach(e => {
+                            const find = detail_topics.find((w: string) => w == e.id);
+                            if (!find) {
+                                res_data_arr.push(e)
+                            }
+                        })
+                        if (res_data_arr.length > 0)
+                            setListTemp(res_data_arr)
+                    }
+                }
+
+
+            }).catch((err) => {
+                console.log('err :>> ', err);
+            })
+        }
+    }, [country])
+
+
 
 
     return (
         <>
             <CollapseToppic ghost expandIconPosition={"end"} onChange={onChange} defaultActiveKey={activeKey}>
-                {list.map((e: any, i) => {
+                {(isArray(listTemp) ? listTemp : list).map((e: any, i) => {
 
                     const is_last_node = e.children.filter((w: any) => w.last_node == true);
                     // console.log('is_last_node :>> ', is_last_node);
