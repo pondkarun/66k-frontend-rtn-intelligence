@@ -18,8 +18,8 @@ export default (data: SheelConfigT, file_name?: string) => {
       'หัวหน้าคณะฝ่ายต่างประเทศ',
       'วันที่เริ่มต้น',
       'วันที่สิ้นสุด',
-      'แก้ไขล่าสุด',
       'แก้ไขโดย',
+      'แก้ไขล่าสุด',
     ],
   ]
   const getData = data.map((item, num) => [

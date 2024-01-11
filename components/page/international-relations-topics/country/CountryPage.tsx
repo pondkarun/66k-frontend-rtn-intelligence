@@ -184,7 +184,8 @@ const InternationalRelationsTopics = () => {
   }, [path.country, path.toppic])
 
   useEffect(() => {
-    onSearchData('')
+    // console.log('menuSelector.search :>> ', menuSelector.search);
+    onSearchData(menuSelector.search)
   }, [])
 
   const onSearchData = (search?: string) => {
@@ -339,6 +340,13 @@ const InternationalRelationsTopics = () => {
     }
   }
 
+  // ฟังก์ชันสำหรับดึงชื่อไฟล์
+  function getFileNameFromUrl(url: string) {
+    // ใช้ substring และ lastIndexOf เพื่อดึงชื่อไฟล์ออกมา
+    const fileName = url.substring(url.lastIndexOf('/') + 1);
+    return fileName;
+  }
+
   const columns: ColumnsType<TallFieldInternationalRelationsdatas['data']> =
     path.country && path.toppic
       ? [
@@ -384,30 +392,31 @@ const InternationalRelationsTopics = () => {
           key: 'file-record',
           title: 'ไฟล์แนบ',
           render: (_value, record: any) => {
+
             return (
               <>
                 <FileTableContentField>
                   {record.file_documents?.length > 0 && (
                     <Tooltip
                       trigger='click'
-                      title={record.file_documents.map(
-                        (item: any, index: Key) => (
-                          <div
-                            key={index}
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                            }}
+                      title={record.file_documents.map((item: any, index: Key) => (
+                        <div
+                          key={index}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                          }}
+                        >
+                          <a
+                            href={item.url}
+                            target='_blank'
+                            rel='noreferrer'
                           >
-                            <a
-                              href={item.url}
-                              target='_blank'
-                              rel='noreferrer'
-                            >
-                              {item.name}
-                            </a>
-                          </div>
-                        ),
+                            {/* {item.name} */}
+                            {getFileNameFromUrl(item.url)}
+                          </a>
+                        </div>
+                      ),
                       )}
                       overlayInnerStyle={{
                         backgroundColor: '#fff',
@@ -422,91 +431,91 @@ const InternationalRelationsTopics = () => {
                   )}
                   {record.image_documents?.img_doc?.length > 0 ||
                     record.image_documents?.img_haader?.length > 0 ? (
-                      <Tooltip>
-                        <EventContentField
-                          onClick={() => {
-                            const mergeData = [
-                              ...record.image_documents.img_haader,
-                              ...record.image_documents.img_doc,
-                            ]
-                            setSelectMenageRow({
-                              items: mergeData,
-                              openModal: true,
-                              type: 'img',
-                            })
-                          }}
-                        >
-                          <ImageBackgroundIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    ) : (
-                      <></>
-                    )}
-                  </FileTableContentField>
-                </>
-              )
-            },
-            width: 100,
-            align: 'center',
-          },
-          {
-            key: 'created_by',
-            title: 'ชื่อผู้แก้ไข',
-            dataIndex: 'created_by',
-            render: (value) => value ?? '-',
-            width: 100,
-          },
-          {
-            key: 'created_at',
-            title: 'แก้ไขล่าสุด',
-            dataIndex: 'created_date',
-            render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
-            width: 100,
-          },
-          {
-            key: 'maneage',
-            title: 'จัดการ',
-            width: 100,
-            align: 'center',
-            render: (_value, record) => {
-              return (
-                <FileTableContentField>
-                  <Tooltip title={`ดูข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.VIEW)
-                      }
-                    >
-                      <EyeOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`แก้ไขข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.EDIT)
-                      }
-                    >
-                      <EditOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`ลบข้อมูล`}>
-                    <Popconfirm
-                      placement='top'
-                      title={'ยืนยันการลบข้อมูล'}
-                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                      okText='ตกลง'
-                      cancelText='ยกเลิก'
-                    >
-                      <EventContentField>
-                        <DeleteOutlined />
+                    <Tooltip>
+                      <EventContentField
+                        onClick={() => {
+                          const mergeData = [
+                            ...record.image_documents.img_haader,
+                            ...record.image_documents.img_doc,
+                          ]
+                          setSelectMenageRow({
+                            items: mergeData,
+                            openModal: true,
+                            type: 'img',
+                          })
+                        }}
+                      >
+                        <ImageBackgroundIcon />
                       </EventContentField>
-                    </Popconfirm>
-                  </Tooltip>
+                    </Tooltip>
+                  ) : (
+                    <></>
+                  )}
                 </FileTableContentField>
-              )
-            },
+              </>
+            )
           },
-        ]
+          width: 100,
+          align: 'center',
+        },
+        {
+          key: 'created_by',
+          title: 'ชื่อผู้แก้ไข',
+          dataIndex: 'created_by',
+          render: (value) => value ?? '-',
+          width: 100,
+        },
+        {
+          key: 'created_at',
+          title: 'แก้ไขล่าสุด',
+          dataIndex: 'updated_date',
+          render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
+          width: 100,
+        },
+        {
+          key: 'maneage',
+          title: 'จัดการ',
+          width: 100,
+          align: 'center',
+          render: (_value, record) => {
+            return (
+              <FileTableContentField>
+                <Tooltip title={`ดูข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.VIEW)
+                    }
+                  >
+                    <EyeOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`แก้ไขข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.EDIT)
+                    }
+                  >
+                    <EditOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`ลบข้อมูล`}>
+                  <Popconfirm
+                    placement='top'
+                    title={'ยืนยันการลบข้อมูล'}
+                    onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                    okText='ตกลง'
+                    cancelText='ยกเลิก'
+                  >
+                    <EventContentField>
+                      <DeleteOutlined />
+                    </EventContentField>
+                  </Popconfirm>
+                </Tooltip>
+              </FileTableContentField>
+            )
+          },
+        },
+      ]
       : [
         {
           key: 'ir_topic',
@@ -603,91 +612,91 @@ const InternationalRelationsTopics = () => {
                   )}
                   {record.image_documents?.img_doc?.length > 0 ||
                     record.image_documents?.img_haader?.length > 0 ? (
-                      <Tooltip>
-                        <EventContentField
-                          onClick={() => {
-                            const mergeData = [
-                              ...record.image_documents.img_haader,
-                              ...record.image_documents.img_doc,
-                            ]
-                            setSelectMenageRow({
-                              items: mergeData,
-                              openModal: true,
-                              type: 'img',
-                            })
-                          }}
-                        >
-                          <ImageBackgroundIcon />
-                        </EventContentField>
-                      </Tooltip>
-                    ) : (
-                      <></>
-                    )}
-                  </FileTableContentField>
-                </>
-              )
-            },
-            width: 100,
-            align: 'center',
-          },
-          {
-            key: 'created_by',
-            title: 'ชื่อผู้แก้ไข',
-            dataIndex: 'created_by',
-            render: (value) => value ?? '-',
-            width: 180,
-          },
-          {
-            key: 'created_at',
-            title: 'แก้ไขล่าสุด',
-            dataIndex: 'created_date',
-            render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
-            width: 180,
-          },
-          {
-            key: 'maneage',
-            title: 'จัดการ',
-            width: 100,
-            align: 'center',
-            render: (_value, record) => {
-              return (
-                <FileTableContentField>
-                  <Tooltip title={`ดูข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.VIEW)
-                      }
-                    >
-                      <EyeOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`แก้ไขข้อมูล`}>
-                    <EventContentField
-                      onClick={() =>
-                        handleRecordManage(record, EmodeOption.EDIT)
-                      }
-                    >
-                      <EditOutlined />
-                    </EventContentField>
-                  </Tooltip>
-                  <Tooltip title={`ลบข้อมูล`}>
-                    <Popconfirm
-                      placement='top'
-                      title={'ยืนยันการลบข้อมูล'}
-                      onConfirm={() => handleRemoveRecordFormColumn(record.id)}
-                      okText='ตกลง'
-                      cancelText='ยกเลิก'
-                    >
-                      <EventContentField>
-                        <DeleteOutlined />
+                    <Tooltip>
+                      <EventContentField
+                        onClick={() => {
+                          const mergeData = [
+                            ...record.image_documents.img_haader,
+                            ...record.image_documents.img_doc,
+                          ]
+                          setSelectMenageRow({
+                            items: mergeData,
+                            openModal: true,
+                            type: 'img',
+                          })
+                        }}
+                      >
+                        <ImageBackgroundIcon />
                       </EventContentField>
-                    </Popconfirm>
-                  </Tooltip>
+                    </Tooltip>
+                  ) : (
+                    <></>
+                  )}
                 </FileTableContentField>
-              )
-            },
+              </>
+            )
           },
-        ]
+          width: 100,
+          align: 'center',
+        },
+        {
+          key: 'created_by',
+          title: 'ชื่อผู้แก้ไข',
+          dataIndex: 'created_by',
+          render: (value) => value ?? '-',
+          width: 180,
+        },
+        {
+          key: 'created_at',
+          title: 'แก้ไขล่าสุด',
+          dataIndex: 'updated_date',
+          render: (value) => dayjs(value).format('DD-MM-YYYY H:mm น.') ?? '-',
+          width: 180,
+        },
+        {
+          key: 'maneage',
+          title: 'จัดการ',
+          width: 100,
+          align: 'center',
+          render: (_value, record) => {
+            return (
+              <FileTableContentField>
+                <Tooltip title={`ดูข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.VIEW)
+                    }
+                  >
+                    <EyeOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`แก้ไขข้อมูล`}>
+                  <EventContentField
+                    onClick={() =>
+                      handleRecordManage(record, EmodeOption.EDIT)
+                    }
+                  >
+                    <EditOutlined />
+                  </EventContentField>
+                </Tooltip>
+                <Tooltip title={`ลบข้อมูล`}>
+                  <Popconfirm
+                    placement='top'
+                    title={'ยืนยันการลบข้อมูล'}
+                    onConfirm={() => handleRemoveRecordFormColumn(record.id)}
+                    okText='ตกลง'
+                    cancelText='ยกเลิก'
+                  >
+                    <EventContentField>
+                      <DeleteOutlined />
+                    </EventContentField>
+                  </Popconfirm>
+                </Tooltip>
+              </FileTableContentField>
+            )
+          },
+        },
+      ]
 
   const onFinish = () => {
     const data = form.getFieldsValue()
