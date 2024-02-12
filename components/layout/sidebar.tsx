@@ -420,6 +420,7 @@ const SidebarLayoutComponents = () => {
             type?: 'group',
         ): MenuItem {
             return {
+                id: `menu-${key}`,
                 key,
                 icon,
                 children,
